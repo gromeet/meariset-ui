@@ -32,7 +32,7 @@
   .mrs-option-wrap *{box-sizing:border-box;margin:0;padding:0}\
   .mrs-title{font-size:18px;font-weight:700;margin-bottom:12px;text-align:center}\
   .mrs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}\
-  @media(min-width:768px){.mrs-option-wrap{max-width:680px;padding:32px 24px}.mrs-grid{gap:20px}.mrs-card-label{font-size:16px;padding:10px 4px 12px}.mrs-title{font-size:20px;margin-bottom:16px}}\
+  @media(min-width:768px){.mrs-option-wrap{max-width:680px;padding:32px 24px}.mrs-grid{gap:20px}.mrs-card-label{font-size:14px;padding:10px 4px 12px}.mrs-title{font-size:20px;margin-bottom:16px}}\
   @media(max-width:520px){.mrs-grid{grid-template-columns:repeat(2,1fr)}}\
   .mrs-card{position:relative;border:2px solid #ddd;border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .2s;background:#fff;transform:scale(1)}\
   .mrs-card:hover{border-color:#aaa;transform:scale(1.02)}\
@@ -46,7 +46,7 @@
   .mrs-card.selected .mrs-card-img{filter:brightness(1.08) saturate(1.15)}\
   .mrs-card::after{content:"";position:absolute;inset:0;background:rgba(212,168,83,0);transition:background .25s;pointer-events:none;z-index:1;border-radius:10px}\
   .mrs-card.selected::after{background:rgba(212,168,83,.12)}\
-  .mrs-card-label{text-align:center;padding:8px 4px 10px;font-size:14px;font-weight:600}\
+  .mrs-card-label{text-align:center;padding:8px 4px 10px;font-size:13px;font-weight:600;white-space:nowrap}\
   .mrs-info{background:#FAFAF8;border:1px solid #eee;border-radius:12px;padding:24px 28px;text-align:center;min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:all .25s}\
   .mrs-info-tag{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:2px}\
   .mrs-info-tag.best{background:#E8F5E9;color:#2E7D32}\
