@@ -1,7 +1,7 @@
 /**
- * 메아리셋 옵션 UI v7.4 — 외부 스크립트 버전
+ * 메아리셋 옵션 UI v7.5 — 외부 스크립트 버전
  * product_no=27 전용 (다른 상품에서는 실행 안 됨)
- * v7.4: df-bannermanager JS 강제 fix + MutationObserver 보호
+ * v7.5: infoArea 분리스크롤 제거 + PC 4열 레이아웃 + NaverPay SSP 복원
  */
 (function(){
   /* 중복 실행 방지 */
@@ -56,12 +56,12 @@
   #totalProducts,div#totalPrice,.quantity_price{position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important}\
   .ssp.df-bannermanager,.df-bannermanager{pointer-events:none!important}\
   .ssp,.ssp__container,.ssp__list,.ssp__item--naver,.ssp__item--kakao{visibility:visible!important}\
-  @media(min-width:768px){.xans-product-detail .infoArea{position:sticky!important;top:20px!important;max-height:calc(100vh - 40px)!important;overflow-y:auto!important;scrollbar-width:thin}}\
-  .mrs-option-wrap{max-width:600px;margin:32px auto;font-family:Pretendard,sans-serif;color:#2D2D2D;background:#fff;border-radius:16px;padding:24px 8px}\
+  .ssp__item--naver a,.ssp__item--naver button,.ssp__item--naver [onclick],.ssp__item--kakao a,.ssp__item--kakao button,.ssp__item--kakao [onclick]{pointer-events:auto!important}\
+  .mrs-option-wrap{max-width:600px;margin:16px auto;font-family:Pretendard,sans-serif;color:#2D2D2D;background:#fff;border-radius:16px;padding:16px 8px}\
   .mrs-option-wrap *{box-sizing:border-box;margin:0;padding:0}\
-  .mrs-title{font-size:18px;font-weight:700;margin-bottom:12px;text-align:center}\
-  .mrs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:24px}\
-  @media(min-width:768px){.mrs-option-wrap{max-width:680px;padding:32px 16px}.mrs-grid{gap:14px}.mrs-card-label{font-size:15px;padding:10px 6px 12px}.mrs-title{font-size:20px;margin-bottom:16px}}\
+  .mrs-title{font-size:16px;font-weight:700;margin-bottom:10px;text-align:center}\
+  .mrs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px}\
+  @media(min-width:768px){.mrs-option-wrap{max-width:100%;padding:16px 0;border-radius:0;background:transparent}.mrs-grid{grid-template-columns:repeat(4,1fr)!important;gap:8px!important}.mrs-card-img{aspect-ratio:3/4!important}.mrs-card-label{font-size:13px;padding:6px 4px 8px}.mrs-title{font-size:16px;margin-bottom:8px}.mrs-info{padding:14px 16px;min-height:80px}}\
   .mrs-card{position:relative;border:2px solid #ddd;border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .2s;background:#fff;transform:scale(1)}\
   .mrs-card:hover{border-color:#aaa;transform:scale(1.02)}\
   .mrs-card.selected{border-color:#D4A853;box-shadow:0 0 0 3px rgba(212,168,83,.25);transform:scale(1.04)}\
