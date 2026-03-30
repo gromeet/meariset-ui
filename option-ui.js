@@ -17,6 +17,12 @@
   /* 이미 로드됨 */
   if(document.getElementById('mrsOptionWrap')) return;
 
+  /* 즉시 placeholder 생성 — CDN 구버전이 중복 실행되는 것 방지 */
+  var _placeholder = document.createElement('div');
+  _placeholder.id = 'mrsOptionWrap';
+  _placeholder.style.display = 'none';
+  (document.body || document.documentElement).appendChild(_placeholder);
+
   /* ── CSS 주입 ── */
   var css = document.createElement('style');
   css.textContent = '\
@@ -123,7 +129,9 @@
 
   /* ── 옵션 영역 앞에 삽입 ── */
   function insertUI(){
-    if(document.getElementById('mrsOptionWrap')) return;
+    var existingWrap = document.getElementById('mrsOptionWrap');
+    if(existingWrap && existingWrap.querySelector('.mrs-card')) return; /* 이미 완성된 UI */
+    if(existingWrap) existingWrap.remove(); /* placeholder 제거 */
     var optArea = document.querySelector('.productOption');
     if(!optArea){ setTimeout(insertUI, 300); return; }
     var container = document.createElement('div');
