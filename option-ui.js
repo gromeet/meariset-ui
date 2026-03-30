@@ -257,7 +257,7 @@
       var el=e.target,depth=0;
       while(el&&el.tagName!=='BODY'&&depth<6){
         var cls=(el.className||'').toString();
-        if(cls.indexOf('kakao')!==-1||cls.indexOf('kakaopay')!==-1||cls.indexOf('naverpay')!==-1||cls.indexOf('naver-pay')!==-1||cls.indexOf('checkout_btn')!==-1){
+        if(cls.indexOf('kakao')!==-1||cls.indexOf('kakaopay')!==-1||cls.indexOf('naverpay')!==-1||cls.indexOf('naver-pay')!==-1||cls.indexOf('npay')!==-1||cls.indexOf('checkout_btn')!==-1||cls.indexOf('Npay')!==-1){
           if(_mrsPayBypass){_mrsPayBypass=false;return;}
           var count=document.querySelectorAll('.mrs-card.selected').length;
           if(!count){e.preventDefault();e.stopImmediatePropagation();alert('시즌을 먼저 선택해 주세요 😊');return;}
