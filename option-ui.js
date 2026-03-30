@@ -1,7 +1,7 @@
 /**
- * 메아리셋 옵션 UI v7.6 — 외부 스크립트 버전
+ * 메아리셋 옵션 UI v7.7 — 외부 스크립트 버전
  * product_no=27 전용 (다른 상품에서는 실행 안 됨)
- * v7.6: 모바일 공백 축소 + PC sticky 복원(overflow 없음) + tagline hidden fix
+ * v7.7: sticky 제거 + NaverPay 재배치 비활성화 + 컴팩트 레이아웃
  */
 (function(){
   /* 중복 실행 방지 */
@@ -57,7 +57,6 @@
   .ssp.df-bannermanager,.df-bannermanager{pointer-events:none!important}\
   .ssp,.ssp__container,.ssp__list,.ssp__item--naver,.ssp__item--kakao{visibility:visible!important}\
   .ssp__item--naver a,.ssp__item--naver button,.ssp__item--naver [onclick],.ssp__item--kakao a,.ssp__item--kakao button,.ssp__item--kakao [onclick]{pointer-events:auto!important}\
-  @media(min-width:768px){.xans-product-detail .infoArea{position:sticky!important;top:20px!important}}\
   .mrs-option-wrap{max-width:600px;margin:4px auto;font-family:Pretendard,sans-serif;color:#2D2D2D;background:#fff;border-radius:12px;padding:12px 8px}\
   .mrs-option-wrap *{box-sizing:border-box;margin:0;padding:0}\
   .mrs-title{font-size:15px;font-weight:700;margin-bottom:8px;text-align:center}\
@@ -314,38 +313,21 @@
     },true);
   }
 
-  /* ── 네이버페이 PC 재배치 ── */
-  var _npayRetry = 0;
-  function mrsRelocateNpay(){
-    if(window.innerWidth < 768) return; /* 모바일은 이미 보임 */
+  /* ── 네이버페이: 원래 위치 유지 (재배치 하지 않음) ── */
+  /* v7.7: 재배치가 sticky 사이드바에서 viewport 밖으로 밀리는 문제 유발 → 비활성화 */
+  /* 대신 원래 위치(장바구니/구매하기 버튼 근처)에서 visible 보장만 처리 */
+  function mrsEnsureNpayVisible(){
     var npay = document.getElementById('NaverChk_Button');
-    if(!npay || npay.offsetHeight < 10) {
-      if(_npayRetry++ < 30) setTimeout(mrsRelocateNpay, 1000);
-      return;
-    }
-    /* mrsInfo 바로 뒤에 삽입 (옵션 선택 아래) */
-    var target = document.getElementById('mrsInfo');
-    if(!target) target = document.getElementById('mrsOptionWrap');
-    if(target && target.parentNode) {
-      target.parentNode.insertBefore(npay, target.nextSibling);
-      npay.style.cssText = 'display:block!important;visibility:visible!important;margin:12px auto 0;max-width:500px;';
-      window._npayMoved = true;
-      return;
-    }
-    /* fallback: 장바구니/구매하기 버튼 위 */
-    var buyWrap = document.querySelector('.buy-btn-wrap');
-    if(buyWrap && buyWrap.parentNode) {
-      buyWrap.parentNode.insertBefore(npay, buyWrap);
-      npay.style.cssText = 'display:block!important;visibility:visible!important;margin-bottom:8px;';
-      window._npayMoved = true;
-    }
+    if(!npay) return;
+    npay.style.setProperty('display','block','important');
+    npay.style.setProperty('visibility','visible','important');
   }
 
   /* ── 초기화 ── */
   function mrsInit(){
     insertUI();
     mrsInstallCapture();
-    setTimeout(mrsRelocateNpay, 3000); /* SDK 로딩 후 재배치 */
+    setTimeout(mrsEnsureNpayVisible, 3000); /* SDK 로딩 후 visibility 보장 */
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mrsInit);
