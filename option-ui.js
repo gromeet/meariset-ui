@@ -1,7 +1,7 @@
 /**
- * 메아리셋 옵션 UI v7.2 — 외부 스크립트 버전
+ * 메아리셋 옵션 UI v7.3 — 외부 스크립트 버전
  * product_no=27 전용 (다른 상품에서는 실행 안 됨)
- * 호스팅: hyunvis.vercel.app/meariset/option-ui.js
+ * v7.3: df-bannermanager 클릭 차단 수정 + 사이드바 스크롤 + NaverPay 재배치
  */
 (function(){
   /* 중복 실행 방지 */
@@ -28,7 +28,9 @@
   css.textContent = '\
   .productOption{position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important}\
   #totalProducts,div#totalPrice,.quantity_price{position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important}\
+  .ssp.df-bannermanager,.df-bannermanager{pointer-events:none!important}\
   .ssp,.ssp__container,.ssp__list,.ssp__item--naver,.ssp__item--kakao{visibility:visible!important}\
+  @media(min-width:768px){.xans-product-detail .infoArea{position:sticky!important;top:20px!important;max-height:calc(100vh - 40px)!important;overflow-y:auto!important;scrollbar-width:thin}}\
   .mrs-option-wrap{max-width:600px;margin:32px auto;font-family:Pretendard,sans-serif;color:#2D2D2D;background:#fff;border-radius:16px;padding:24px 8px}\
   .mrs-option-wrap *{box-sizing:border-box;margin:0;padding:0}\
   .mrs-title{font-size:18px;font-weight:700;margin-bottom:12px;text-align:center}\
@@ -286,15 +288,29 @@
   }
 
   /* ── 네이버페이 PC 재배치 ── */
+  var _npayRetry = 0;
   function mrsRelocateNpay(){
     if(window.innerWidth < 768) return; /* 모바일은 이미 보임 */
     var npay = document.getElementById('NaverChk_Button');
-    if(!npay || npay.offsetHeight < 10) { setTimeout(mrsRelocateNpay, 1000); return; }
-    /* 장바구니/구매하기 버튼 바로 위에 삽입 */
+    if(!npay || npay.offsetHeight < 10) {
+      if(_npayRetry++ < 30) setTimeout(mrsRelocateNpay, 1000);
+      return;
+    }
+    /* mrsInfo 바로 뒤에 삽입 (옵션 선택 아래) */
+    var target = document.getElementById('mrsInfo');
+    if(!target) target = document.getElementById('mrsOptionWrap');
+    if(target && target.parentNode) {
+      target.parentNode.insertBefore(npay, target.nextSibling);
+      npay.style.cssText = 'display:block!important;visibility:visible!important;margin:12px auto 0;max-width:500px;';
+      window._npayMoved = true;
+      return;
+    }
+    /* fallback: 장바구니/구매하기 버튼 위 */
     var buyWrap = document.querySelector('.buy-btn-wrap');
     if(buyWrap && buyWrap.parentNode) {
       buyWrap.parentNode.insertBefore(npay, buyWrap);
       npay.style.cssText = 'display:block!important;visibility:visible!important;margin-bottom:8px;';
+      window._npayMoved = true;
     }
   }
 
