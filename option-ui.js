@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 82; /* 버전 번호 (8.2 = 82) */
+  var MRS_VERSION = 83; /* 버전 번호 (8.3 = 83) */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -143,7 +143,7 @@
   /* ── HTML 주입 ── */
   var html = '\
   <div class="mrs-option-wrap" id="mrsOptionWrap">\
-    <p class="mrs-title">메아리셋 시즌 선택</p>\
+    <p class="mrs-title">적어라, 메아리 되어 돌아온다</p>\
     <div class="mrs-grid">\
       <div class="mrs-card" data-season="1" onclick="mrsToggle(this)">\
         <span class="mrs-start-badge">✦ 입문자 추천</span>\
@@ -168,7 +168,7 @@
       </div>\
     </div>\
     <div class="mrs-info" id="mrsInfo">\
-      <p class="mrs-info-copy">원하는 시즌을 자유롭게 골라보세요</p>\
+      <p class="mrs-info-copy">원하는 시즌을 골라보세요</p>\
       <p class="mrs-info-sub">어떤 조합이든 가능합니다</p>\
     </div>\
   </div>\
@@ -253,7 +253,7 @@
     card.classList.toggle('selected');
     var count=document.querySelectorAll('.mrs-card.selected').length,prevPrice=PRICE_BY_COUNT[_prevCount]||0;
     var info=INFO_BY_COUNT[count];
-    document.getElementById('mrsInfo').innerHTML=info?info:'<p class="mrs-info-copy">원하는 시즌을 자유롭게 골라보세요</p><p class="mrs-info-sub">어떤 조합이든 가능합니다</p>';
+    document.getElementById('mrsInfo').innerHTML=info?info:'<p class="mrs-info-copy">원하는 시즌을 골라보세요</p><p class="mrs-info-sub">어떤 조합이든 가능합니다</p>';
     if(info&&PRICE_BY_COUNT[count]) requestAnimationFrame(function(){mrsAnimatePrice(prevPrice,PRICE_BY_COUNT[count],350);});
     if(_prevCount<3&&count>=3&&count<4) setTimeout(function(){mrsShowToast('🎉 배송비 무료 달성!','green');},150);
     if(_prevCount<4&&count>=4) setTimeout(function(){mrsShowToast('🏆 최저가 달성!','red');},150);
