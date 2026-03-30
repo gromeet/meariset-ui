@@ -1,7 +1,7 @@
 /**
- * 메아리셋 옵션 UI v7.5 — 외부 스크립트 버전
+ * 메아리셋 옵션 UI v7.6 — 외부 스크립트 버전
  * product_no=27 전용 (다른 상품에서는 실행 안 됨)
- * v7.5: infoArea 분리스크롤 제거 + PC 4열 레이아웃 + NaverPay SSP 복원
+ * v7.6: 모바일 공백 축소 + PC sticky 복원(overflow 없음) + tagline hidden fix
  */
 (function(){
   /* 중복 실행 방지 */
@@ -57,11 +57,12 @@
   .ssp.df-bannermanager,.df-bannermanager{pointer-events:none!important}\
   .ssp,.ssp__container,.ssp__list,.ssp__item--naver,.ssp__item--kakao{visibility:visible!important}\
   .ssp__item--naver a,.ssp__item--naver button,.ssp__item--naver [onclick],.ssp__item--kakao a,.ssp__item--kakao button,.ssp__item--kakao [onclick]{pointer-events:auto!important}\
-  .mrs-option-wrap{max-width:600px;margin:16px auto;font-family:Pretendard,sans-serif;color:#2D2D2D;background:#fff;border-radius:16px;padding:16px 8px}\
+  @media(min-width:768px){.xans-product-detail .infoArea{position:sticky!important;top:20px!important}}\
+  .mrs-option-wrap{max-width:600px;margin:4px auto;font-family:Pretendard,sans-serif;color:#2D2D2D;background:#fff;border-radius:12px;padding:12px 8px}\
   .mrs-option-wrap *{box-sizing:border-box;margin:0;padding:0}\
-  .mrs-title{font-size:16px;font-weight:700;margin-bottom:10px;text-align:center}\
-  .mrs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px}\
-  @media(min-width:768px){.mrs-option-wrap{max-width:100%;padding:16px 0;border-radius:0;background:transparent}.mrs-grid{grid-template-columns:repeat(4,1fr)!important;gap:8px!important}.mrs-card-img{aspect-ratio:3/4!important}.mrs-card-label{font-size:13px;padding:6px 4px 8px}.mrs-title{font-size:16px;margin-bottom:8px}.mrs-info{padding:14px 16px;min-height:80px}}\
+  .mrs-title{font-size:15px;font-weight:700;margin-bottom:8px;text-align:center}\
+  .mrs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}\
+  @media(min-width:768px){.mrs-option-wrap{max-width:100%;padding:8px 0;margin:4px auto;border-radius:0;background:transparent}.mrs-grid{grid-template-columns:repeat(4,1fr)!important;gap:6px!important}.mrs-card-img{aspect-ratio:3/4!important}.mrs-card-label{font-size:12px;padding:4px 2px 6px}.mrs-title{font-size:14px;margin-bottom:6px}.mrs-info{padding:10px 12px;min-height:60px;font-size:13px}}\
   .mrs-card{position:relative;border:2px solid #ddd;border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .2s;background:#fff;transform:scale(1)}\
   .mrs-card:hover{border-color:#aaa;transform:scale(1.02)}\
   .mrs-card.selected{border-color:#D4A853;box-shadow:0 0 0 3px rgba(212,168,83,.25);transform:scale(1.04)}\
@@ -75,11 +76,11 @@
   .mrs-card::after{content:"";position:absolute;inset:0;background:rgba(212,168,83,0);transition:background .25s;pointer-events:none;z-index:1;border-radius:10px}\
   .mrs-card.selected::after{background:rgba(212,168,83,.12)}\
   .mrs-card-label{text-align:center;padding:10px 6px 12px;font-size:14px;font-weight:600;white-space:nowrap}\
-  .mrs-info{background:#FAFAF8;border:1px solid #eee;border-radius:12px;padding:24px 28px;text-align:center;min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:all .25s}\
+  .mrs-info{background:#FAFAF8;border:1px solid #eee;border-radius:10px;padding:14px 16px;text-align:center;min-height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:all .25s}\
   .mrs-info-tag{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:2px}\
   .mrs-info-tag.best{background:#E8F5E9;color:#2E7D32}\
   .mrs-info-tag.lowest{background:#FFF3E0;color:#E65100}\
-  .mrs-info-price{font-size:24px;font-weight:800;color:#2D2D2D}\
+  .mrs-info-price{font-size:20px;font-weight:800;color:#2D2D2D}\
   .mrs-info-sub{font-size:13px;color:#777;line-height:1.5}\
   .mrs-info-copy{font-size:15px;font-weight:600;line-height:1.6}\
   .mrs-info-hint{display:inline-block;font-size:13px;color:#8B6914;font-weight:700;margin-top:8px;cursor:pointer;background:#FFF8E7;border:1.5px solid #D4A853;border-radius:20px;padding:6px 16px;transition:background .2s}\
@@ -91,9 +92,9 @@
   .mrs-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(30px);background:#2E7D32;color:#fff;font-size:14px;font-weight:700;padding:12px 28px;border-radius:40px;box-shadow:0 4px 20px rgba(0,0,0,.25);z-index:99999;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;white-space:nowrap}\
   .mrs-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}\
   .mrs-toast.red{background:#D32F2F;box-shadow:0 4px 20px rgba(211,47,47,.35)}\
-  #mrsTagline{font-family:Pretendard,sans-serif;padding:10px 0 6px;font-size:19px;font-weight:800;color:#1A1A1A;line-height:1.4;letter-spacing:-.3px;opacity:0;transition:opacity .35s,transform .35s;transform:translateY(6px)}\
-  #mrsTagline.visible{opacity:1;transform:translateY(0)}\
-  #mrsTagline.hidden{opacity:0;transform:translateY(6px)}\
+  #mrsTagline{font-family:Pretendard,sans-serif;padding:4px 0 2px;font-size:17px;font-weight:800;color:#1A1A1A;line-height:1.4;letter-spacing:-.3px;opacity:0;transition:opacity .35s,transform .35s;transform:translateY(4px)}\
+  #mrsTagline.visible{opacity:1;transform:translateY(0);display:block}\
+  #mrsTagline.hidden{display:none!important}\
   #mrsTagline em{font-style:normal;color:#D4A853}\
   .mrs-sticky{position:fixed;bottom:0;left:0;right:0;z-index:99998;background:#fff;border-top:1.5px solid #eee;padding:10px 16px;display:none;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 -4px 16px rgba(0,0,0,.1)}\
   .mrs-sticky.visible{display:flex}\
