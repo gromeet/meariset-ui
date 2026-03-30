@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 86; /* 버전 번호 (8.6 = 86) */
+  var MRS_VERSION = 87; /* 버전 번호 (8.7 = 87) */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -84,7 +84,7 @@
   .ssp__item--naver a,.ssp__item--naver button,.ssp__item--naver [onclick],.ssp__item--kakao a,.ssp__item--kakao button,.ssp__item--kakao [onclick]{pointer-events:auto!important}\
   .mrs-option-wrap{max-width:600px;margin:4px auto;font-family:Pretendard,sans-serif;color:#2D2D2D;background:#fff;border-radius:12px;padding:12px 8px}\
   .mrs-option-wrap *{box-sizing:border-box;margin:0;padding:0}\
-  .mrs-title{font-size:15px;font-weight:700;margin-bottom:8px;text-align:center}\
+  .mrs-title{font-size:16px;font-weight:800;margin-bottom:4px;text-align:center;color:#1a1a1a;letter-spacing:0.5px}\
   .mrs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}\
   @media(min-width:768px){.mrs-option-wrap{max-width:100%;padding:8px 0;margin:4px auto;border-radius:0;background:transparent}.mrs-grid{grid-template-columns:repeat(4,1fr)!important;gap:6px!important}.mrs-card-img{aspect-ratio:3/4!important}.mrs-card-label{font-size:11px;padding:4px 2px 6px;white-space:nowrap;letter-spacing:-0.3px}.mrs-title{font-size:14px;margin-bottom:6px}.mrs-info{padding:10px 12px;min-height:60px;font-size:13px}}\
   .mrs-card{position:relative;border:2px solid #ddd;border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .2s;background:#fff;transform:scale(1)}\
@@ -167,8 +167,8 @@
       </div>\
     </div>\
     <div class="mrs-info" id="mrsInfo">\
-      <p class="mrs-title">적어라, 메아리 되어 돌아온다</p>\
-      <p class="mrs-info-copy">원하는 시즌을 골라보세요</p>\
+      <p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p>\
+      <p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">원하는 시즌을 골라보세요</p>\
     </div>\
   </div>\
   <div class="mrs-toast" id="mrsToast"></div>\
