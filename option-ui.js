@@ -86,7 +86,7 @@
   .mrs-option-wrap *{box-sizing:border-box;margin:0;padding:0}\
   .mrs-title{font-size:15px;font-weight:700;margin-bottom:8px;text-align:center}\
   .mrs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}\
-  @media(min-width:768px){.mrs-option-wrap{max-width:100%;padding:8px 0;margin:4px auto;border-radius:0;background:transparent}.mrs-grid{grid-template-columns:repeat(4,1fr)!important;gap:6px!important}.mrs-card-img{aspect-ratio:3/4!important}.mrs-card-label{font-size:12px;padding:4px 2px 6px}.mrs-title{font-size:14px;margin-bottom:6px}.mrs-info{padding:10px 12px;min-height:60px;font-size:13px}}\
+  @media(min-width:768px){.mrs-option-wrap{max-width:100%;padding:8px 0;margin:4px auto;border-radius:0;background:transparent}.mrs-grid{grid-template-columns:repeat(2,1fr)!important;gap:8px!important}.mrs-card-img{aspect-ratio:3/4!important}.mrs-card-label{font-size:13px;padding:5px 4px 7px;white-space:nowrap}.mrs-title{font-size:14px;margin-bottom:6px}.mrs-info{padding:10px 12px;min-height:60px;font-size:13px}}\
   .mrs-card{position:relative;border:2px solid #ddd;border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .2s;background:#fff;transform:scale(1)}\
   .mrs-card:hover{border-color:#aaa;transform:scale(1.02)}\
   .mrs-card.selected{border-color:#D4A853;box-shadow:0 0 0 3px rgba(212,168,83,.25);transform:scale(1.04)}\
