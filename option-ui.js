@@ -338,21 +338,48 @@
     },true);
   }
 
-  /* ── 네이버페이: 원래 위치 유지 (재배치 하지 않음) ── */
-  /* v7.7: 재배치가 sticky 사이드바에서 viewport 밖으로 밀리는 문제 유발 → 비활성화 */
-  /* 대신 원래 위치(장바구니/구매하기 버튼 근처)에서 visible 보장만 처리 */
-  function mrsEnsureNpayVisible(){
+  /* ── 네이버페이 방어: 원래 위치에서 이탈 방지 ── */
+  /* v7.9: 구버전 스크립트의 setTimeout(mrsRelocateNpay)가 뒤늦게 실행돼도
+     MutationObserver가 즉시 원위치 복구. 30초 후 자동 해제. */
+  function mrsGuardNpay(){
+    var appPay = document.querySelector('.app-pay-wrap');
+    if(!appPay) return;
+    
+    /* 네이버페이 visible 보장 */
     var npay = document.getElementById('NaverChk_Button');
-    if(!npay) return;
-    npay.style.setProperty('display','block','important');
-    npay.style.setProperty('visibility','visible','important');
+    if(npay) {
+      npay.style.setProperty('display','block','important');
+      npay.style.setProperty('visibility','visible','important');
+      /* 이미 app-pay-wrap 밖이면 복구 */
+      if(!appPay.contains(npay)) {
+        appPay.insertBefore(npay, appPay.firstChild);
+      }
+    }
+    
+    /* MutationObserver: 네이버페이가 app-pay-wrap에서 빠지면 즉시 복구 */
+    var guard = new MutationObserver(function(){
+      var n = document.getElementById('NaverChk_Button');
+      var ap = document.querySelector('.app-pay-wrap');
+      if(n && ap && !ap.contains(n)) {
+        ap.insertBefore(n, ap.firstChild);
+        n.style.setProperty('display','block','important');
+        n.style.setProperty('visibility','visible','important');
+      }
+    });
+    guard.observe(document.body, { childList: true, subtree: true });
+    setTimeout(function(){ guard.disconnect(); }, 30000);
   }
 
   /* ── 초기화 ── */
   function mrsInit(){
     insertUI();
     mrsInstallCapture();
-    setTimeout(mrsEnsureNpayVisible, 3000); /* SDK 로딩 후 visibility 보장 */
+    /* SDK 로딩 대기 후 네이버페이 방어 시작 (1초 간격으로 5회 시도) */
+    var tries = 0;
+    var guardInterval = setInterval(function(){
+      mrsGuardNpay();
+      if(++tries >= 5) clearInterval(guardInterval);
+    }, 2000);
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mrsInit);
