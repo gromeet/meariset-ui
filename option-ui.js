@@ -1,7 +1,7 @@
 /**
- * 메아리셋 옵션 UI v7.3 — 외부 스크립트 버전
+ * 메아리셋 옵션 UI v7.4 — 외부 스크립트 버전
  * product_no=27 전용 (다른 상품에서는 실행 안 됨)
- * v7.3: df-bannermanager 클릭 차단 수정 + 사이드바 스크롤 + NaverPay 재배치
+ * v7.4: df-bannermanager JS 강제 fix + MutationObserver 보호
  */
 (function(){
   /* 중복 실행 방지 */
@@ -22,6 +22,32 @@
   _placeholder.id = 'mrsOptionWrap';
   _placeholder.style.display = 'none';
   (document.body || document.documentElement).appendChild(_placeholder);
+
+  /* ── df-bannermanager JS 강제 fix (CSS !important만으론 SSP inline style 못 막음) ── */
+  function _fixDfBanner(){
+    var els = document.querySelectorAll('.df-bannermanager, .ssp.df-bannermanager');
+    for(var i=0;i<els.length;i++){
+      els[i].style.setProperty('pointer-events','none','important');
+    }
+  }
+  _fixDfBanner();
+  /* MutationObserver: SSP가 나중에 다시 만들거나 style 바꿔도 재적용 */
+  if(window.MutationObserver){
+    var _bannerObs = new MutationObserver(function(muts){
+      for(var i=0;i<muts.length;i++){
+        var m=muts[i];
+        if(m.type==='childList'){ _fixDfBanner(); break; }
+        if(m.type==='attributes' && m.target && m.target.classList && m.target.classList.contains('df-bannermanager')){
+          _fixDfBanner(); break;
+        }
+      }
+    });
+    var _bodyEl = document.body || document.documentElement;
+    _bannerObs.observe(_bodyEl, { childList:true, subtree:true, attributes:true, attributeFilter:['style','class'] });
+  }
+  /* 추가 안전망: 500ms 후 재실행 (SSP 비동기 로드 대응) */
+  setTimeout(_fixDfBanner, 500);
+  setTimeout(_fixDfBanner, 1500);
 
   /* ── CSS 주입 ── */
   var css = document.createElement('style');
