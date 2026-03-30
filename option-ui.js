@@ -1,28 +1,35 @@
 /**
- * 메아리셋 옵션 UI v7.8 — 외부 스크립트 버전
+ * 메아리셋 옵션 UI v7.9 — 외부 스크립트 버전
  * product_no=27 전용 (다른 상품에서는 실행 안 됨)
- * v7.8: 버전 우선순위 — 구버전 CDN 캐시 자동 덮어쓰기 + NaverPay 네이티브 위치
+ * v7.9: NaverPay 복구 수정 — wrap 제거 전 NaverPay 추출
  */
 (function(){
-  var MRS_VERSION = 78; /* 버전 번호 (7.8 = 78) */
+  var MRS_VERSION = 79; /* 버전 번호 (7.9 = 79) */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
   if(window._mrsOptionLoaded && (!window._mrsVersion || window._mrsVersion < MRS_VERSION)) {
-    /* 구버전 UI 제거 후 재생성 */
+    /* ⚠️ NaverPay가 wrap 안에 있으면 먼저 꺼내기 (remove()로 같이 삭제 방지) */
     var oldWrap = document.getElementById('mrsOptionWrap');
-    if(oldWrap) oldWrap.remove();
+    if(oldWrap) {
+      var npayInWrap = oldWrap.querySelector('#NaverChk_Button');
+      if(npayInWrap) {
+        var appPay = document.querySelector('.app-pay-wrap');
+        if(appPay) {
+          appPay.insertBefore(npayInWrap, appPay.firstChild);
+        } else {
+          /* fallback: productAction 영역에 복구 */
+          var prodAction = document.querySelector('.productAction');
+          if(prodAction) prodAction.appendChild(npayInWrap);
+        }
+      }
+      oldWrap.remove();
+    }
     var oldStyle = document.getElementById('mrsStyles');
     if(oldStyle) oldStyle.remove();
     var oldBar = document.getElementById('mrsMobileBar');
     if(oldBar) oldBar.remove();
-    /* NaverPay가 구버전에 의해 재배치됐으면 원래 위치로 복구 */
-    if(window._npayMoved) {
-      var npay = document.getElementById('NaverChk_Button');
-      var appPay = document.querySelector('.app-pay-wrap');
-      if(npay && appPay) { appPay.insertBefore(npay, appPay.firstChild); }
-      window._npayMoved = false;
-    }
+    window._npayMoved = false;
   }
   window._mrsOptionLoaded = true;
   window._mrsVersion = MRS_VERSION;
