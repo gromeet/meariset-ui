@@ -4,11 +4,15 @@
  * 호스팅: hyunvis.vercel.app/meariset/option-ui.js
  */
 (function(){
+  /* 중복 실행 방지 */
+  if(window._mrsOptionLoaded) return;
+  window._mrsOptionLoaded = true;
+
   /* product_no=27 에서만 실행 (SEO URL 대응) */
   var prdEl = document.querySelector('[data-prd-no]');
   var prdNo = prdEl ? prdEl.getAttribute('data-prd-no') : '';
   var urlHas27 = location.search.indexOf('product_no=27') !== -1 || location.href.indexOf('product_no=27') !== -1;
-  if(!urlHas27 && prdNo !== '27') return;
+  if(!urlHas27 && prdNo !== '27'){ window._mrsOptionLoaded = false; return; }
 
   /* 이미 로드됨 */
   if(document.getElementById('mrsOptionWrap')) return;
