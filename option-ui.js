@@ -64,6 +64,7 @@
   .mrs-sticky-btn{background:#2D2D2D;color:#fff;border:none;border-radius:10px;padding:12px 24px;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .2s;font-family:Pretendard,sans-serif}\
   .mrs-sticky-btn:hover{background:#1a1a1a}\
   .mrs-sticky-btn:active{transform:scale(.97)}\
+  @media(min-width:768px){.mrs-sticky{display:none!important}}\
   @media(max-width:520px){.mrs-sticky-price{font-size:16px}.mrs-sticky-btn{padding:12px 18px;font-size:14px}}\
   ';
   document.head.appendChild(css);
