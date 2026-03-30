@@ -28,16 +28,15 @@
   css.textContent = '\
   .productOption{position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important}\
   #totalProducts,div#totalPrice,.quantity_price{position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important}\
-  .mrs-option-wrap{max-width:600px;margin:32px auto;font-family:Pretendard,sans-serif;color:#2D2D2D;background:#fff;border-radius:16px;padding:24px 16px}\
+  .mrs-option-wrap{max-width:600px;margin:32px auto;font-family:Pretendard,sans-serif;color:#2D2D2D;background:#fff;border-radius:16px;padding:24px 8px}\
   .mrs-option-wrap *{box-sizing:border-box;margin:0;padding:0}\
   .mrs-title{font-size:18px;font-weight:700;margin-bottom:12px;text-align:center}\
-  .mrs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}\
-  @media(min-width:768px){.mrs-option-wrap{max-width:680px;padding:32px 24px}.mrs-grid{gap:20px}.mrs-card-label{font-size:14px;padding:10px 4px 12px}.mrs-title{font-size:20px;margin-bottom:16px}}\
-  @media(max-width:520px){.mrs-grid{grid-template-columns:repeat(2,1fr)}}\
+  .mrs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:24px}\
+  @media(min-width:768px){.mrs-option-wrap{max-width:680px;padding:32px 16px}.mrs-grid{gap:14px}.mrs-card-label{font-size:15px;padding:10px 6px 12px}.mrs-title{font-size:20px;margin-bottom:16px}}\
   .mrs-card{position:relative;border:2px solid #ddd;border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .2s;background:#fff;transform:scale(1)}\
   .mrs-card:hover{border-color:#aaa;transform:scale(1.02)}\
   .mrs-card.selected{border-color:#D4A853;box-shadow:0 0 0 3px rgba(212,168,83,.25);transform:scale(1.04)}\
-  .mrs-start-badge{position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:#D4A853;color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:0 0 8px 8px;white-space:nowrap;letter-spacing:.5px;z-index:3}\
+  .mrs-start-badge{position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:#D4A853;color:#fff;font-size:10px;font-weight:700;padding:6px 14px;border-radius:0 0 8px 8px;white-space:nowrap;letter-spacing:.5px;z-index:3}\
   @keyframes mrs-badge-bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-2px)}}\
   .mrs-start-badge{animation:mrs-badge-bounce 1.5s ease-in-out infinite}\
   .mrs-check{position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:#D4A853;color:#fff;display:none;align-items:center;justify-content:center;font-size:14px;font-weight:700;z-index:2;transform:scale(0);transition:transform .2s cubic-bezier(.34,1.56,.64,1)}\
@@ -46,7 +45,7 @@
   .mrs-card.selected .mrs-card-img{filter:brightness(1.08) saturate(1.15)}\
   .mrs-card::after{content:"";position:absolute;inset:0;background:rgba(212,168,83,0);transition:background .25s;pointer-events:none;z-index:1;border-radius:10px}\
   .mrs-card.selected::after{background:rgba(212,168,83,.12)}\
-  .mrs-card-label{text-align:center;padding:8px 4px 10px;font-size:13px;font-weight:600;white-space:nowrap}\
+  .mrs-card-label{text-align:center;padding:10px 6px 12px;font-size:14px;font-weight:600;white-space:nowrap}\
   .mrs-info{background:#FAFAF8;border:1px solid #eee;border-radius:12px;padding:24px 28px;text-align:center;min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:all .25s}\
   .mrs-info-tag{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:2px}\
   .mrs-info-tag.best{background:#E8F5E9;color:#2E7D32}\
@@ -72,8 +71,8 @@
   .mrs-sticky-info{display:flex;flex-direction:column;gap:2px}\
   .mrs-sticky-label{font-size:12px;color:#999}\
   .mrs-sticky-price{font-size:18px;font-weight:800;color:#2D2D2D}\
-  .mrs-sticky-btn{background:#2D2D2D;color:#fff;border:none;border-radius:10px;padding:12px 24px;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .2s;font-family:Pretendard,sans-serif}\
-  .mrs-sticky-btn:hover{background:#1a1a1a}\
+  .mrs-sticky-btn{background:#D4A853;color:#fff;border:none;border-radius:10px;padding:12px 24px;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .2s;font-family:Pretendard,sans-serif}\
+  .mrs-sticky-btn:hover{background:#c49540}\
   .mrs-sticky-btn:active{transform:scale(.97)}\
   @media(min-width:768px){.mrs-sticky{display:none!important}}\
   @media(max-width:520px){.mrs-sticky-price{font-size:16px}.mrs-sticky-btn{padding:12px 18px;font-size:14px}}\
@@ -92,7 +91,7 @@
     <p class="mrs-title">메아리셋 시즌 선택</p>\
     <div class="mrs-grid">\
       <div class="mrs-card" data-season="1" onclick="mrsToggle(this)">\
-        <span class="mrs-start-badge">✦ 처음이라면</span>\
+        <span class="mrs-start-badge">✦ 입문자 추천</span>\
         <span class="mrs-check">✓</span>\
         <img class="mrs-card-img" src="https://hyunvis.vercel.app/meariset/s1_banner.jpg" onerror="this.style.background=\'#1a1a2e\'" alt="Season 1">\
         <div class="mrs-card-label">Season 1</div>\
