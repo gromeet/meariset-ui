@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 84; /* 버전 번호 (8.4 = 84) */
+  var MRS_VERSION = 85; /* 버전 번호 (8.5 = 85) */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -143,7 +143,6 @@
   /* ── HTML 주입 ── */
   var html = '\
   <div class="mrs-option-wrap" id="mrsOptionWrap">\
-    <p class="mrs-title">적어라, 메아리 되어 돌아온다</p>\
     <div class="mrs-grid">\
       <div class="mrs-card" data-season="1" onclick="mrsToggle(this)">\
         <span class="mrs-start-badge">✦ 입문자 추천</span>\
@@ -167,6 +166,7 @@
         <div class="mrs-card-label">Season 4</div>\
       </div>\
     </div>\
+    <p class="mrs-title">적어라, 메아리 되어 돌아온다</p>\
     <div class="mrs-info" id="mrsInfo">\
       <p class="mrs-info-copy">원하는 시즌을 골라보세요</p>\
     </div>\
