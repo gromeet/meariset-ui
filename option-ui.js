@@ -1,12 +1,31 @@
 /**
- * 메아리셋 옵션 UI v7.7 — 외부 스크립트 버전
+ * 메아리셋 옵션 UI v7.8 — 외부 스크립트 버전
  * product_no=27 전용 (다른 상품에서는 실행 안 됨)
- * v7.7: sticky 제거 + NaverPay 재배치 비활성화 + 컴팩트 레이아웃
+ * v7.8: 버전 우선순위 — 구버전 CDN 캐시 자동 덮어쓰기 + NaverPay 네이티브 위치
  */
 (function(){
-  /* 중복 실행 방지 */
-  if(window._mrsOptionLoaded) return;
+  var MRS_VERSION = 78; /* 버전 번호 (7.8 = 78) */
+
+  /* 구버전이 먼저 로드된 경우 → 강제 교체 */
+  if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
+  if(window._mrsOptionLoaded && (!window._mrsVersion || window._mrsVersion < MRS_VERSION)) {
+    /* 구버전 UI 제거 후 재생성 */
+    var oldWrap = document.getElementById('mrsOptionWrap');
+    if(oldWrap) oldWrap.remove();
+    var oldStyle = document.getElementById('mrsStyles');
+    if(oldStyle) oldStyle.remove();
+    var oldBar = document.getElementById('mrsMobileBar');
+    if(oldBar) oldBar.remove();
+    /* NaverPay가 구버전에 의해 재배치됐으면 원래 위치로 복구 */
+    if(window._npayMoved) {
+      var npay = document.getElementById('NaverChk_Button');
+      var appPay = document.querySelector('.app-pay-wrap');
+      if(npay && appPay) { appPay.insertBefore(npay, appPay.firstChild); }
+      window._npayMoved = false;
+    }
+  }
   window._mrsOptionLoaded = true;
+  window._mrsVersion = MRS_VERSION;
 
   /* product_no=27 에서만 실행 (SEO URL 대응) */
   var prdEl = document.querySelector('[data-prd-no]');
@@ -14,8 +33,7 @@
   var urlHas27 = location.search.indexOf('product_no=27') !== -1 || location.href.indexOf('product_no=27') !== -1;
   if(!urlHas27 && prdNo !== '27'){ window._mrsOptionLoaded = false; return; }
 
-  /* 이미 로드됨 */
-  if(document.getElementById('mrsOptionWrap')) return;
+  /* placeholder 중복 방지 (같은 버전 재실행 시) */
 
   /* 즉시 placeholder 생성 — CDN 구버전이 중복 실행되는 것 방지 */
   var _placeholder = document.createElement('div');
