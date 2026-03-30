@@ -1,10 +1,10 @@
 /**
  * 메아리셋 옵션 UI v7.9 — 외부 스크립트 버전
  * product_no=27 전용 (다른 상품에서는 실행 안 됨)
- * v7.9: NaverPay 복구 수정 — wrap 제거 전 NaverPay 추출
+ * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 79; /* 버전 번호 (7.9 = 79) */
+  var MRS_VERSION = 80; /* 버전 번호 (8.0 = 80) */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -85,7 +85,7 @@
   .mrs-option-wrap{max-width:600px;margin:4px auto;font-family:Pretendard,sans-serif;color:#2D2D2D;background:#fff;border-radius:12px;padding:12px 8px}\
   .mrs-option-wrap *{box-sizing:border-box;margin:0;padding:0}\
   .mrs-title{font-size:15px;font-weight:700;margin-bottom:8px;text-align:center}\
-  .mrs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}\
+  .mrs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}\
   @media(min-width:768px){.mrs-option-wrap{max-width:100%;padding:8px 0;margin:4px auto;border-radius:0;background:transparent}.mrs-grid{grid-template-columns:repeat(4,1fr)!important;gap:6px!important}.mrs-card-img{aspect-ratio:3/4!important}.mrs-card-label{font-size:12px;padding:4px 2px 6px}.mrs-title{font-size:14px;margin-bottom:6px}.mrs-info{padding:10px 12px;min-height:60px;font-size:13px}}\
   .mrs-card{position:relative;border:2px solid #ddd;border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .2s;background:#fff;transform:scale(1)}\
   .mrs-card:hover{border-color:#aaa;transform:scale(1.02)}\
@@ -99,7 +99,8 @@
   .mrs-card.selected .mrs-card-img{filter:brightness(1.08) saturate(1.15)}\
   .mrs-card::after{content:"";position:absolute;inset:0;background:rgba(212,168,83,0);transition:background .25s;pointer-events:none;z-index:1;border-radius:10px}\
   .mrs-card.selected::after{background:rgba(212,168,83,.12)}\
-  .mrs-card-label{text-align:center;padding:10px 6px 12px;font-size:14px;font-weight:600;white-space:nowrap}\
+  .mrs-card-label{text-align:center;padding:6px 4px 8px;font-size:12px;font-weight:600;white-space:nowrap}\
+  @media(max-width:767px){.mrs-option-wrap{padding:8px 4px}.mrs-title{font-size:13px;margin-bottom:6px}.mrs-card-img{aspect-ratio:3/4!important}.mrs-start-badge{font-size:8px;padding:4px 8px}.mrs-check{width:20px;height:20px;font-size:11px;top:4px;right:4px}.mrs-info{padding:10px 8px;min-height:auto;font-size:12px}.mrs-info-price{font-size:17px}.mrs-info-sub{font-size:11px}.mrs-info-copy{font-size:13px}.mrs-info-hint{font-size:11px;padding:5px 12px}}\
   .mrs-info{background:#FAFAF8;border:1px solid #eee;border-radius:10px;padding:14px 16px;text-align:center;min-height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:all .25s}\
   .mrs-info-tag{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:2px}\
   .mrs-info-tag.best{background:#E8F5E9;color:#2E7D32}\
