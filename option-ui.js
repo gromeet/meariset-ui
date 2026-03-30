@@ -28,6 +28,7 @@
   css.textContent = '\
   .productOption{position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important}\
   #totalProducts,div#totalPrice,.quantity_price{position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important}\
+  .ssp,.ssp__container,.ssp__list,.ssp__item--naver,.ssp__item--kakao{visibility:visible!important}\
   .mrs-option-wrap{max-width:600px;margin:32px auto;font-family:Pretendard,sans-serif;color:#2D2D2D;background:#fff;border-radius:16px;padding:24px 8px}\
   .mrs-option-wrap *{box-sizing:border-box;margin:0;padding:0}\
   .mrs-title{font-size:18px;font-weight:700;margin-bottom:12px;text-align:center}\
@@ -284,10 +285,24 @@
     },true);
   }
 
+  /* ── 네이버페이 PC 재배치 ── */
+  function mrsRelocateNpay(){
+    if(window.innerWidth < 768) return; /* 모바일은 이미 보임 */
+    var npay = document.getElementById('NaverChk_Button');
+    if(!npay || npay.offsetHeight < 10) { setTimeout(mrsRelocateNpay, 1000); return; }
+    /* 장바구니/구매하기 버튼 바로 위에 삽입 */
+    var buyWrap = document.querySelector('.buy-btn-wrap');
+    if(buyWrap && buyWrap.parentNode) {
+      buyWrap.parentNode.insertBefore(npay, buyWrap);
+      npay.style.cssText = 'display:block!important;visibility:visible!important;margin-bottom:8px;';
+    }
+  }
+
   /* ── 초기화 ── */
   function mrsInit(){
     insertUI();
     mrsInstallCapture();
+    setTimeout(mrsRelocateNpay, 3000); /* SDK 로딩 후 재배치 */
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mrsInit);
