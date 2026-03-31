@@ -95,7 +95,7 @@
   .mrs-start-badge{animation:mrs-badge-bounce 1.5s ease-in-out infinite}\
   .mrs-check{position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:#D4A853;color:#fff;display:none;align-items:center;justify-content:center;font-size:14px;font-weight:700;z-index:2;transform:scale(0);transition:transform .2s cubic-bezier(.34,1.56,.64,1)}\
   .mrs-card.selected .mrs-check{display:flex;transform:scale(1)}\
-  .mrs-card-img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;background:#f5f3ef}\
+  .mrs-card-img{width:100%;aspect-ratio:1/1;object-fit:cover;object-position:center 70%;display:block;background:#f5f3ef}\
   .mrs-card:not(.selected) .mrs-card-img{filter:brightness(0.92) saturate(0.8)}\
   .mrs-card::after{content:"";position:absolute;inset:0;background:rgba(212,168,83,0);transition:background .25s;pointer-events:none;z-index:1;border-radius:10px}\
   .mrs-card.selected::after{background:rgba(212,168,83,.12)}\
