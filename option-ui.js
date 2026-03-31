@@ -131,6 +131,7 @@
   .mrs-sticky-btn:active{transform:scale(.97)}\
   @media(min-width:768px){.mrs-sticky{display:none!important}}\
   @media(max-width:520px){.mrs-sticky-price{font-size:16px}.mrs-sticky-btn{padding:12px 18px;font-size:14px}}\
+  a.btnSubmit.gFull{background-color:#0A0A0A!important;border-color:#0A0A0A!important;}\
   ';
   document.head.appendChild(css);
 
