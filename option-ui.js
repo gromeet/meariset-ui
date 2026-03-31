@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 87; /* 버전 번호 (8.7 = 87) */
+  var MRS_VERSION = 88; /* 버전 번호 (8.8 = 88) */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
