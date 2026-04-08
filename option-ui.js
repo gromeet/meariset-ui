@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 130; /* 버전 번호 (13.0 = 130) — 쿠폰 배너 좌우 8px 복원 제거 */
+  var MRS_VERSION = 131; /* 버전 번호 (13.1 = 131) — 빈 app-pay-wrap 자동 숨김 */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -83,6 +83,7 @@
   #totalProducts table,#totalProducts tbody,#totalProducts tr,#totalProducts td,#totalProducts th{display:none!important;height:0!important;padding:0!important;margin:0!important;border:0!important}\
   .infoArea-footer{padding-top:0!important;margin-top:0!important}\
   .infoArea-footer .productAction{margin-top:0!important}\
+  .app-pay-wrap.mrs-empty{display:none!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important}\
   .price-spec__item.product_custom_css,.price-spec__item.product_price_css,tr.product_custom_css,tr.product_price_css{display:none!important}\
   .ssp.df-bannermanager,.df-bannermanager{pointer-events:none!important}\
   .ssp,.ssp__container,.ssp__list,.ssp__item--naver,.ssp__item--kakao{visibility:visible!important}\
@@ -484,6 +485,17 @@
   /* ── 네이버페이 방어: 원래 위치에서 이탈 방지 ── */
   /* v7.9: 구버전 스크립트의 setTimeout(mrsRelocateNpay)가 뒤늦게 실행돼도
      MutationObserver가 즉시 원위치 복구. 30초 후 자동 해제. */
+  function mrsTrimPayGap(){
+    var appPay=document.querySelector('.app-pay-wrap');
+    if(!appPay) return;
+    var npay=document.getElementById('NaverChk_Button');
+    var kakao=document.getElementById('appPaymentButtonBox');
+    var npayVisible=!!(npay && (npay.children.length || npay.offsetHeight>0 || npay.querySelector('iframe,button,a,div')) && getComputedStyle(npay).display!=='none');
+    var kakaoVisible=!!(kakao && (kakao.children.length || kakao.offsetHeight>0 || kakao.querySelector('iframe,button,a,div')) && getComputedStyle(kakao).display!=='none');
+    if(npayVisible || kakaoVisible) appPay.classList.remove('mrs-empty');
+    else appPay.classList.add('mrs-empty');
+  }
+
   function mrsGuardNpay(){
     var appPay = document.querySelector('.app-pay-wrap');
     if(!appPay) return;
@@ -498,6 +510,7 @@
         appPay.insertBefore(npay, appPay.firstChild);
       }
     }
+    mrsTrimPayGap();
     
     /* MutationObserver: 네이버페이가 app-pay-wrap에서 빠지면 즉시 복구 */
     var guard = new MutationObserver(function(){
@@ -508,8 +521,9 @@
         n.style.setProperty('display','block','important');
         n.style.setProperty('visibility','visible','important');
       }
+      mrsTrimPayGap();
     });
-    guard.observe(document.body, { childList: true, subtree: true });
+    guard.observe(document.body, { childList: true, subtree: true, attributes:true, attributeFilter:['style','class'] });
     setTimeout(function(){ guard.disconnect(); }, 30000);
   }
 
