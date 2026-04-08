@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 126; /* 버전 번호 (12.6 = 126) — 이미지 옵션 하단 여백 2배 조정 */
+  var MRS_VERSION = 127; /* 버전 번호 (12.7 = 127) — 구매버튼 위 잔여 공백 제거 */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -78,8 +78,11 @@
   var css = document.createElement('style');
   css.id = 'mrsStyles';
   css.textContent = '\
-  .productOption{position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important}\
-  #totalProducts,div#totalPrice,.quantity_price{position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important}\
+  .productOption{display:none!important}\
+  #totalProducts,div#totalPrice,.quantity_price,.infoArea-footer .ec-base-help{display:none!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;opacity:0!important}\
+  #totalProducts table,#totalProducts tbody,#totalProducts tr,#totalProducts td,#totalProducts th{display:none!important;height:0!important;padding:0!important;margin:0!important;border:0!important}\
+  .infoArea-footer{padding-top:0!important;margin-top:0!important}\
+  .infoArea-footer .productAction{margin-top:0!important}\
   .price-spec__item.product_custom_css,.price-spec__item.product_price_css,tr.product_custom_css,tr.product_price_css{display:none!important}\
   .ssp.df-bannermanager,.df-bannermanager{pointer-events:none!important}\
   .ssp,.ssp__container,.ssp__list,.ssp__item--naver,.ssp__item--kakao{visibility:visible!important}\
