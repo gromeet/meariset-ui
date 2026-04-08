@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 133; /* 버전 번호 (13.3 = 133) — 상세 이미지 lazy-load fallback 강제 로드 */
+  var MRS_VERSION = 134; /* 버전 번호 (13.4 = 134) — 광고 라이브 중 커스텀 UI 긴급 비활성화 */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -40,6 +40,10 @@
   var prdNo = prdEl ? prdEl.getAttribute('data-prd-no') : '';
   var urlHas27 = location.search.indexOf('product_no=27') !== -1 || location.href.indexOf('product_no=27') !== -1;
   if(!urlHas27 && prdNo !== '27'){ window._mrsOptionLoaded = false; return; }
+
+  /* 긴급 안정화: 광고 라이브 중에는 커스텀 UI를 내리고 기본 카페24 UI 사용 */
+  window._mrsOptionLoaded = false;
+  return;
 
   /* placeholder 중복 방지 (같은 버전 재실행 시) */
 
