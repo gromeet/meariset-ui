@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 109; /* 버전 번호 (10.9 = 109) — 웰컴쿠폰 배너를 info 바로 아래로 이동 */
+  var MRS_VERSION = 110; /* 버전 번호 (11.0 = 110) — 쿠폰 위치/선택 간격/배지 위치 재정리 */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -98,7 +98,7 @@
   @media(min-width:768px){.mrs-option-wrap{max-width:100%;padding:6px 0 4px;margin:0 auto;border-radius:0;background:transparent}.mrs-grid{grid-template-columns:repeat(4,1fr)!important;gap:8px!important}.mrs-card-img{aspect-ratio:3/4!important}.mrs-card-label{font-size:15px;padding:8px 4px 2px;white-space:nowrap;letter-spacing:-0.1px}.mrs-card-color{font-size:12px;padding:0 4px 8px}.mrs-title{font-size:18px;margin-bottom:8px}.mrs-info{padding:12px 16px;min-height:70px;font-size:15px}}\
   .mrs-card{position:relative;border:none;border-radius:12px;overflow:hidden;cursor:pointer;transition:box-shadow .2s,transform .2s;background:#fff;box-shadow:0 0 0 1.5px #ddd;transform:scale(1)}\
   .mrs-card:hover{box-shadow:0 0 0 1.5px #bcbcbc;transform:scale(1.02)}\
-  .mrs-card.selected{box-shadow:0 0 0 2.5px #D4A853,0 0 0 6px rgba(212,168,83,.25);transform:scale(1.04)}\
+  .mrs-card.selected{box-shadow:0 0 0 2.5px #D4A853;transform:scale(1)}\
   .mrs-start-badge{position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:#D4A853;color:#fff;font-size:12px;font-weight:700;padding:6px 14px;border-radius:0 0 8px 8px;white-space:nowrap;letter-spacing:-0.1px;z-index:3}\
   @keyframes mrs-badge-bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-2px)}}\
   .mrs-start-badge{animation:mrs-badge-bounce 1.5s ease-in-out infinite}\
@@ -155,12 +155,12 @@
   .mrs-benefit-main{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0;flex:1}\
   .mrs-benefit-name{font-size:18px;font-weight:700;color:#1a1a1a;line-height:1.3}\
   .mrs-benefit-count{font-size:18px;font-weight:700;color:#1a1a1a;margin-right:4px}\
-  .mrs-benefit-badge{font-size:11px;font-weight:700;padding:3px 7px;border-radius:999px;white-space:nowrap;line-height:1.2;background:rgba(45,45,45,.08);color:#2D2D2D}\
+  .mrs-benefit-pricebox{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:3px;min-width:120px;flex-shrink:0}\
+  .mrs-benefit-badge{font-size:11px;font-weight:700;padding:3px 7px;border-radius:999px;white-space:nowrap;line-height:1.2;background:rgba(45,45,45,.08);color:#2D2D2D;align-self:flex-end}\
   .mrs-benefit-badge.popular{background:rgba(45,45,45,.08);color:#2D2D2D}\
   .mrs-benefit-badge.saving{background:rgba(45,45,45,.08);color:#2D2D2D}\
   .mrs-benefit-badge.freeship{background:rgba(45,45,45,.08);color:#2D2D2D}\
   .mrs-benefit-badge.lowest{background:rgba(45,45,45,.08);color:#2D2D2D}\
-  .mrs-benefit-pricebox{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:3px;min-width:112px;flex-shrink:0}\
   .mrs-benefit-price{font-size:21px;font-weight:700;color:#1a1a1a;line-height:1.1;letter-spacing:-0.2px}\
   .mrs-benefit-unit{display:block;font-size:12px;color:#777;font-weight:400;line-height:1.3;letter-spacing:0}\
   .mrs-benefit-row.best-deal{background:rgba(212,168,83,.06)}\
@@ -174,6 +174,7 @@
   /* ── HTML 주입 ── */
   var html = '\
   <div class="mrs-option-wrap" id="mrsOptionWrap">\
+    <p class="mrs-benefit-coupon">💳 회원가입 시 <span class="mrs-coupon-amount">3,000원 웰컴쿠폰</span> 지급!</p>\
     <div class="mrs-grid">\
       <div class="mrs-card" data-season="1" onclick="mrsToggle(this)">\
         <span class="mrs-start-badge">✦ 입문자 추천</span>\
@@ -205,61 +206,60 @@
       <p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p>\
       <p class="mrs-info-copy" style="color:#6B5A2B;font-size:15px;font-weight:400;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>\
     </div>\
-    <p class="mrs-benefit-coupon">💳 회원가입 시 <span class="mrs-coupon-amount">3,000원 웰컴쿠폰</span> 지급!</p>\
     <div class="mrs-benefit-guide" id="mrsBenefitGuide">\
       <div class="mrs-benefit-list">\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(1)">\
           <span class="mrs-benefit-side">\
-            <span class="mrs-benefit-badge popular">BEST</span>\
             <span class="mrs-benefit-before">45,000원</span>\
             <span class="mrs-benefit-discount">36%</span>\
           </span>\
           <span class="mrs-benefit-main">\
-            <span class="mrs-benefit-name"><strong class="mrs-benefit-count">1권</strong><strong>90일 플래너</strong></span>\
+            <span class="mrs-benefit-name"><strong class="mrs-benefit-count">1권</strong> <strong>90일 플래너</strong></span>\
           </span>\
           <span class="mrs-benefit-pricebox">\
+            <span class="mrs-benefit-badge popular">BEST</span>\
             <span class="mrs-benefit-price">29,000원</span>\
             <span class="mrs-benefit-unit">권당 29,000원</span>\
           </span>\
         </div>\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(2)">\
           <span class="mrs-benefit-side">\
-            <span class="mrs-benefit-badge saving">9,000원 절약</span>\
             <span class="mrs-benefit-before">90,000원</span>\
             <span class="mrs-benefit-discount">46%</span>\
           </span>\
           <span class="mrs-benefit-main">\
-            <span class="mrs-benefit-name"><strong class="mrs-benefit-count">2권</strong><strong>180일 플래너</strong></span>\
+            <span class="mrs-benefit-name"><strong class="mrs-benefit-count">2권</strong> <strong>180일 플래너</strong></span>\
           </span>\
           <span class="mrs-benefit-pricebox">\
+            <span class="mrs-benefit-badge saving">9,000원 절약</span>\
             <span class="mrs-benefit-price">49,000원</span>\
             <span class="mrs-benefit-unit">권당 24,500원</span>\
           </span>\
         </div>\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(3)">\
           <span class="mrs-benefit-side">\
-            <span class="mrs-benefit-badge freeship">무료배송</span>\
             <span class="mrs-benefit-before">135,000원</span>\
             <span class="mrs-benefit-discount">49%</span>\
           </span>\
           <span class="mrs-benefit-main">\
-            <span class="mrs-benefit-name"><strong class="mrs-benefit-count">3권</strong><strong>270일 플래너</strong></span>\
+            <span class="mrs-benefit-name"><strong class="mrs-benefit-count">3권</strong> <strong>270일 플래너</strong></span>\
           </span>\
           <span class="mrs-benefit-pricebox">\
+            <span class="mrs-benefit-badge freeship">무료배송</span>\
             <span class="mrs-benefit-price">69,000원</span>\
             <span class="mrs-benefit-unit">권당 23,000원</span>\
           </span>\
         </div>\
         <div class="mrs-benefit-row best-deal" onclick="mrsBenefitSelect(4)">\
           <span class="mrs-benefit-side">\
-            <span class="mrs-benefit-badge lowest">최저가+무배</span>\
             <span class="mrs-benefit-before">180,000원</span>\
             <span class="mrs-benefit-discount">51%</span>\
           </span>\
           <span class="mrs-benefit-main">\
-            <span class="mrs-benefit-name"><strong class="mrs-benefit-count">4권</strong><strong>360일 플래너</strong></span>\
+            <span class="mrs-benefit-name"><strong class="mrs-benefit-count">4권</strong> <strong>360일 플래너</strong></span>\
           </span>\
           <span class="mrs-benefit-pricebox">\
+            <span class="mrs-benefit-badge lowest">최저가+무배</span>\
             <span class="mrs-benefit-price">89,000원</span>\
             <span class="mrs-benefit-unit">권당 22,250원</span>\
           </span>\
