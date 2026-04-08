@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 112; /* 버전 번호 (11.2 = 112) — 할인전가와 뱃지 위치 교체 */
+  var MRS_VERSION = 113; /* 버전 번호 (11.3 = 113) — 뱃지 왼쪽 정렬 */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -157,7 +157,7 @@
   .mrs-benefit-name strong{font-weight:700!important;font-size:inherit;line-height:inherit;color:inherit}\
   .mrs-benefit-count{font-size:18px;font-weight:700;color:#1a1a1a;margin-right:4px}\
   .mrs-benefit-pricebox{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:3px;min-width:120px;flex-shrink:0}\
-  .mrs-benefit-badge{font-size:11px;font-weight:700;padding:3px 7px;border-radius:999px;white-space:nowrap;line-height:1.2;background:rgba(45,45,45,.08);color:#2D2D2D;align-self:flex-end}\
+  .mrs-benefit-badge{font-size:11px;font-weight:700;padding:3px 7px;border-radius:999px;white-space:nowrap;line-height:1.2;background:rgba(45,45,45,.08);color:#2D2D2D;align-self:flex-start}\
   .mrs-benefit-badge.popular{background:rgba(45,45,45,.08);color:#2D2D2D}\
   .mrs-benefit-badge.saving{background:rgba(45,45,45,.08);color:#2D2D2D}\
   .mrs-benefit-badge.freeship{background:rgba(45,45,45,.08);color:#2D2D2D}\
