@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 132; /* 버전 번호 (13.2 = 132) — Safari 스크롤 복귀 blank 방지 구조 수정 */
+  var MRS_VERSION = 133; /* 버전 번호 (13.3 = 133) — 상세 이미지 lazy-load fallback 강제 로드 */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -308,12 +308,30 @@
     setTimeout(mrsInsertTagline, 500);
   }
 
+  function mrsHydrateDetailImages(){
+    var root=document.getElementById('prdDetail') || document.querySelector('.xans-product-additional .additional-inner');
+    if(!root) return;
+    var imgs=root.querySelectorAll('img[ec-data-src], img[data-src]');
+    for(var i=0;i<imgs.length;i++){
+      var img=imgs[i];
+      var src=img.getAttribute('src') || '';
+      var lazy=img.getAttribute('ec-data-src') || img.getAttribute('data-src') || '';
+      if(!src && lazy){
+        if(lazy.indexOf('//')===0) lazy=location.protocol + lazy;
+        img.setAttribute('src', lazy);
+      }
+      img.loading='eager';
+      img.decoding='async';
+    }
+  }
+
   function mrsRepairUI(){
     var wrap=document.getElementById('mrsOptionWrap');
     var hasCards=!!(wrap && wrap.querySelector('.mrs-card'));
     if(!hasCards){
       mrsSetNativeHidden(false);
       insertUI();
+      mrsHydrateDetailImages();
       return;
     }
     mrsSetNativeHidden(true);
@@ -322,6 +340,7 @@
     wrap.style.display='';
     var tag=document.getElementById('mrsTagline');
     if(tag){tag.style.display='none';void tag.offsetHeight;tag.style.display='block';}
+    mrsHydrateDetailImages();
   }
 
   /* ── 로직 (동일) ── */
@@ -552,6 +571,7 @@
   /* ── 초기화 ── */
   function mrsInit(){
     insertUI();
+    mrsHydrateDetailImages();
     mrsInstallCapture();
     /* SDK 로딩 대기 후 네이버페이 방어 시작 (1초 간격으로 5회 시도) */
     var tries = 0;
@@ -570,6 +590,8 @@
     window.addEventListener('resize', scheduleRepair, {passive:true});
     window.addEventListener('orientationchange', scheduleRepair, {passive:true});
     window.addEventListener('scroll', scheduleRepair, {passive:true});
+    setTimeout(mrsHydrateDetailImages, 800);
+    setTimeout(mrsHydrateDetailImages, 2000);
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mrsInit);
