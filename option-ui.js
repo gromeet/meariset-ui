@@ -4,7 +4,7 @@
  * 광고 라이브 중 결제/상세 노출 안정성 우선
  */
 (function(){
-  var MRS_VERSION = 137; /* 긴급 안전모드: NPay 보존 + 권당 가격 가이드 추가 */
+  var MRS_VERSION = 138; /* 긴급 안전모드: 이미지 배너 복구 + NPay/native 유지 */
   if(window._mrsEmergencyHotfixLoaded && window._mrsEmergencyHotfixVersion >= MRS_VERSION) return;
   window._mrsEmergencyHotfixLoaded = true;
   window._mrsEmergencyHotfixVersion = MRS_VERSION;
@@ -23,7 +23,7 @@
         appPay.insertBefore(npayInWrap, appPay.firstChild);
       }
     }
-    var ids = ['mrsOptionWrap','mrsStyles','mrsMobileBar','mrsCouponBanner','mrsTagline'];
+    var ids = ['mrsOptionWrap','mrsStyles','mrsMobileBar','mrsCouponBanner','mrsTagline','mrsUnitGuide','mrsSafeBanner'];
     for(var i=0;i<ids.length;i++){
       var el = document.getElementById(ids[i]);
       if(el) el.remove();
@@ -47,6 +47,29 @@
       npay.style.removeProperty('min-height');
       npay.style.removeProperty('opacity');
     }
+  }
+
+  function ensureVisualBanner(){
+    var existing = document.getElementById('mrsSafeBanner');
+    if(existing) existing.remove();
+    var anchor = document.querySelector('.summary-info') || document.querySelector('.infoArea');
+    if(!anchor || !anchor.parentNode) return;
+    var style = document.getElementById('mrsSafeBannerStyle');
+    if(!style){
+      style = document.createElement('style');
+      style.id = 'mrsSafeBannerStyle';
+      style.textContent = '.mrs-safe-banner{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0 14px}.mrs-safe-card{border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 0 0 1px #e8e8e8}.mrs-safe-card img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover;background:#f5f3ef}.mrs-safe-card__label{padding:8px 4px 10px;font-size:13px;line-height:1.35;font-weight:700;color:#1a1a1a;text-align:center;font-family:"Malgun Gothic","맑은 고딕",sans-serif}@media(max-width:767px){.mrs-safe-banner{gap:6px;margin:10px 0 12px}.mrs-safe-card__label{font-size:12px;padding:6px 2px 8px}}';
+      document.head.appendChild(style);
+    }
+    var box = document.createElement('div');
+    box.id = 'mrsSafeBanner';
+    box.className = 'mrs-safe-banner';
+    box.innerHTML = ''+
+      '<div class="mrs-safe-card"><img src="https://hyunvis.vercel.app/meariset/s1_banner.jpg" alt="90일 플래너"><div class="mrs-safe-card__label">90일 플래너</div></div>'+
+      '<div class="mrs-safe-card"><img src="https://hyunvis.vercel.app/meariset/s2_banner.jpg" alt="180일 플래너"><div class="mrs-safe-card__label">180일 플래너</div></div>'+
+      '<div class="mrs-safe-card"><img src="https://hyunvis.vercel.app/meariset/s3_banner.jpg" alt="270일 플래너"><div class="mrs-safe-card__label">270일 플래너</div></div>'+
+      '<div class="mrs-safe-card"><img src="https://hyunvis.vercel.app/meariset/s4_banner.jpg" alt="360일 플래너"><div class="mrs-safe-card__label">360일 플래너</div></div>';
+    anchor.parentNode.insertBefore(box, anchor.nextSibling);
   }
 
   function ensureUnitPriceGuide(){
@@ -95,15 +118,16 @@
   function boot(){
     cleanupCustomUI();
     ensureNativePayVisible();
+    ensureVisualBanner();
     ensureUnitPriceGuide();
     forceDetailImages();
-    setTimeout(function(){ cleanupCustomUI(); ensureNativePayVisible(); ensureUnitPriceGuide(); forceDetailImages(); }, 300);
-    setTimeout(function(){ cleanupCustomUI(); ensureNativePayVisible(); ensureUnitPriceGuide(); forceDetailImages(); }, 1200);
-    setTimeout(function(){ cleanupCustomUI(); ensureNativePayVisible(); ensureUnitPriceGuide(); forceDetailImages(); }, 3000);
-    window.addEventListener('pageshow', function(){ cleanupCustomUI(); ensureNativePayVisible(); ensureUnitPriceGuide(); forceDetailImages(); });
-    document.addEventListener('visibilitychange', function(){ if(!document.hidden){ cleanupCustomUI(); ensureNativePayVisible(); ensureUnitPriceGuide(); forceDetailImages(); } });
-    window.addEventListener('resize', forceDetailImages, {passive:true});
-    window.addEventListener('orientationchange', forceDetailImages, {passive:true});
+    setTimeout(function(){ cleanupCustomUI(); ensureNativePayVisible(); ensureVisualBanner(); ensureUnitPriceGuide(); forceDetailImages(); }, 300);
+    setTimeout(function(){ cleanupCustomUI(); ensureNativePayVisible(); ensureVisualBanner(); ensureUnitPriceGuide(); forceDetailImages(); }, 1200);
+    setTimeout(function(){ cleanupCustomUI(); ensureNativePayVisible(); ensureVisualBanner(); ensureUnitPriceGuide(); forceDetailImages(); }, 3000);
+    window.addEventListener('pageshow', function(){ cleanupCustomUI(); ensureNativePayVisible(); ensureVisualBanner(); ensureUnitPriceGuide(); forceDetailImages(); });
+    document.addEventListener('visibilitychange', function(){ if(!document.hidden){ cleanupCustomUI(); ensureNativePayVisible(); ensureVisualBanner(); ensureUnitPriceGuide(); forceDetailImages(); } });
+    window.addEventListener('resize', function(){ ensureVisualBanner(); forceDetailImages(); }, {passive:true});
+    window.addEventListener('orientationchange', function(){ ensureVisualBanner(); forceDetailImages(); }, {passive:true});
   }
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
