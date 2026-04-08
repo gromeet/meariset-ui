@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 113; /* 버전 번호 (11.3 = 113) — 뱃지 왼쪽 정렬 */
+  var MRS_VERSION = 114; /* 버전 번호 (11.4 = 114) — 뱃지 문구/권당가격 색/쿠폰 순서 조정 */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -163,7 +163,7 @@
   .mrs-benefit-badge.freeship{background:rgba(45,45,45,.08);color:#2D2D2D}\
   .mrs-benefit-badge.lowest{background:rgba(45,45,45,.08);color:#2D2D2D}\
   .mrs-benefit-price{font-size:21px;font-weight:700;color:#1a1a1a;line-height:1.1;letter-spacing:-0.2px}\
-  .mrs-benefit-unit{display:block;font-size:12px;color:#777;font-weight:400;line-height:1.3;letter-spacing:0}\
+  .mrs-benefit-unit{display:block;font-size:12px;color:#DF002E;font-weight:400;line-height:1.3;letter-spacing:0}\
   .mrs-benefit-row.best-deal{background:rgba(212,168,83,.06)}\
   .mrs-benefit-coupon{font-size:15px;font-weight:400;color:#2D2D2D;text-align:left;margin:12px 0 12px;padding:12px 14px;background:#F5F3EF;border-radius:0 10px 10px 0;border:none;border-left:3px solid #C8B48C;line-height:1.5;display:block;width:100%}\
   .mrs-coupon-amount{font-weight:700;color:#D32F2F}\
@@ -175,7 +175,6 @@
   /* ── HTML 주입 ── */
   var html = '\
   <div class="mrs-option-wrap" id="mrsOptionWrap">\
-    <p class="mrs-benefit-coupon">💳 회원가입 시 <span class="mrs-coupon-amount">3,000원 웰컴쿠폰</span> 지급!</p>\
     <div class="mrs-grid">\
       <div class="mrs-card" data-season="1" onclick="mrsToggle(this)">\
         <span class="mrs-start-badge">✦ 입문자 추천</span>\
@@ -207,6 +206,7 @@
       <p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p>\
       <p class="mrs-info-copy" style="color:#6B5A2B;font-size:15px;font-weight:400;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>\
     </div>\
+    <p class="mrs-benefit-coupon">💳 회원가입 시 <span class="mrs-coupon-amount">3,000원 웰컴쿠폰</span> 지급!</p>\
     <div class="mrs-benefit-guide" id="mrsBenefitGuide">\
       <div class="mrs-benefit-list">\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(1)">\
@@ -225,7 +225,7 @@
         </div>\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(2)">\
           <span class="mrs-benefit-side">\
-            <span class="mrs-benefit-badge saving">9,000원 절약</span>\
+            <span class="mrs-benefit-badge saving">9,000원↓</span>\
             <span class="mrs-benefit-discount">46%</span>\
           </span>\
           <span class="mrs-benefit-main">\
@@ -253,7 +253,7 @@
         </div>\
         <div class="mrs-benefit-row best-deal" onclick="mrsBenefitSelect(4)">\
           <span class="mrs-benefit-side">\
-            <span class="mrs-benefit-badge lowest">최저가+무배</span>\
+            <span class="mrs-benefit-badge lowest">최저가</span>\
             <span class="mrs-benefit-discount">51%</span>\
           </span>\
           <span class="mrs-benefit-main">\
