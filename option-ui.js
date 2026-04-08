@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 108; /* 버전 번호 (10.8 = 108) — 옵션/info 간격 24px + grid 마진 12px 조정 */
+  var MRS_VERSION = 109; /* 버전 번호 (10.9 = 109) — 웰컴쿠폰 배너를 info 바로 아래로 이동 */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -201,11 +201,11 @@
         <div class="mrs-card-color">Navy</div>\
       </div>\
     </div>\
-    <p class="mrs-benefit-coupon">💳 회원가입 시 <span class="mrs-coupon-amount">3,000원 웰컴쿠폰</span> 지급!</p>\
     <div class="mrs-info" id="mrsInfo">\
       <p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p>\
       <p class="mrs-info-copy" style="color:#6B5A2B;font-size:15px;font-weight:400;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>\
     </div>\
+    <p class="mrs-benefit-coupon">💳 회원가입 시 <span class="mrs-coupon-amount">3,000원 웰컴쿠폰</span> 지급!</p>\
     <div class="mrs-benefit-guide" id="mrsBenefitGuide">\
       <div class="mrs-benefit-list">\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(1)">\
