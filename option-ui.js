@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 125; /* 버전 번호 (12.5 = 125) — 쿠폰 배너 좌우 8px 여백 완전 제거 */
+  var MRS_VERSION = 126; /* 버전 번호 (12.6 = 126) — 이미지 옵션 하단 여백 2배 조정 */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -94,7 +94,7 @@
   .mrs-option-wrap{max-width:600px;margin:0 auto;font-family:"Malgun Gothic","맑은 고딕","Apple SD Gothic Neo",sans-serif;font-size:15px;line-height:1.5;color:#2D2D2D;background:#fff;border-radius:12px;padding:8px 8px 6px;text-align:center}\
   .mrs-option-wrap *{box-sizing:border-box;margin:0;padding:0;font-family:inherit}\
   .mrs-title{font-size:18px;font-weight:700;margin-bottom:6px;text-align:center;color:#1a1a1a;letter-spacing:-0.2px;line-height:1.45}\
-  .mrs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}\
+  .mrs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}\
   @media(min-width:768px){.mrs-option-wrap{max-width:100%;padding:6px 0 4px;margin:0 auto;border-radius:0;background:transparent}.mrs-grid{grid-template-columns:repeat(4,1fr)!important;gap:12px!important}.mrs-card-img{aspect-ratio:3/4!important}.mrs-card-label{font-size:15px;padding:8px 4px 2px;white-space:nowrap;letter-spacing:-0.1px}.mrs-card-color{font-size:12px;padding:0 4px 8px}.mrs-title{font-size:18px;margin-bottom:8px}.mrs-info{padding:12px 16px;min-height:70px;font-size:15px}}\
   .mrs-card{position:relative;border:none;border-radius:12px;overflow:hidden;cursor:pointer;transition:box-shadow .2s,transform .2s;background:#fff;box-shadow:0 0 0 1.5px #ddd;transform:scale(1);width:100%;margin:0}\
   .mrs-card:hover{box-shadow:0 0 0 1.5px #bcbcbc;transform:scale(1.02)}\
