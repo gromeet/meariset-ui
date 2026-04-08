@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 111; /* 버전 번호 (11.1 = 111) — 옵션명 bold 강제 + 카드 선택 간격 재조정 */
+  var MRS_VERSION = 112; /* 버전 번호 (11.2 = 112) — 할인전가와 뱃지 위치 교체 */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -211,56 +211,56 @@
       <div class="mrs-benefit-list">\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(1)">\
           <span class="mrs-benefit-side">\
-            <span class="mrs-benefit-before">45,000원</span>\
+            <span class="mrs-benefit-badge popular">BEST</span>\
             <span class="mrs-benefit-discount">36%</span>\
           </span>\
           <span class="mrs-benefit-main">\
             <span class="mrs-benefit-name"><strong class="mrs-benefit-count">1권</strong> <strong>90일 플래너</strong></span>\
           </span>\
           <span class="mrs-benefit-pricebox">\
-            <span class="mrs-benefit-badge popular">BEST</span>\
+            <span class="mrs-benefit-before">45,000원</span>\
             <span class="mrs-benefit-price">29,000원</span>\
             <span class="mrs-benefit-unit">권당 29,000원</span>\
           </span>\
         </div>\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(2)">\
           <span class="mrs-benefit-side">\
-            <span class="mrs-benefit-before">90,000원</span>\
+            <span class="mrs-benefit-badge saving">9,000원 절약</span>\
             <span class="mrs-benefit-discount">46%</span>\
           </span>\
           <span class="mrs-benefit-main">\
             <span class="mrs-benefit-name"><strong class="mrs-benefit-count">2권</strong> <strong>180일 플래너</strong></span>\
           </span>\
           <span class="mrs-benefit-pricebox">\
-            <span class="mrs-benefit-badge saving">9,000원 절약</span>\
+            <span class="mrs-benefit-before">90,000원</span>\
             <span class="mrs-benefit-price">49,000원</span>\
             <span class="mrs-benefit-unit">권당 24,500원</span>\
           </span>\
         </div>\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(3)">\
           <span class="mrs-benefit-side">\
-            <span class="mrs-benefit-before">135,000원</span>\
+            <span class="mrs-benefit-badge freeship">무료배송</span>\
             <span class="mrs-benefit-discount">49%</span>\
           </span>\
           <span class="mrs-benefit-main">\
             <span class="mrs-benefit-name"><strong class="mrs-benefit-count">3권</strong> <strong>270일 플래너</strong></span>\
           </span>\
           <span class="mrs-benefit-pricebox">\
-            <span class="mrs-benefit-badge freeship">무료배송</span>\
+            <span class="mrs-benefit-before">135,000원</span>\
             <span class="mrs-benefit-price">69,000원</span>\
             <span class="mrs-benefit-unit">권당 23,000원</span>\
           </span>\
         </div>\
         <div class="mrs-benefit-row best-deal" onclick="mrsBenefitSelect(4)">\
           <span class="mrs-benefit-side">\
-            <span class="mrs-benefit-before">180,000원</span>\
+            <span class="mrs-benefit-badge lowest">최저가+무배</span>\
             <span class="mrs-benefit-discount">51%</span>\
           </span>\
           <span class="mrs-benefit-main">\
             <span class="mrs-benefit-name"><strong class="mrs-benefit-count">4권</strong> <strong>360일 플래너</strong></span>\
           </span>\
           <span class="mrs-benefit-pricebox">\
-            <span class="mrs-benefit-badge lowest">최저가+무배</span>\
+            <span class="mrs-benefit-before">180,000원</span>\
             <span class="mrs-benefit-price">89,000원</span>\
             <span class="mrs-benefit-unit">권당 22,250원</span>\
           </span>\
