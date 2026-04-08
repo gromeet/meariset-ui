@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 101; /* 버전 번호 (10.1 = 101) — 할인/가격 위계 재정리 + 간격 미세조정 */
+  var MRS_VERSION = 102; /* 버전 번호 (10.2 = 102) — detail-spec 좌우 패딩 제거 */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -84,6 +84,7 @@
   .ssp.df-bannermanager,.df-bannermanager{pointer-events:none!important}\
   .ssp,.ssp__container,.ssp__list,.ssp__item--naver,.ssp__item--kakao{visibility:visible!important}\
   .ssp__item--naver a,.ssp__item--naver button,.ssp__item--naver [onclick],.ssp__item--kakao a,.ssp__item--kakao button,.ssp__item--kakao [onclick]{pointer-events:auto!important}\
+  .xans-element.xans-product.xans-product-detaildesign.detail-spec{padding-left:0!important;padding-right:0!important}\
   .prd-name,.prd-name.flex,.prd-name.flex.flex--v-center{margin-bottom:10px!important}\
   .summary-info{line-height:1.24!important;margin:8px 0 4px!important}\
   .summary-info br,.price-spec__item.simple_desc_css br{content:"";display:block;margin-top:1px}\
