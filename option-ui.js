@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 122; /* 버전 번호 (12.2 = 122) — 토스트 컬러 + 태그라인 간격 규칙 재조정 */
+  var MRS_VERSION = 123; /* 버전 번호 (12.3 = 123) — 최저가 달성 토스트 컬러 조정 */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -126,7 +126,7 @@
   .mrs-price-anim{animation:mrs-price-pop .35s ease-out}\
   .mrs-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(30px);background:#0A0A0A;color:#fff;font-size:15px;font-weight:700;padding:12px 28px;border-radius:40px;box-shadow:0 4px 20px rgba(10,10,10,.28);z-index:99999;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;white-space:nowrap}\
   .mrs-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}\
-  .mrs-toast.red{background:#D32F2F;box-shadow:0 4px 20px rgba(211,47,47,.35)}\
+  .mrs-toast.red{background:#DF002E;box-shadow:0 4px 20px rgba(223,0,46,.35)}\
   #mrsTagline{font-family:inherit;padding:0;font-size:18px;font-weight:700;color:#1A1A1A;line-height:1.5;letter-spacing:-0.2px;opacity:0;transition:opacity .35s,transform .35s;transform:translateY(4px);display:block;visibility:hidden;height:18px;min-height:18px;overflow:hidden}\
   #mrsTagline.visible{opacity:1;transform:translateY(0);display:block;visibility:visible;padding:18px 0 2px;height:auto;min-height:0;overflow:visible}\
   #mrsTagline.hidden{display:block!important;visibility:hidden!important;opacity:0!important;height:18px!important;min-height:18px!important;padding:0!important;overflow:hidden!important}\
