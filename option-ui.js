@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 129; /* 버전 번호 (12.9 = 129) — 쿠폰 배너 폭을 가격 배너와 동일하게 재정렬 */
+  var MRS_VERSION = 130; /* 버전 번호 (13.0 = 130) — 쿠폰 배너 좌우 8px 복원 제거 */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -169,10 +169,10 @@
   .mrs-benefit-price{font-size:21px;font-weight:700;color:#1a1a1a;line-height:1.1;letter-spacing:-0.2px}\
   .mrs-benefit-unit{display:block;font-size:12px;color:#DF002E;font-weight:400;line-height:1.3;letter-spacing:0}\
   .mrs-benefit-row.best-deal{background:rgba(212,168,83,.06)}\
-  .mrs-benefit-coupon{font-size:15px;font-weight:400;color:#2D2D2D;text-align:left;margin:12px 8px 12px;padding:12px 14px;background:#F5F3EF;border-radius:0 10px 10px 0;border:none;border-left:3px solid #C8B48C;line-height:1.5;display:block;width:auto;max-width:none;box-sizing:border-box}\
+  .mrs-benefit-coupon{font-size:15px;font-weight:400;color:#2D2D2D;text-align:left;margin:12px 0 12px;padding:12px 14px;background:#F5F3EF;border-radius:0 10px 10px 0;border:none;border-left:3px solid #C8B48C;line-height:1.5;display:block;width:auto;max-width:none;box-sizing:border-box}\
   .mrs-coupon-amount{font-weight:700;color:#D32F2F}\
-  @media(min-width:768px){.mrs-benefit-guide{padding:6px 10px 8px}.mrs-benefit-row{padding:8px 10px}.mrs-benefit-side{min-width:72px}.mrs-benefit-before{font-size:12px}.mrs-benefit-discount{font-size:21px}.mrs-benefit-name{font-size:18px}.mrs-benefit-count{font-size:18px}.mrs-benefit-pricebox{min-width:120px}.mrs-benefit-price{font-size:21px}.mrs-benefit-badge{font-size:11px}.mrs-benefit-coupon{font-size:15px;margin:12px 8px 12px}}\
-  @media(max-width:767px){.mrs-benefit-guide{padding:6px 8px 8px;margin-top:2px}.mrs-benefit-row{padding:9px 10px;gap:8px}.mrs-benefit-side{min-width:64px}.mrs-benefit-before{font-size:12px}.mrs-benefit-discount{font-size:19px}.mrs-benefit-name{font-size:17px}.mrs-benefit-count{font-size:17px}.mrs-benefit-pricebox{min-width:100px}.mrs-benefit-price{font-size:19px}.mrs-benefit-badge{font-size:11px;padding:3px 6px}.mrs-benefit-unit{font-size:12px}.mrs-benefit-coupon{font-size:15px;padding:10px 12px;margin:12px 8px 12px}}\
+  @media(min-width:768px){.mrs-benefit-guide{padding:6px 10px 8px}.mrs-benefit-row{padding:8px 10px}.mrs-benefit-side{min-width:72px}.mrs-benefit-before{font-size:12px}.mrs-benefit-discount{font-size:21px}.mrs-benefit-name{font-size:18px}.mrs-benefit-count{font-size:18px}.mrs-benefit-pricebox{min-width:120px}.mrs-benefit-price{font-size:21px}.mrs-benefit-badge{font-size:11px}.mrs-benefit-coupon{font-size:15px;margin:12px 0 12px}}\
+  @media(max-width:767px){.mrs-benefit-guide{padding:6px 8px 8px;margin-top:2px}.mrs-benefit-row{padding:9px 10px;gap:8px}.mrs-benefit-side{min-width:64px}.mrs-benefit-before{font-size:12px}.mrs-benefit-discount{font-size:19px}.mrs-benefit-name{font-size:17px}.mrs-benefit-count{font-size:17px}.mrs-benefit-pricebox{min-width:100px}.mrs-benefit-price{font-size:19px}.mrs-benefit-badge{font-size:11px;padding:3px 6px}.mrs-benefit-unit{font-size:12px}.mrs-benefit-coupon{font-size:15px;padding:10px 12px;margin:12px 0 12px}}\
   ';
   document.head.appendChild(css);
 
