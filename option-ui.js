@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 98; /* 버전 번호 (9.8 = 98) — 맑은 고딕 + 타이포 위계 재정리 */
+  var MRS_VERSION = 99; /* 버전 번호 (9.9 = 99) — 쿠폰 배너 외부 분리 */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -154,9 +154,9 @@
   .mrs-benefit-badge.freeship{background:rgba(45,45,45,.08);color:#2D2D2D}\
   .mrs-benefit-badge.lowest{background:rgba(45,45,45,.08);color:#2D2D2D}\
   .mrs-benefit-row.best-deal{background:transparent;border:none}\
-  .mrs-benefit-coupon{font-size:15px;font-weight:400;color:#2D2D2D;text-align:left;margin-top:10px;padding:12px 14px;background:#F5F3EF;border-radius:0 10px 10px 0;border:none;border-left:3px solid #C8B48C;line-height:1.5}\
+  .mrs-benefit-coupon{font-size:15px;font-weight:400;color:#2D2D2D;text-align:left;margin-top:12px;padding:12px 14px;background:#F5F3EF;border-radius:0 10px 10px 0;border:none;border-left:3px solid #C8B48C;line-height:1.5;display:block;width:100%}\
   .mrs-coupon-amount{font-weight:700;color:#D32F2F}\
-  @media(min-width:768px){.mrs-benefit-guide{padding:10px 10px 0}.mrs-benefit-row{padding:10px 10px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:12px;min-width:32px;height:32px}.mrs-benefit-pricebox{min-width:112px}.mrs-benefit-price-top{gap:6px}.mrs-benefit-price{font-size:15px}.mrs-benefit-unit{font-size:12px}.mrs-benefit-discount{font-size:12px}.mrs-benefit-badge{font-size:12px;white-space:nowrap}.mrs-benefit-coupon{font-size:15px}}\
+  @media(min-width:768px){.mrs-benefit-guide{padding:10px 10px 12px}.mrs-benefit-row{padding:10px 10px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:12px;min-width:32px;height:32px}.mrs-benefit-pricebox{min-width:112px}.mrs-benefit-price-top{gap:6px}.mrs-benefit-price{font-size:15px}.mrs-benefit-unit{font-size:12px}.mrs-benefit-discount{font-size:12px}.mrs-benefit-badge{font-size:12px;white-space:nowrap}.mrs-benefit-coupon{font-size:15px}}\
   @media(max-width:767px){.mrs-benefit-guide{padding:10px 8px 12px;margin-top:6px}.mrs-benefit-row{padding:10px 10px;gap:8px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:12px;min-width:32px;height:32px}.mrs-benefit-pricebox{min-width:108px}.mrs-benefit-price-top{gap:6px}.mrs-benefit-price{font-size:15px}.mrs-benefit-unit{font-size:12px}.mrs-benefit-discount{font-size:12px}.mrs-benefit-badge{font-size:12px;padding:4px 6px;white-space:nowrap}.mrs-benefit-coupon{font-size:15px;padding:12px 14px}}\
   ';
   document.head.appendChild(css);
@@ -242,8 +242,8 @@
           <span class="mrs-benefit-badge lowest">🏆 최저가+무배</span>\
         </div>\
       </div>\
-      <p class="mrs-benefit-coupon">💳 회원가입 시 <span class="mrs-coupon-amount">3,000원 웰컴쿠폰</span> 지급!</p>\
     </div>\
+    <p class="mrs-benefit-coupon">💳 회원가입 시 <span class="mrs-coupon-amount">3,000원 웰컴쿠폰</span> 지급!</p>\
   </div>\
   <div class="mrs-toast" id="mrsToast"></div>\
   <div class="mrs-sticky" id="mrsStickyBar">\
