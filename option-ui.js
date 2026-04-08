@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 93; /* 버전 번호 (9.3 = 93) — 실제 border 제거, 외곽 shadow만 사용 */
+  var MRS_VERSION = 94; /* 버전 번호 (9.4 = 94) — 네이버페이 표시 보정 강화 */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -81,6 +81,8 @@
   .productOption{position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important}\
   #totalProducts,div#totalPrice,.quantity_price{position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important}\
   .ssp.df-bannermanager,.df-bannermanager{pointer-events:none!important}\
+  .app-pay-wrap{display:flex!important;visibility:visible!important;min-height:44px!important}\
+  #NaverChk_Button{display:block!important;visibility:visible!important;min-height:44px!important;flex:1 1 auto}\
   .ssp,.ssp__container,.ssp__list,.ssp__item--naver,.ssp__item--kakao{visibility:visible!important}\
   .ssp__item--naver a,.ssp__item--naver button,.ssp__item--naver [onclick],.ssp__item--kakao a,.ssp__item--kakao button,.ssp__item--kakao [onclick]{pointer-events:auto!important}\
   .mrs-option-wrap{max-width:600px;margin:4px auto;font-family:Pretendard,sans-serif;color:#2D2D2D;background:#fff;border-radius:12px;padding:12px 8px;text-align:center}\
@@ -460,30 +462,43 @@
       }
     }
     
-    /* MutationObserver: 네이버페이가 app-pay-wrap에서 빠지면 즉시 복구 */
+    var apWrap = document.querySelector('.app-pay-wrap');
+    if(apWrap){
+      apWrap.style.setProperty('display','flex','important');
+      apWrap.style.setProperty('visibility','visible','important');
+      apWrap.style.setProperty('min-height','44px','important');
+    }
+
+    /* MutationObserver: 네이버페이가 app-pay-wrap에서 빠지거나 숨겨지면 즉시 복구 */
     var guard = new MutationObserver(function(){
       var n = document.getElementById('NaverChk_Button');
       var ap = document.querySelector('.app-pay-wrap');
-      if(n && ap && !ap.contains(n)) {
-        ap.insertBefore(n, ap.firstChild);
+      if(ap){
+        ap.style.setProperty('display','flex','important');
+        ap.style.setProperty('visibility','visible','important');
+        ap.style.setProperty('min-height','44px','important');
+      }
+      if(n){
+        if(ap && !ap.contains(n)) ap.insertBefore(n, ap.firstChild);
         n.style.setProperty('display','block','important');
         n.style.setProperty('visibility','visible','important');
+        n.style.setProperty('min-height','44px','important');
       }
     });
-    guard.observe(document.body, { childList: true, subtree: true });
-    setTimeout(function(){ guard.disconnect(); }, 30000);
+    guard.observe(document.body, { childList: true, subtree: true, attributes:true, attributeFilter:['style','class'] });
+    setTimeout(function(){ guard.disconnect(); }, 180000);
   }
 
   /* ── 초기화 ── */
   function mrsInit(){
     insertUI();
     mrsInstallCapture();
-    /* SDK 로딩 대기 후 네이버페이 방어 시작 (1초 간격으로 5회 시도) */
+    /* SDK 로딩 지연 대응: 네이버페이 방어를 3분간 유지 */
     var tries = 0;
     var guardInterval = setInterval(function(){
       mrsGuardNpay();
-      if(++tries >= 5) clearInterval(guardInterval);
-    }, 2000);
+      if(++tries >= 180) clearInterval(guardInterval);
+    }, 1000);
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mrsInit);
