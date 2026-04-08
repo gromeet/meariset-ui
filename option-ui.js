@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 127; /* 버전 번호 (12.7 = 127) — 구매버튼 위 잔여 공백 제거 */
+  var MRS_VERSION = 128; /* 버전 번호 (12.8 = 128) — 선택 시 입문자 추천 배지 숨김 */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -105,6 +105,7 @@
   .mrs-start-badge{position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:#D4A853;color:#fff;font-size:12px;font-weight:700;padding:6px 14px;border-radius:0 0 8px 8px;white-space:nowrap;letter-spacing:-0.1px;z-index:3}\
   @keyframes mrs-badge-bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-2px)}}\
   .mrs-start-badge{animation:mrs-badge-bounce 1.5s ease-in-out infinite}\
+  .mrs-card.selected .mrs-start-badge{display:none}\
   .mrs-check{position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:#D4A853;color:#fff;display:none;align-items:center;justify-content:center;font-size:14px;font-weight:700;z-index:2;transform:scale(0);transition:transform .2s cubic-bezier(.34,1.56,.64,1)}\
   .mrs-card.selected .mrs-check{display:flex;transform:scale(1)}\
   .mrs-card-img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;background:#f5f3ef;transition:filter .25s}\
