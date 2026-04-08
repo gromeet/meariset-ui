@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 134; /* 버전 번호 (13.4 = 134) — 광고 라이브 중 커스텀 UI 긴급 비활성화 */
+  var MRS_VERSION = 135; /* 버전 번호 (13.5 = 135) — 광고 라이브 긴급 상세이미지 복구 핫픽스 */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -41,7 +41,43 @@
   var urlHas27 = location.search.indexOf('product_no=27') !== -1 || location.href.indexOf('product_no=27') !== -1;
   if(!urlHas27 && prdNo !== '27'){ window._mrsOptionLoaded = false; return; }
 
-  /* 긴급 안정화: 광고 라이브 중에는 커스텀 UI를 내리고 기본 카페24 UI 사용 */
+  function mrsForceDetailImages(){
+    var root = document.getElementById('prdDetail') || document.querySelector('.xans-product-additional .additional-inner');
+    if(!root) return;
+    var imgs = root.querySelectorAll('img[ec-data-src], img[data-src]');
+    for(var i=0;i<imgs.length;i++){
+      var img = imgs[i];
+      var src = img.getAttribute('src') || '';
+      var lazy = img.getAttribute('ec-data-src') || img.getAttribute('data-src') || '';
+      if((!src || src === '#' || src === window.location.href) && lazy){
+        if(lazy.indexOf('//')===0) lazy = location.protocol + lazy;
+        img.setAttribute('src', lazy);
+      }
+      img.style.setProperty('visibility','visible','important');
+      img.style.setProperty('height','auto','important');
+      img.loading = 'eager';
+      img.decoding = 'async';
+    }
+  }
+
+  /* 긴급 안정화: 광고 라이브 중에는 커스텀 UI를 내리고, 상세 이미지만 강제 로드 */
+  var _hotfixStyle = document.createElement('style');
+  _hotfixStyle.id = 'mrsHotfixStyles';
+  _hotfixStyle.textContent = '#prdDetail img[ec-data-src],#prdDetail img[data-src],#prdDetailContentLazy img[ec-data-src],#prdDetailContentLazy img[data-src]{visibility:visible!important;height:auto!important;display:block!important;}';
+  document.head.appendChild(_hotfixStyle);
+  function mrsBootHotfix(){
+    mrsForceDetailImages();
+    setTimeout(mrsForceDetailImages, 300);
+    setTimeout(mrsForceDetailImages, 1000);
+    setTimeout(mrsForceDetailImages, 2500);
+    window.addEventListener('pageshow', mrsForceDetailImages);
+    window.addEventListener('scroll', mrsForceDetailImages, {passive:true});
+    window.addEventListener('resize', mrsForceDetailImages, {passive:true});
+    window.addEventListener('orientationchange', mrsForceDetailImages, {passive:true});
+    document.addEventListener('visibilitychange', function(){ if(!document.hidden) mrsForceDetailImages(); });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', mrsBootHotfix);
+  else mrsBootHotfix();
   window._mrsOptionLoaded = false;
   return;
 
