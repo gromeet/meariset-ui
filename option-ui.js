@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 131; /* 버전 번호 (13.1 = 131) — 빈 app-pay-wrap 자동 숨김 */
+  var MRS_VERSION = 132; /* 버전 번호 (13.2 = 132) — Safari 스크롤 복귀 blank 방지 구조 수정 */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -29,6 +29,7 @@
     if(oldStyle) oldStyle.remove();
     var oldBar = document.getElementById('mrsMobileBar');
     if(oldBar) oldBar.remove();
+    document.documentElement.classList.remove('mrs-ui-ready');
     window._npayMoved = false;
   }
   window._mrsOptionLoaded = true;
@@ -78,19 +79,19 @@
   var css = document.createElement('style');
   css.id = 'mrsStyles';
   css.textContent = '\
-  .productOption{display:none!important}\
-  #totalProducts,div#totalPrice,.quantity_price,.infoArea-footer .ec-base-help{display:none!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;opacity:0!important}\
-  #totalProducts table,#totalProducts tbody,#totalProducts tr,#totalProducts td,#totalProducts th{display:none!important;height:0!important;padding:0!important;margin:0!important;border:0!important}\
-  .infoArea-footer{padding-top:0!important;margin-top:0!important}\
-  .infoArea-footer .productAction{margin-top:0!important}\
-  .app-pay-wrap.mrs-empty{display:none!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important}\
-  .price-spec__item.product_custom_css,.price-spec__item.product_price_css,tr.product_custom_css,tr.product_price_css{display:none!important}\
+  .mrs-ui-ready .productOption{display:none!important}\
+  .mrs-ui-ready #totalProducts,.mrs-ui-ready div#totalPrice,.mrs-ui-ready .quantity_price,.mrs-ui-ready .infoArea-footer .ec-base-help{display:none!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;opacity:0!important}\
+  .mrs-ui-ready #totalProducts table,.mrs-ui-ready #totalProducts tbody,.mrs-ui-ready #totalProducts tr,.mrs-ui-ready #totalProducts td,.mrs-ui-ready #totalProducts th{display:none!important;height:0!important;padding:0!important;margin:0!important;border:0!important}\
+  .mrs-ui-ready .infoArea-footer{padding-top:0!important;margin-top:0!important}\
+  .mrs-ui-ready .infoArea-footer .productAction{margin-top:0!important}\
+  .mrs-ui-ready .app-pay-wrap.mrs-empty{display:none!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important}\
+  .mrs-ui-ready .price-spec__item.product_custom_css,.mrs-ui-ready .price-spec__item.product_price_css,.mrs-ui-ready tr.product_custom_css,.mrs-ui-ready tr.product_price_css{display:none!important}\
   .ssp.df-bannermanager,.df-bannermanager{pointer-events:none!important}\
   .ssp,.ssp__container,.ssp__list,.ssp__item--naver,.ssp__item--kakao{visibility:visible!important}\
   .ssp__item--naver a,.ssp__item--naver button,.ssp__item--naver [onclick],.ssp__item--kakao a,.ssp__item--kakao button,.ssp__item--kakao [onclick]{pointer-events:auto!important}\
-  .xans-element.xans-product.xans-product-detaildesign.price-spec.flex.flex--v-center.relative{display:none!important}\
-  .xans-element.xans-product.xans-product-detaildesign.detail-spec{display:none!important;padding:0!important;margin:0!important}\
-  .xans-element.xans-product.xans-product-detaildesign.detail-spec table,.xans-element.xans-product.xans-product-detaildesign.detail-spec tbody{display:none!important;margin:0!important;padding:0!important}\
+  .mrs-ui-ready .xans-element.xans-product.xans-product-detaildesign.price-spec.flex.flex--v-center.relative{display:none!important}\
+  .mrs-ui-ready .xans-element.xans-product.xans-product-detaildesign.detail-spec{display:none!important;padding:0!important;margin:0!important}\
+  .mrs-ui-ready .xans-element.xans-product.xans-product-detaildesign.detail-spec table,.mrs-ui-ready .xans-element.xans-product.xans-product-detaildesign.detail-spec tbody{display:none!important;margin:0!important;padding:0!important}\
   .prd-name,.prd-name.flex,.prd-name.flex.flex--v-center{margin-bottom:12px!important}\
   .summary-info{line-height:1.24!important;margin:8px 0 4px!important}\
   .summary-info br,.price-spec__item.simple_desc_css br{content:"";display:block;margin-top:1px}\
@@ -283,9 +284,13 @@
   </div>';
 
   /* ── 옵션 영역 앞에 삽입 ── */
+  function mrsSetNativeHidden(hidden){
+    document.documentElement.classList.toggle('mrs-ui-ready', !!hidden);
+  }
+
   function insertUI(){
     var existingWrap = document.getElementById('mrsOptionWrap');
-    if(existingWrap && existingWrap.querySelector('.mrs-card')) return; /* 이미 완성된 UI */
+    if(existingWrap && existingWrap.querySelector('.mrs-card')) { mrsSetNativeHidden(true); return; } /* 이미 완성된 UI */
     if(existingWrap) existingWrap.remove(); /* placeholder 제거 */
     var optArea = document.querySelector('.productOption');
     if(!optArea){ setTimeout(insertUI, 300); return; }
@@ -299,7 +304,24 @@
         optArea.parentNode.insertBefore(container.firstChild, optArea);
       }
     }
+    mrsSetNativeHidden(true);
     setTimeout(mrsInsertTagline, 500);
+  }
+
+  function mrsRepairUI(){
+    var wrap=document.getElementById('mrsOptionWrap');
+    var hasCards=!!(wrap && wrap.querySelector('.mrs-card'));
+    if(!hasCards){
+      mrsSetNativeHidden(false);
+      insertUI();
+      return;
+    }
+    mrsSetNativeHidden(true);
+    wrap.style.display='none';
+    void wrap.offsetHeight;
+    wrap.style.display='';
+    var tag=document.getElementById('mrsTagline');
+    if(tag){tag.style.display='none';void tag.offsetHeight;tag.style.display='block';}
   }
 
   /* ── 로직 (동일) ── */
@@ -537,6 +559,17 @@
       mrsGuardNpay();
       if(++tries >= 5) clearInterval(guardInterval);
     }, 2000);
+
+    var repairTimer=null;
+    function scheduleRepair(){
+      if(repairTimer) clearTimeout(repairTimer);
+      repairTimer=setTimeout(mrsRepairUI,120);
+    }
+    window.addEventListener('pageshow', mrsRepairUI);
+    document.addEventListener('visibilitychange', function(){ if(!document.hidden) scheduleRepair(); });
+    window.addEventListener('resize', scheduleRepair, {passive:true});
+    window.addEventListener('orientationchange', scheduleRepair, {passive:true});
+    window.addEventListener('scroll', scheduleRepair, {passive:true});
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mrsInit);
