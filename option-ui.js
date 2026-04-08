@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 100; /* 버전 번호 (10.0 = 100) — 옵션 위계 재구성 + 문구 간격 축소 */
+  var MRS_VERSION = 101; /* 버전 번호 (10.1 = 101) — 할인/가격 위계 재정리 + 간격 미세조정 */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -84,14 +84,15 @@
   .ssp.df-bannermanager,.df-bannermanager{pointer-events:none!important}\
   .ssp,.ssp__container,.ssp__list,.ssp__item--naver,.ssp__item--kakao{visibility:visible!important}\
   .ssp__item--naver a,.ssp__item--naver button,.ssp__item--naver [onclick],.ssp__item--kakao a,.ssp__item--kakao button,.ssp__item--kakao [onclick]{pointer-events:auto!important}\
-  .summary-info{line-height:1.28!important;margin:4px 0 6px!important}\
+  .prd-name,.prd-name.flex,.prd-name.flex.flex--v-center{margin-bottom:10px!important}\
+  .summary-info{line-height:1.24!important;margin:8px 0 4px!important}\
   .summary-info br,.price-spec__item.simple_desc_css br{content:"";display:block;margin-top:1px}\
-  .price-spec__item.simple_desc_css div,.price-spec__item.simple_desc_css span{line-height:1.28!important}\
-  .mrs-option-wrap{max-width:600px;margin:2px auto;font-family:"Malgun Gothic","맑은 고딕","Apple SD Gothic Neo",sans-serif;font-size:15px;line-height:1.5;color:#2D2D2D;background:#fff;border-radius:12px;padding:10px 8px 6px;text-align:center}\
+  .price-spec__item.simple_desc_css div,.price-spec__item.simple_desc_css span{line-height:1.24!important}\
+  .mrs-option-wrap{max-width:600px;margin:0 auto;font-family:"Malgun Gothic","맑은 고딕","Apple SD Gothic Neo",sans-serif;font-size:15px;line-height:1.5;color:#2D2D2D;background:#fff;border-radius:12px;padding:8px 8px 6px;text-align:center}\
   .mrs-option-wrap *{box-sizing:border-box;margin:0;padding:0;font-family:inherit}\
   .mrs-title{font-size:18px;font-weight:700;margin-bottom:6px;text-align:center;color:#1a1a1a;letter-spacing:-0.2px;line-height:1.45}\
-  .mrs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}\
-  @media(min-width:768px){.mrs-option-wrap{max-width:100%;padding:10px 0;margin:4px auto;border-radius:0;background:transparent}.mrs-grid{grid-template-columns:repeat(4,1fr)!important;gap:8px!important}.mrs-card-img{aspect-ratio:3/4!important}.mrs-card-label{font-size:15px;padding:8px 4px 2px;white-space:nowrap;letter-spacing:-0.1px}.mrs-card-color{font-size:12px;padding:0 4px 8px}.mrs-title{font-size:18px;margin-bottom:8px}.mrs-info{padding:14px 16px;min-height:78px;font-size:15px}}\
+  .mrs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:4px}\
+  @media(min-width:768px){.mrs-option-wrap{max-width:100%;padding:6px 0 4px;margin:0 auto;border-radius:0;background:transparent}.mrs-grid{grid-template-columns:repeat(4,1fr)!important;gap:8px!important}.mrs-card-img{aspect-ratio:3/4!important}.mrs-card-label{font-size:15px;padding:8px 4px 2px;white-space:nowrap;letter-spacing:-0.1px}.mrs-card-color{font-size:12px;padding:0 4px 8px}.mrs-title{font-size:18px;margin-bottom:8px}.mrs-info{padding:12px 16px;min-height:70px;font-size:15px}}\
   .mrs-card{position:relative;border:none;border-radius:12px;overflow:hidden;cursor:pointer;transition:box-shadow .2s,transform .2s;background:#fff;box-shadow:0 0 0 1.5px #ddd;transform:scale(1)}\
   .mrs-card:hover{box-shadow:0 0 0 1.5px #bcbcbc;transform:scale(1.02)}\
   .mrs-card.selected{box-shadow:0 0 0 2.5px #D4A853,0 0 0 6px rgba(212,168,83,.25);transform:scale(1.04)}\
@@ -106,7 +107,7 @@
   .mrs-card.selected::after{background:transparent}\
   .mrs-card-label{text-align:center;padding:8px 4px 2px;font-size:15px;font-weight:700;white-space:nowrap;line-height:1.35}\
   .mrs-card-color{text-align:center;font-size:12px;color:#777;padding:0 4px 8px;letter-spacing:0}\
-  @media(max-width:767px){.mrs-option-wrap{padding:8px 4px}.mrs-title{font-size:17px;margin-bottom:8px}.mrs-card-img{aspect-ratio:3/4!important}.mrs-start-badge{font-size:12px;padding:4px 8px}.mrs-check{width:20px;height:20px;font-size:12px;top:4px;right:4px}.mrs-info{padding:12px 10px;min-height:auto;font-size:15px}.mrs-info-price{font-size:18px}.mrs-info-sub{font-size:12px}.mrs-info-copy{font-size:15px}.mrs-info-hint{font-size:15px;padding:6px 14px}}\
+  @media(max-width:767px){.mrs-option-wrap{padding:6px 4px}.mrs-title{font-size:17px;margin-bottom:8px}.mrs-card-img{aspect-ratio:3/4!important}.mrs-start-badge{font-size:12px;padding:4px 8px}.mrs-check{width:20px;height:20px;font-size:12px;top:4px;right:4px}.mrs-info{padding:10px 10px;min-height:auto;font-size:15px}.mrs-info-price{font-size:18px}.mrs-info-sub{font-size:12px}.mrs-info-copy{font-size:15px}.mrs-info-hint{font-size:15px;padding:6px 14px}}\
   .mrs-info{background:#FAFAF8;border:1px solid #eee;border-bottom:none;border-radius:10px 10px 0 0;padding:16px 18px;text-align:center;min-height:78px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:all .25s}\
   .mrs-info-tag{display:inline-block;font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;margin-bottom:2px;line-height:1.3}\
   .mrs-info-tag.best{background:#E8F5E9;color:#2E7D32}\
@@ -138,31 +139,31 @@
   a.btnSubmit.gFull{background-color:#0A0A0A!important;border-color:#0A0A0A!important;}\
   @media(min-width:768px){.mrs-sticky{display:none!important}}\
   @media(max-width:520px){.mrs-sticky-price{font-size:17px}.mrs-sticky-btn{padding:12px 18px;font-size:15px}}\
-  .mrs-benefit-guide{font-family:inherit;background:#FAFAF8;border:1px solid #eee;border-radius:0 0 10px 10px;padding:10px 14px 12px;margin-top:0}\
+  .mrs-benefit-guide{font-family:inherit;background:#FAFAF8;border:1px solid #eee;border-radius:0 0 10px 10px;padding:8px 14px 10px;margin-top:0}\
   .mrs-benefit-title{font-size:15px;font-weight:700;color:#8B6914;text-align:center;margin-bottom:10px;letter-spacing:-0.1px;line-height:1.45}\
   .mrs-benefit-list{display:flex;flex-direction:column;gap:8px;text-align:left}\
-  .mrs-benefit-row{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;transition:background .2s;cursor:pointer}\
+  .mrs-benefit-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;transition:background .2s;cursor:pointer}\
   .mrs-benefit-row:hover{background:rgba(212,168,83,.06)}\
   .mrs-benefit-row.active{background:rgba(212,168,83,.1)!important}\
   .mrs-benefit-row:last-child{background:rgba(212,168,83,.06)}\
-  .mrs-benefit-discountbox{min-width:58px;height:38px;border-radius:12px;background:#2D2D2D;color:#fff;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;font-weight:700;line-height:1}\
-  .mrs-benefit-main{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0;flex:1}\
+  .mrs-benefit-side{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:3px;min-width:60px;flex-shrink:0}\
+  .mrs-benefit-discount{font-size:21px;font-weight:700;color:#DF002E;line-height:1.1;letter-spacing:-0.2px}\
+  .mrs-benefit-main{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0;flex:1}\
   .mrs-benefit-name{font-size:15px;font-weight:400;color:#1a1a1a;line-height:1.35}\
   .mrs-benefit-count{font-size:18px;font-weight:700;color:#1a1a1a;margin-right:3px}\
-  .mrs-benefit-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}\
-  .mrs-benefit-unit{display:block;font-size:12px;color:#777;font-weight:400;line-height:1.35;letter-spacing:0}\
-  .mrs-benefit-badge{font-size:11px;font-weight:700;padding:4px 8px;border-radius:999px;white-space:nowrap;line-height:1.2;background:rgba(45,45,45,.08);color:#2D2D2D}\
+  .mrs-benefit-badge{font-size:11px;font-weight:700;padding:3px 7px;border-radius:999px;white-space:nowrap;line-height:1.2;background:rgba(45,45,45,.08);color:#2D2D2D}\
   .mrs-benefit-badge.popular{background:rgba(45,45,45,.08);color:#2D2D2D}\
   .mrs-benefit-badge.saving{background:rgba(45,45,45,.08);color:#2D2D2D}\
   .mrs-benefit-badge.freeship{background:rgba(45,45,45,.08);color:#2D2D2D}\
   .mrs-benefit-badge.lowest{background:rgba(45,45,45,.08);color:#2D2D2D}\
-  .mrs-benefit-pricebox{display:flex;justify-content:flex-end;align-items:center;min-width:104px;flex-shrink:0}\
-  .mrs-benefit-price{font-size:21px;font-weight:700;color:#1a1a1a;line-height:1.2;letter-spacing:-0.2px}\
+  .mrs-benefit-pricebox{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:2px;min-width:112px;flex-shrink:0}\
+  .mrs-benefit-price{font-size:21px;font-weight:700;color:#1a1a1a;line-height:1.1;letter-spacing:-0.2px}\
+  .mrs-benefit-unit{display:block;font-size:12px;color:#777;font-weight:400;line-height:1.3;letter-spacing:0}\
   .mrs-benefit-row.best-deal{background:rgba(212,168,83,.06)}\
   .mrs-benefit-coupon{font-size:15px;font-weight:400;color:#2D2D2D;text-align:left;margin-top:8px;padding:12px 14px;background:#F5F3EF;border-radius:0 10px 10px 0;border:none;border-left:3px solid #C8B48C;line-height:1.5;display:block;width:100%}\
   .mrs-coupon-amount{font-weight:700;color:#D32F2F}\
-  @media(min-width:768px){.mrs-benefit-guide{padding:8px 10px 10px}.mrs-benefit-row{padding:10px 10px}.mrs-benefit-discountbox{min-width:56px;height:36px;font-size:15px}.mrs-benefit-name{font-size:15px}.mrs-benefit-count{font-size:18px}.mrs-benefit-pricebox{min-width:108px}.mrs-benefit-price{font-size:21px}.mrs-benefit-badge{font-size:11px}.mrs-benefit-coupon{font-size:15px}}\
-  @media(max-width:767px){.mrs-benefit-guide{padding:8px 8px 10px;margin-top:4px}.mrs-benefit-row{padding:10px 10px;gap:8px}.mrs-benefit-discountbox{min-width:52px;height:34px;font-size:14px}.mrs-benefit-name{font-size:15px}.mrs-benefit-count{font-size:17px}.mrs-benefit-pricebox{min-width:94px}.mrs-benefit-price{font-size:19px}.mrs-benefit-badge{font-size:11px;padding:4px 7px}.mrs-benefit-coupon{font-size:15px;padding:10px 12px;margin-top:8px}}\
+  @media(min-width:768px){.mrs-benefit-guide{padding:6px 10px 8px}.mrs-benefit-row{padding:8px 10px}.mrs-benefit-side{min-width:58px}.mrs-benefit-discount{font-size:21px}.mrs-benefit-name{font-size:15px}.mrs-benefit-count{font-size:18px}.mrs-benefit-pricebox{min-width:114px}.mrs-benefit-price{font-size:21px}.mrs-benefit-badge{font-size:11px}.mrs-benefit-coupon{font-size:15px}}\
+  @media(max-width:767px){.mrs-benefit-guide{padding:6px 8px 8px;margin-top:2px}.mrs-benefit-row{padding:9px 10px;gap:8px}.mrs-benefit-side{min-width:52px}.mrs-benefit-discount{font-size:19px}.mrs-benefit-name{font-size:15px}.mrs-benefit-count{font-size:17px}.mrs-benefit-pricebox{min-width:96px}.mrs-benefit-price{font-size:19px}.mrs-benefit-badge{font-size:11px;padding:3px 6px}.mrs-benefit-unit{font-size:12px}.mrs-benefit-coupon{font-size:15px;padding:10px 12px;margin-top:8px}}\
   ';
   document.head.appendChild(css);
 
@@ -203,48 +204,56 @@
     <div class="mrs-benefit-guide" id="mrsBenefitGuide">\
       <div class="mrs-benefit-list">\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(1)">\
-          <span class="mrs-benefit-discountbox">36%↓</span>\
+          <span class="mrs-benefit-side">\
+            <span class="mrs-benefit-badge popular">BEST</span>\
+            <span class="mrs-benefit-discount">36%↓</span>\
+          </span>\
           <span class="mrs-benefit-main">\
             <span class="mrs-benefit-name"><strong class="mrs-benefit-count">1권</strong> 플래너 스타터</span>\
-            <span class="mrs-benefit-meta">\
-              <span class="mrs-benefit-badge popular">가장 많이 선택</span>\
-              <span class="mrs-benefit-unit">권당 29,000원</span>\
-            </span>\
           </span>\
-          <span class="mrs-benefit-pricebox"><span class="mrs-benefit-price">29,000원</span></span>\
+          <span class="mrs-benefit-pricebox">\
+            <span class="mrs-benefit-price">29,000원</span>\
+            <span class="mrs-benefit-unit">권당 29,000원</span>\
+          </span>\
         </div>\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(2)">\
-          <span class="mrs-benefit-discountbox">46%↓</span>\
+          <span class="mrs-benefit-side">\
+            <span class="mrs-benefit-badge saving">9,000원 절약</span>\
+            <span class="mrs-benefit-discount">46%↓</span>\
+          </span>\
           <span class="mrs-benefit-main">\
             <span class="mrs-benefit-name"><strong class="mrs-benefit-count">2권</strong> 플래너 베이직</span>\
-            <span class="mrs-benefit-meta">\
-              <span class="mrs-benefit-badge saving">9,000원 절약</span>\
-              <span class="mrs-benefit-unit">권당 24,500원</span>\
-            </span>\
           </span>\
-          <span class="mrs-benefit-pricebox"><span class="mrs-benefit-price">49,000원</span></span>\
+          <span class="mrs-benefit-pricebox">\
+            <span class="mrs-benefit-price">49,000원</span>\
+            <span class="mrs-benefit-unit">권당 24,500원</span>\
+          </span>\
         </div>\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(3)">\
-          <span class="mrs-benefit-discountbox">49%↓</span>\
+          <span class="mrs-benefit-side">\
+            <span class="mrs-benefit-badge freeship">무료배송</span>\
+            <span class="mrs-benefit-discount">49%↓</span>\
+          </span>\
           <span class="mrs-benefit-main">\
             <span class="mrs-benefit-name"><strong class="mrs-benefit-count">3권</strong> 플래너 플러스</span>\
-            <span class="mrs-benefit-meta">\
-              <span class="mrs-benefit-badge freeship">무료배송</span>\
-              <span class="mrs-benefit-unit">권당 23,000원</span>\
-            </span>\
           </span>\
-          <span class="mrs-benefit-pricebox"><span class="mrs-benefit-price">69,000원</span></span>\
+          <span class="mrs-benefit-pricebox">\
+            <span class="mrs-benefit-price">69,000원</span>\
+            <span class="mrs-benefit-unit">권당 23,000원</span>\
+          </span>\
         </div>\
         <div class="mrs-benefit-row best-deal" onclick="mrsBenefitSelect(4)">\
-          <span class="mrs-benefit-discountbox">51%↓</span>\
+          <span class="mrs-benefit-side">\
+            <span class="mrs-benefit-badge lowest">최저가+무배</span>\
+            <span class="mrs-benefit-discount">51%↓</span>\
+          </span>\
           <span class="mrs-benefit-main">\
             <span class="mrs-benefit-name"><strong class="mrs-benefit-count">4권</strong> 플래너 마스터</span>\
-            <span class="mrs-benefit-meta">\
-              <span class="mrs-benefit-badge lowest">최저가+무배</span>\
-              <span class="mrs-benefit-unit">권당 22,250원</span>\
-            </span>\
           </span>\
-          <span class="mrs-benefit-pricebox"><span class="mrs-benefit-price">89,000원</span></span>\
+          <span class="mrs-benefit-pricebox">\
+            <span class="mrs-benefit-price">89,000원</span>\
+            <span class="mrs-benefit-unit">권당 22,250원</span>\
+          </span>\
         </div>\
       </div>\
     </div>\
