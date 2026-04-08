@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 95; /* 버전 번호 (9.5 = 95) — 할인율/가격 밀착 정렬 개선 */
+  var MRS_VERSION = 96; /* 버전 번호 (9.6 = 96) — 네이버 카페 배너 제거 */
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -155,9 +155,6 @@
   .mrs-benefit-row.best-deal{background:transparent;border:none}\
   .mrs-benefit-coupon{font-size:13px;font-weight:600;color:#2D2D2D;text-align:left;margin-top:10px;padding:11px 14px;background:#F5F3EF;border-radius:0 10px 10px 0;border:none;border-left:3px solid #C8B48C}\
   .mrs-coupon-amount{font-weight:800;color:#D32F2F}\
-  .mrs-cafe-banner{display:flex;align-items:center;gap:10px;background:#F5F3EF;border-left:3px solid #2D4A3E;padding:11px 14px;border-radius:0 10px 10px 0;margin-bottom:12px;text-align:left}\
-  .mrs-cafe-text{font-size:13px;font-weight:600;color:#2D2D2D;line-height:1.4}\
-  .mrs-cafe-free{font-weight:800;color:#2D4A3E}\
   @media(min-width:768px){.mrs-benefit-guide{padding:8px 8px 0}.mrs-benefit-row{padding:6px 8px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:11px;min-width:28px;height:28px}.mrs-benefit-pricebox{min-width:102px}.mrs-benefit-price-top{gap:6px}.mrs-benefit-price{font-size:13px}.mrs-benefit-unit{font-size:10px}.mrs-benefit-discount{font-size:11px}.mrs-benefit-badge{font-size:10px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px}}\
   @media(max-width:767px){.mrs-benefit-guide{padding:8px 8px 10px;margin-top:6px}.mrs-benefit-row{padding:8px 10px;gap:6px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:11px;min-width:28px;height:28px}.mrs-benefit-pricebox{min-width:98px}.mrs-benefit-price-top{gap:6px}.mrs-benefit-price{font-size:13px}.mrs-benefit-unit{font-size:10px}.mrs-benefit-discount{font-size:11px}.mrs-benefit-badge{font-size:10px;padding:2px 6px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px;padding:11px 14px}}\
   ';
@@ -172,9 +169,6 @@
   /* ── HTML 주입 ── */
   var html = '\
   <div class="mrs-option-wrap" id="mrsOptionWrap">\
-    <div class="mrs-cafe-banner">\
-      <span class="mrs-cafe-text">☕ 네이버카페 12주 인증 완료 시 <span class="mrs-cafe-free">다음 시즌 무료!</span></span>\
-    </div>\
     <div class="mrs-grid">\
       <div class="mrs-card" data-season="1" onclick="mrsToggle(this)">\
         <span class="mrs-start-badge">✦ 입문자 추천</span>\
