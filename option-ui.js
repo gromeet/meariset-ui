@@ -4,7 +4,9 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 93; /* 버전 번호 (9.3 = 93) — 실제 border 제거, 외곽 shadow만 사용 */
+  var MRS_VERSION = 101; /* 버전 번호 (10.1 = 101) — v100 부팅 자동복구 롤백, 안정판 기준 */
+  var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
+  var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -34,11 +36,16 @@
   window._mrsOptionLoaded = true;
   window._mrsVersion = MRS_VERSION;
 
-  /* product_no=27 에서만 실행 (SEO URL 대응) */
+  /* product_no=27 에서만 실행 (SEO URL 대응 강화) */
   var prdEl = document.querySelector('[data-prd-no]');
   var prdNo = prdEl ? prdEl.getAttribute('data-prd-no') : '';
   var urlHas27 = location.search.indexOf('product_no=27') !== -1 || location.href.indexOf('product_no=27') !== -1;
-  if(!urlHas27 && prdNo !== '27'){ window._mrsOptionLoaded = false; return; }
+  var pathMatch27 = location.pathname.match(/\/product\/[^/]*\/(\d+)\//);
+  var pathHas27 = !!(pathMatch27 && pathMatch27[1] === '27');
+  if(!urlHas27 && !pathHas27 && prdNo !== '27'){ window._mrsOptionLoaded = false; return; }
+
+  if(window.__mrsActiveMode && window.__mrsActiveMode !== 'live27') return;
+  window.__mrsActiveMode = 'live27';
 
   /* placeholder 중복 방지 (같은 버전 재실행 시) */
 
@@ -49,30 +56,134 @@
   (document.body || document.documentElement).appendChild(_placeholder);
 
   /* ── df-bannermanager JS 강제 fix (CSS !important만으론 SSP inline style 못 막음) ── */
+  function _isHeaderSmartBanner(el){
+    if(!el) return false;
+    if(el.closest && el.closest('.top-logo, [df-banner-code="logo"], .top-banner, [df-banner-code="top-banner"]')) return true;
+    if(el.querySelector && el.querySelector('.top-logo__item, [df-banner-code="logo"] a, .top-banner__link, [df-banner-code="top-banner"] a')) return true;
+    return false;
+  }
+
+  function _isLoggedOutState(){
+    return !!document.querySelector('.xans-layout-statelogoff .membership__txt, .xans-layout-statelogoff .usm__link[href="/myshop/index.html"]');
+  }
+
+  function _getTopBannerUrl(){
+    return _isLoggedOutState() ? MRS_LOGIN_BANNER_URL : MRS_PRODUCT_BANNER_URL;
+  }
+
+  function _restoreHeaderLogo(){
+    var logoBoxes = document.querySelectorAll('.header__bottom .top-logo, .header__bottom [df-banner-code="logo"]');
+    if(!logoBoxes.length) logoBoxes = document.querySelectorAll('.top-logo, [df-banner-code="logo"]');
+    for(var i=0;i<logoBoxes.length;i++){
+      var box = logoBoxes[i];
+      box.hidden = false;
+      box.style.setProperty('display','flex','important');
+      box.style.setProperty('visibility','visible','important');
+      box.style.setProperty('opacity','1','important');
+      box.style.setProperty('pointer-events','auto','important');
+
+      var links = box.querySelectorAll('a');
+      var hasRealLogo = false;
+      for(var j=0;j<links.length;j++){
+        var href = links[j].getAttribute('href') || '';
+        var html = (links[j].innerHTML || '').replace(/\s|&nbsp;/g, '');
+        var hasVisual = !!links[j].querySelector('img,svg') || (!!html && html.indexOf('{#item}') === -1);
+        if(href && href.indexOf('{#href}') === -1 && hasVisual){
+          hasRealLogo = true;
+          links[j].setAttribute('href','/');
+          links[j].setAttribute('target','_self');
+          links[j].style.setProperty('pointer-events','auto','important');
+        }
+      }
+
+      var oldFallback = box.querySelector('.mrs-fallback-logo');
+      if(hasRealLogo){
+        if(oldFallback) oldFallback.remove();
+      } else if(!oldFallback){
+        var fallback = document.createElement('a');
+        fallback.className = 'mrs-fallback-logo';
+        fallback.href = '/';
+        fallback.target = '_self';
+        fallback.textContent = 'meariset';
+        box.appendChild(fallback);
+      }
+    }
+  }
+
+  function _restoreTopBanner(){
+    var banners = document.querySelectorAll('.top-banner, [df-banner-code="top-banner"]');
+    for(var i=0;i<banners.length;i++){
+      var banner = banners[i];
+      banner.hidden = false;
+      banner.style.setProperty('display','block','important');
+      banner.style.setProperty('visibility','visible','important');
+      banner.style.setProperty('opacity','1','important');
+      banner.style.setProperty('pointer-events','auto','important');
+
+      banner.style.setProperty('background','#0a0a0a','important');
+      banner.style.setProperty('color','#ffffff','important');
+
+      var anchors = banner.querySelectorAll('a');
+      for(var j=0;j<anchors.length;j++){
+        anchors[j].href = _getTopBannerUrl();
+        anchors[j].target = '_self';
+        anchors[j].style.setProperty('pointer-events','auto','important');
+        anchors[j].style.setProperty('cursor','pointer','important');
+        anchors[j].style.setProperty('color','#ffffff','important');
+        anchors[j].style.setProperty('background','#0a0a0a','important');
+      }
+
+      var items = banner.querySelectorAll('.top-banner__item');
+      for(var k=0;k<items.length;k++){
+        items[k].style.setProperty('background','#0a0a0a','important');
+        items[k].style.setProperty('color','#ffffff','important');
+      }
+    }
+  }
+
   function _fixDfBanner(){
     var els = document.querySelectorAll('.df-bannermanager, .ssp.df-bannermanager');
     for(var i=0;i<els.length;i++){
-      els[i].style.setProperty('pointer-events','none','important');
+      var el = els[i];
+      if(_isHeaderSmartBanner(el)){
+        el.style.setProperty('pointer-events','auto','important');
+      } else {
+        el.style.setProperty('pointer-events','none','important');
+      }
     }
+
+    var headerTargets = document.querySelectorAll('.top-logo, .top-logo *, [df-banner-code="logo"], [df-banner-code="logo"] *, .top-logo__item, .top-banner, .top-banner *, [df-banner-code="top-banner"], [df-banner-code="top-banner"] *');
+    for(var j=0;j<headerTargets.length;j++){
+      headerTargets[j].style.setProperty('pointer-events','auto','important');
+    }
+
+    _restoreHeaderLogo();
+    _restoreTopBanner();
   }
-  _fixDfBanner();
+  try{ _fixDfBanner(); }catch(e){}
   /* MutationObserver: SSP가 나중에 다시 만들거나 style 바꿔도 재적용 */
   if(window.MutationObserver){
     var _bannerObs = new MutationObserver(function(muts){
       for(var i=0;i<muts.length;i++){
         var m=muts[i];
-        if(m.type==='childList'){ _fixDfBanner(); break; }
-        if(m.type==='attributes' && m.target && m.target.classList && m.target.classList.contains('df-bannermanager')){
-          _fixDfBanner(); break;
+        if(m.type === 'childList'){
+          try{ _fixDfBanner(); }catch(e){}
+          break;
+        }
+        if(m.type === 'attributes' && m.target && m.target.classList && m.target.classList.contains('df-bannermanager')){
+          try{ _fixDfBanner(); }catch(e){}
+          break;
         }
       }
     });
     var _bodyEl = document.body || document.documentElement;
     _bannerObs.observe(_bodyEl, { childList:true, subtree:true, attributes:true, attributeFilter:['style','class'] });
+    setTimeout(function(){ try{ _bannerObs.disconnect(); }catch(e){} }, 10000);
   }
   /* 추가 안전망: 500ms 후 재실행 (SSP 비동기 로드 대응) */
-  setTimeout(_fixDfBanner, 500);
-  setTimeout(_fixDfBanner, 1500);
+  setTimeout(function(){ try{ _fixDfBanner(); }catch(e){} }, 200);
+  setTimeout(function(){ try{ _fixDfBanner(); }catch(e){} }, 800);
+  setTimeout(function(){ try{ _fixDfBanner(); }catch(e){} }, 2000);
 
   /* ── CSS 주입 ── */
   var css = document.createElement('style');
@@ -81,6 +192,10 @@
   .productOption{position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important}\
   #totalProducts,div#totalPrice,.quantity_price{position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important}\
   .ssp.df-bannermanager,.df-bannermanager{pointer-events:none!important}\
+  .top-logo,.top-logo *,[df-banner-code="logo"],[df-banner-code="logo"] *,.top-logo__item,.top-banner,.top-banner *,[df-banner-code="top-banner"],[df-banner-code="top-banner"] *{pointer-events:auto!important}\
+  .header .top-logo,.top-banner{position:relative;z-index:30}\
+  .header__bottom .top-logo{min-width:120px;min-height:24px}\
+  .mrs-fallback-logo{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:24px!important;color:#111!important;font-size:22px!important;font-weight:700!important;letter-spacing:-0.02em!important;text-decoration:none!important;line-height:1!important}\
   .ssp,.ssp__container,.ssp__list,.ssp__item--naver,.ssp__item--kakao{visibility:visible!important}\
   .ssp__item--naver a,.ssp__item--naver button,.ssp__item--naver [onclick],.ssp__item--kakao a,.ssp__item--kakao button,.ssp__item--kakao [onclick]{pointer-events:auto!important}\
   .mrs-option-wrap{max-width:600px;margin:4px auto;font-family:Pretendard,sans-serif;color:#2D2D2D;background:#fff;border-radius:12px;padding:12px 8px;text-align:center;overflow:visible}\
@@ -330,14 +445,11 @@
 
   function mrsUpdateBenefit(){
     var rows=document.querySelectorAll('.mrs-benefit-row');
-    var comboKey=mrsGetComboKey();
+    var count=document.querySelectorAll('.mrs-card.selected').length;
     for(var i=0;i<rows.length;i++) rows[i].classList.remove('active');
-    for(var count=1;count<=4;count++){
-      if(comboKey===PRESET_BY_COUNT[count]){
-        var target=rows[count-1];
-        if(target) target.classList.add('active');
-        break;
-      }
+    if(count >= 1 && count <= 4){
+      var target=rows[count-1];
+      if(target) target.classList.add('active');
     }
   }
 
@@ -475,9 +587,17 @@
   }
 
   /* ── 초기화 ── */
+  function mrsEnsureUI(){
+    var readyWrap = document.querySelector('#mrsOptionWrap .mrs-card');
+    if(!readyWrap) insertUI();
+  }
+
   function mrsInit(){
     insertUI();
     mrsInstallCapture();
+    setTimeout(mrsEnsureUI, 300);
+    setTimeout(mrsEnsureUI, 1200);
+    setTimeout(mrsEnsureUI, 2500);
     /* SDK 로딩 대기 후 네이버페이 방어 시작 (1초 간격으로 5회 시도) */
     var tries = 0;
     var guardInterval = setInterval(function(){
@@ -488,4 +608,5 @@
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mrsInit);
   else mrsInit();
+  window.addEventListener('load', mrsEnsureUI);
 })();
