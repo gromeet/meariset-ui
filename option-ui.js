@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 107; /* 버전 번호 (10.7 = 107) — 추가상품 선택값 구조 대응 + 결제바 합산 보정 */
+  var MRS_VERSION = 108; /* 버전 번호 (10.8 = 108) — salePrice 빈 노드 회피 + 추가상품 가격 인식 보정 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -374,8 +374,12 @@
       var price=mrsParsePriceValue(mrsGetText(opt)||mrsGetText(sel));
       if(!(price>0)){
         var row=(sel.closest&& (sel.closest('.xans-product-addproduct .product > li')||sel.closest('.product > li')||sel.closest('li'))) || null;
-        var priceNode=row&&(row.querySelector('.information .salePrice')||row.querySelector('.information .price')||row.querySelector('.price'));
-        price=mrsParsePriceValue(mrsGetText(priceNode));
+        var salePriceNode=row&&row.querySelector('.information .salePrice');
+        price=mrsParsePriceValue(mrsGetText(salePriceNode));
+        if(!(price>0)){
+          var basePriceNode=row&&(row.querySelector('.information .price')||row.querySelector('.price'));
+          price=mrsParsePriceValue(mrsGetText(basePriceNode));
+        }
       }
       if(price>0) total+=price;
     }
