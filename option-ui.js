@@ -478,8 +478,24 @@
 
   function mrsClearOptions(){
     var dels=document.querySelectorAll('#totalProducts .option_box_del, #totalProducts img[alt="삭제"]');
-    for(var i=dels.length-1;i>=0;i--){var link=dels[i].closest('a')||dels[i];try{link.click();}catch(e){}}
-    var tp=document.getElementById('totalProducts');if(tp){var tbody=tp.querySelector('tbody');if(tbody)tbody.innerHTML='';}
+    for(var i=dels.length-1;i>=0;i--){
+      var row=dels[i].closest('tr');
+      if(row&&row.classList.contains('add_product')) continue;
+      var link=dels[i].closest('a')||dels[i];
+      try{link.click();}catch(e){}
+    }
+    var tp=document.getElementById('totalProducts');
+    if(tp){
+      var tbody=tp.querySelector('tbody');
+      if(tbody){
+        var rows=tbody.querySelectorAll('tr');
+        for(var j=rows.length-1;j>=0;j--){
+          if(rows[j].classList.contains('add_product')) continue;
+          if(rows[j].querySelector('th')) continue;
+          rows[j].remove();
+        }
+      }
+    }
     var sel=document.getElementById('product_option_id1');if(sel)sel.value='*';
   }
   function mrsSelectOption(optionValue){
