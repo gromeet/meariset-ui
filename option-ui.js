@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 107; /* 버전 번호 (10.7 = 107) — 클립펜 UI 심플 리디자인 */
+  var MRS_VERSION = 108; /* 버전 번호 (10.8 = 108) — 클립펜 상품 카드 재설계 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
   var MRS_PEN_ADD_VALUE = 'P00000BW000A';
@@ -213,37 +213,36 @@
   .mrs-cafe-text{font-size:13px;font-weight:600;color:#2D2D2D;line-height:1.4}\
   .mrs-cafe-free{font-weight:800;color:#2D4A3E}\
   body.mrs-custom-option-active .xans-product-addproduct,body.mrs-custom-option-active .addProduct,body.mrs-custom-option-active .xans-product-detail .add_product{position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;pointer-events:none!important}\
-  .mrs-pen-card{margin:12px 0 0;padding:14px 16px;border:1px solid #E7E2DA;border-radius:14px;background:#fff;text-align:left;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .2s}\
-  .mrs-pen-card:hover{border-color:#CFC8BD;box-shadow:0 10px 24px rgba(24,24,24,.06);transform:translateY(-1px)}\
-  .mrs-pen-card.selected{border-color:#111;box-shadow:0 0 0 1px #111,0 12px 28px rgba(24,24,24,.08)}\
-  .mrs-pen-card.free{border-color:#2D4A3E;box-shadow:0 0 0 1px #2D4A3E;background:#FBFDFB;cursor:default}\
-  .mrs-pen-card.disabled{background:#FCFBF9}\
-  .mrs-pen-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}\
-  .mrs-pen-kicker{font-size:11px;font-weight:900;color:#111;letter-spacing:.02em}\
-  .mrs-pen-state{display:inline-flex;align-items:center;justify-content:center;padding:5px 10px;border-radius:999px;background:#F3F0EA;color:#111;font-size:11px;font-weight:800;line-height:1.2;white-space:nowrap}\
-  .mrs-pen-card.selected .mrs-pen-state{background:#111;color:#fff}\
-  .mrs-pen-card.free .mrs-pen-state{background:#2D4A3E;color:#fff}\
-  .mrs-pen-main{display:grid;grid-template-columns:112px minmax(0,1fr) minmax(116px,auto);align-items:center;gap:16px}\
-  .mrs-pen-media{border-radius:12px;background:#F5F3EF;overflow:hidden;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center}\
+  .mrs-pen-card{margin:12px 0 0;padding:12px;border:1px solid #E7E2DA;border-radius:12px;background:#fff;text-align:left;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .2s}\
+  .mrs-pen-card:hover{border-color:#C7BFB3;box-shadow:0 10px 24px rgba(24,24,24,.06);transform:translateY(-1px)}\
+  .mrs-pen-card.selected{border-color:#111;box-shadow:0 0 0 1px #111,0 12px 24px rgba(24,24,24,.08)}\
+  .mrs-pen-card.free{border-color:#2D4A3E;box-shadow:0 0 0 1px #2D4A3E;background:#FCFEFC;cursor:default}\
+  .mrs-pen-card.disabled{background:#fff}\
+  .mrs-pen-main{display:grid;grid-template-columns:96px minmax(0,1fr);align-items:center;gap:14px}\
+  .mrs-pen-media{width:96px;height:96px;border-radius:10px;background:#F5F3EF;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0}\
   .mrs-pen-img{width:100%;height:100%;object-fit:cover;display:block}\
-  .mrs-pen-body{min-width:0;display:flex;flex-direction:column;gap:6px}\
-  .mrs-pen-title{font-size:15px;font-weight:900;color:#111;line-height:1.35;word-break:keep-all}\
-  .mrs-pen-usp{font-size:12px;font-weight:700;color:#222;line-height:1.5;word-break:keep-all}\
-  .mrs-pen-sub{font-size:11px;color:#666;line-height:1.55;word-break:keep-all}\
-  .mrs-pen-buy{display:flex;flex-direction:column;align-items:flex-end;gap:9px;min-width:116px}\
-  .mrs-pen-price{display:flex;flex-direction:column;align-items:flex-end;gap:2px;white-space:nowrap}\
-  .mrs-pen-origin{font-size:11px;color:#999;text-decoration:line-through}\
-  .mrs-pen-sale{font-size:18px;font-weight:950;color:#111;letter-spacing:-.02em}\
+  .mrs-pen-content{min-width:0;display:flex;flex-direction:column;gap:8px}\
+  .mrs-pen-badges{display:flex;flex-wrap:wrap;gap:6px}\
+  .mrs-pen-badge{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:#F3EFE8;color:#8B6914;font-size:11px;font-weight:800;line-height:1.2}\
+  .mrs-pen-card.free .mrs-pen-badge{background:#EEF6F0;color:#2D4A3E}\
+  .mrs-pen-kicker{font-size:11px;font-weight:800;color:#6F675D;line-height:1.2;letter-spacing:0}\
+  .mrs-pen-card.free .mrs-pen-kicker{color:#2D4A3E}\
+  .mrs-pen-title{font-size:18px;font-weight:950;color:#111;line-height:1.28;word-break:keep-all}\
+  .mrs-pen-title .sub{display:block;font-size:14px;font-weight:800;color:#6F675D;margin-bottom:2px}\
+  .mrs-pen-card.free .mrs-pen-title .sub{color:#2D4A3E}\
+  .mrs-pen-usp{font-size:13px;font-weight:700;color:#2F2B27;line-height:1.55;word-break:keep-all}\
+  .mrs-pen-price{display:flex;flex-direction:column;gap:2px;margin-top:2px}\
+  .mrs-pen-origin{font-size:12px;color:#8A847B;line-height:1.35}\
+  .mrs-pen-sale{font-size:20px;font-weight:950;color:#111;line-height:1.2;letter-spacing:-.02em}\
   .mrs-pen-card.free .mrs-pen-sale{color:#2D4A3E}\
-  .mrs-pen-note{font-size:11px;font-weight:700;color:#666;white-space:nowrap}\
-  .mrs-pen-card.free .mrs-pen-note{color:#2D4A3E}\
-  .mrs-pen-cta{border:none;border-radius:10px;background:#111;color:#fff;font-family:Pretendard,sans-serif;font-size:12px;font-weight:900;padding:11px 14px;min-width:110px;cursor:pointer;white-space:nowrap;transition:background .2s,transform .2s}\
+  .mrs-pen-action{display:flex;align-items:center;justify-content:flex-start;gap:12px;margin-top:2px}\
+  .mrs-pen-cta{border:none;border-radius:10px;background:#111;color:#fff;font-family:Pretendard,sans-serif;font-size:12px;font-weight:900;padding:10px 16px;min-width:96px;cursor:pointer;white-space:nowrap;transition:background .2s,transform .2s}\
   .mrs-pen-cta:active{transform:scale(.98)}\
   .mrs-pen-card.selected .mrs-pen-cta{background:#111;color:#fff}\
   .mrs-pen-card.free .mrs-pen-cta{background:#2D4A3E;color:#fff;cursor:default}\
-  .mrs-pen-card.disabled .mrs-pen-cta{background:#6F6A60}\
-  @media(min-width:768px){.mrs-benefit-guide{padding:8px 8px 10px}.mrs-benefit-row{padding:6px 8px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:11px;min-width:28px;height:28px}.mrs-benefit-price{font-size:13px}.mrs-benefit-unit{display:none}.mrs-benefit-discount{font-size:10px}.mrs-benefit-badge{font-size:10px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px}.mrs-pen-card{margin:10px 8px 0}}\
-  @media(max-width:767px){.mrs-benefit-guide{padding:8px 8px 10px;margin-top:6px}.mrs-benefit-row{padding:8px 10px;gap:6px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:11px;min-width:28px;height:28px}.mrs-benefit-price{font-size:13px}.mrs-benefit-unit{display:none}.mrs-benefit-discount{font-size:10px}.mrs-benefit-badge{font-size:10px;padding:2px 6px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px;padding:11px 14px}.mrs-pen-card{padding:12px;margin:10px 4px 0}.mrs-pen-head{margin-bottom:10px}.mrs-pen-main{grid-template-columns:88px 1fr;gap:12px}.mrs-pen-buy{grid-column:1/3;flex-direction:row;align-items:center;justify-content:space-between;margin-top:2px}.mrs-pen-price{align-items:flex-start}.mrs-pen-sale{font-size:17px}.mrs-pen-note{font-size:10px}.mrs-pen-cta{min-width:102px;padding:10px 12px}.mrs-pen-title{font-size:14px}.mrs-pen-sub{font-size:10px}}\
+  .mrs-pen-card.disabled .mrs-pen-cta{background:#EEEAE3;color:#6F675D}\
+  @media(min-width:768px){.mrs-benefit-guide{padding:8px 8px 10px}.mrs-benefit-row{padding:6px 8px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:11px;min-width:28px;height:28px}.mrs-benefit-price{font-size:13px}.mrs-benefit-unit{display:none}.mrs-benefit-discount{font-size:10px}.mrs-benefit-badge{font-size:10px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px}.mrs-pen-card{margin:12px 8px 0}}\
+  @media(max-width:767px){.mrs-benefit-guide{padding:8px 8px 10px;margin-top:6px}.mrs-benefit-row{padding:8px 10px;gap:6px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:11px;min-width:28px;height:28px}.mrs-benefit-price{font-size:13px}.mrs-benefit-unit{display:none}.mrs-benefit-discount{font-size:10px}.mrs-benefit-badge{font-size:10px;padding:2px 6px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px;padding:11px 14px}.mrs-pen-card{margin:12px 4px 0;padding:10px}.mrs-pen-main{grid-template-columns:82px minmax(0,1fr);gap:12px}.mrs-pen-media{width:82px;height:82px}.mrs-pen-title{font-size:16px}.mrs-pen-title .sub{font-size:13px}.mrs-pen-usp{font-size:12px}.mrs-pen-sale{font-size:18px}.mrs-pen-cta{min-width:88px;padding:10px 14px}.mrs-pen-badge{font-size:10px;padding:4px 7px}}\
   ';
   document.head.appendChild(css);
 
@@ -324,26 +323,25 @@
       <p class="mrs-benefit-coupon">💳 회원가입 시 <span class="mrs-coupon-amount">3,000원 웰컴쿠폰</span> 지급!</p>\
     </div>\
     <div class="mrs-pen-card disabled" id="mrsPenCard" onclick="mrsTogglePen()">\
-      <div class="mrs-pen-head">\
-        <span class="mrs-pen-kicker" id="mrsPenKicker">추가 구매 옵션</span>\
-        <span class="mrs-pen-state" id="mrsPenState">같이 구매 시 9,900원</span>\
-      </div>\
       <div class="mrs-pen-main">\
         <div class="mrs-pen-media">\
           <img class="mrs-pen-img" src="https://hyunvis.vercel.app/meariset/clip_pen_real.png" onerror="this.style.background=\'#F5F3EF\'" alt="메아리 클립펜">\
         </div>\
-        <div class="mrs-pen-body">\
-          <p class="mrs-pen-title">[메아리셋 전용] 특허받은 한정판 클립펜</p>\
-          <p class="mrs-pen-usp" id="mrsPenUsp">노트에 끼워 휴대하는 세상에서 단 하나뿐인 펜</p>\
-          <p class="mrs-pen-sub" id="mrsPenSub">글로벌 3대 디자인 어워드 석권 · 독일 플래티넘 0.7mm 펜촉볼 · 인체공학적 물방울 디자인</p>\
-        </div>\
-        <div class="mrs-pen-buy">\
-          <div class="mrs-pen-price">\
-            <span class="mrs-pen-origin" id="mrsPenOrigin">15,000원</span>\
-            <span class="mrs-pen-sale" id="mrsPenSale">같이 구매 시 9,900원</span>\
-            <span class="mrs-pen-note" id="mrsPenNote">추가 구매 옵션</span>\
+        <div class="mrs-pen-content">\
+          <p class="mrs-pen-kicker" id="mrsPenKicker">추가 구매 옵션</p>\
+          <div class="mrs-pen-badges">\
+            <span class="mrs-pen-badge">글로벌 3대 디자인 석권</span>\
+            <span class="mrs-pen-badge">독일 플래티넘 0.7mm 펜촉</span>\
           </div>\
-          <button type="button" class="mrs-pen-cta" id="mrsPenCta">추가하기</button>\
+          <p class="mrs-pen-title"><span class="sub">[메아리셋 전용]</span>특허받은 한정판 클립펜</p>\
+          <p class="mrs-pen-usp" id="mrsPenUsp">노트에 끼워 휴대하는<br>세상에서 단 하나뿐인 펜</p>\
+          <div class="mrs-pen-price">\
+            <span class="mrs-pen-origin" id="mrsPenOrigin">정상가 15,000원</span>\
+            <span class="mrs-pen-sale" id="mrsPenSale">같이 구매 시 9,900원</span>\
+          </div>\
+          <div class="mrs-pen-action">\
+            <button type="button" class="mrs-pen-cta" id="mrsPenCta">추가하기</button>\
+          </div>\
         </div>\
       </div>\
     </div>\
@@ -456,30 +454,26 @@
     setTimeout(function(){if(prodOpt)prodOpt.setAttribute('style','position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;');},300);
   }
   function mrsUpdatePenCard(count){
-    var card=document.getElementById('mrsPenCard'),kicker=document.getElementById('mrsPenKicker'),origin=document.getElementById('mrsPenOrigin'),sale=document.getElementById('mrsPenSale'),cta=document.getElementById('mrsPenCta'),state=document.getElementById('mrsPenState'),note=document.getElementById('mrsPenNote'),sub=document.getElementById('mrsPenSub');
+    var card=document.getElementById('mrsPenCard'),kicker=document.getElementById('mrsPenKicker'),origin=document.getElementById('mrsPenOrigin'),sale=document.getElementById('mrsPenSale'),cta=document.getElementById('mrsPenCta'),usp=document.getElementById('mrsPenUsp');
     if(!card||!kicker||!origin||!sale||!cta)return;
     card.classList.remove('selected','free','disabled');
     if(count===4){
       _mrsPenWanted=false;
       card.classList.add('free');
       kicker.textContent='4권 구매 혜택';
-      origin.textContent='15,000원';
+      origin.textContent='정상가 15,000원';
       sale.textContent='무료 증정';
       cta.textContent='무료 포함됨';
-      if(state)state.textContent='4권 구매 시 무료';
-      if(note)note.textContent='4권 구매 시 자동 포함';
-      if(sub)sub.textContent='노트에 끼워 휴대하는 세상에서 단 하나뿐인 펜 · 결제 금액 추가 없음';
+      if(usp)usp.innerHTML='노트에 끼워 휴대하는<br>세상에서 단 하나뿐인 펜';
       mrsSyncPenAddProduct(false);
       return;
     }
     if(count>=1&&count<=3){
       kicker.textContent='추가 구매 옵션';
-      origin.textContent='15,000원';
+      origin.textContent='정상가 15,000원';
       sale.textContent='같이 구매 시 9,900원';
       cta.textContent=_mrsPenWanted?'선택됨':'추가하기';
-      if(state)state.textContent=_mrsPenWanted?'선택됨':'같이 구매 시 9,900원';
-      if(note)note.textContent=_mrsPenWanted?'장바구니에 함께 반영됨':'추가 구매 옵션';
-      if(sub)sub.textContent='글로벌 3대 디자인 어워드 석권 · 독일 플래티넘 0.7mm 펜촉볼 · 인체공학적 물방울 디자인';
+      if(usp)usp.innerHTML='노트에 끼워 휴대하는<br>세상에서 단 하나뿐인 펜';
       if(_mrsPenWanted) card.classList.add('selected');
       mrsSyncPenAddProduct(_mrsPenWanted);
       return;
@@ -487,12 +481,10 @@
     _mrsPenWanted=false;
     card.classList.add('disabled');
     kicker.textContent='추가 구매 옵션';
-    origin.textContent='15,000원';
+    origin.textContent='정상가 15,000원';
     sale.textContent='같이 구매 시 9,900원';
-    cta.textContent='시즌 선택';
-    if(state)state.textContent='같이 구매 시 9,900원';
-    if(note)note.textContent='추가 구매 옵션';
-    if(sub)sub.textContent='글로벌 3대 디자인 어워드 석권 · 독일 플래티넘 0.7mm 펜촉볼 · 인체공학적 물방울 디자인';
+    cta.textContent='추가하기';
+    if(usp)usp.innerHTML='노트에 끼워 휴대하는<br>세상에서 단 하나뿐인 펜';
     mrsSyncPenAddProduct(false);
   }
   function mrsUpdateSticky(count){
