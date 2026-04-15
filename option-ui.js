@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 109; /* 버전 번호 (10.9 = 109) — 할인율 옆 보조 권당가 표시 */
+  var MRS_VERSION = 108; /* 버전 번호 (10.8 = 108) — salePrice 빈 노드 회피 + 추가상품 가격 인식 보정 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -198,7 +198,7 @@
   .mrs-benefit-row:last-child{background:rgba(212,168,83,.06)}\
   .mrs-benefit-qty{font-size:12px;font-weight:700;color:#fff;background:#2D2D2D;min-width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}\
   .mrs-benefit-price{font-size:15px;font-weight:800;color:#1a1a1a}\
-  .mrs-benefit-unit{font-size:11px;color:#8e8e8e;font-weight:500;letter-spacing:-0.1px}\
+  .mrs-benefit-unit{font-size:12px;color:#888;font-weight:500}\
   .mrs-benefit-discount{font-size:11px;font-weight:700;color:#D32F2F}\
   .mrs-benefit-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;white-space:nowrap;margin-left:auto}\
   .mrs-benefit-badge.popular{background:rgba(45,45,45,.08);color:#2D2D2D}\
@@ -211,8 +211,8 @@
   .mrs-cafe-banner{display:flex;align-items:center;gap:10px;background:#F5F3EF;border-left:3px solid #2D4A3E;padding:11px 14px;border-radius:0 10px 10px 0;margin-bottom:12px;text-align:left}\
   .mrs-cafe-text{font-size:13px;font-weight:600;color:#2D2D2D;line-height:1.4}\
   .mrs-cafe-free{font-weight:800;color:#2D4A3E}\
-  @media(min-width:768px){.mrs-benefit-guide{padding:8px 8px 0}.mrs-benefit-row{padding:6px 8px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:11px;min-width:28px;height:28px}.mrs-benefit-price{font-size:13px}.mrs-benefit-unit{font-size:10px}.mrs-benefit-discount{font-size:10px}.mrs-benefit-badge{font-size:10px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px}}\
-  @media(max-width:767px){.mrs-benefit-guide{padding:8px 8px 10px;margin-top:6px}.mrs-benefit-row{padding:8px 10px;gap:6px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:11px;min-width:28px;height:28px}.mrs-benefit-price{font-size:13px}.mrs-benefit-unit{font-size:10px}.mrs-benefit-discount{font-size:10px}.mrs-benefit-badge{font-size:10px;padding:2px 6px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px;padding:11px 14px}}\
+  @media(min-width:768px){.mrs-benefit-guide{padding:8px 8px 0}.mrs-benefit-row{padding:6px 8px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:11px;min-width:28px;height:28px}.mrs-benefit-price{font-size:13px}.mrs-benefit-unit{display:none}.mrs-benefit-discount{font-size:10px}.mrs-benefit-badge{font-size:10px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px}}\
+  @media(max-width:767px){.mrs-benefit-guide{padding:8px 8px 10px;margin-top:6px}.mrs-benefit-row{padding:8px 10px;gap:6px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:11px;min-width:28px;height:28px}.mrs-benefit-price{font-size:13px}.mrs-benefit-unit{display:none}.mrs-benefit-discount{font-size:10px}.mrs-benefit-badge{font-size:10px;padding:2px 6px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px;padding:11px 14px}}\
   ';
   document.head.appendChild(css);
 
@@ -264,29 +264,29 @@
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(1)">\
           <span class="mrs-benefit-qty">1권</span>\
           <span class="mrs-benefit-price">29,000원</span>\
+          <span class="mrs-benefit-unit">(29,000원/권)</span>\
           <span class="mrs-benefit-discount">36%↓</span>\
-          <span class="mrs-benefit-unit">(권당 29,000원)</span>\
           <span class="mrs-benefit-badge popular">⭐ 가장 많이 선택</span>\
         </div>\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(2)">\
           <span class="mrs-benefit-qty">2권</span>\
           <span class="mrs-benefit-price">49,000원</span>\
+          <span class="mrs-benefit-unit">(24,500원/권)</span>\
           <span class="mrs-benefit-discount">46%↓</span>\
-          <span class="mrs-benefit-unit">(권당 24,500원)</span>\
           <span class="mrs-benefit-badge saving">💰 9,000원 절약</span>\
         </div>\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(3)">\
           <span class="mrs-benefit-qty">3권</span>\
           <span class="mrs-benefit-price">69,000원</span>\
+          <span class="mrs-benefit-unit">(23,000원/권)</span>\
           <span class="mrs-benefit-discount">49%↓</span>\
-          <span class="mrs-benefit-unit">(권당 23,000원)</span>\
           <span class="mrs-benefit-badge freeship">🚚 무료배송</span>\
         </div>\
         <div class="mrs-benefit-row best-deal" onclick="mrsBenefitSelect(4)">\
           <span class="mrs-benefit-qty">4권</span>\
           <span class="mrs-benefit-price">89,000원</span>\
+          <span class="mrs-benefit-unit">(22,250원/권)</span>\
           <span class="mrs-benefit-discount">51%↓</span>\
-          <span class="mrs-benefit-unit">(권당 22,250원)</span>\
           <span class="mrs-benefit-badge lowest">🏆 최저가+무배</span>\
         </div>\
       </div>\
