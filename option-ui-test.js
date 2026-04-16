@@ -1,11 +1,12 @@
 /**
- * TEST ONLY
  * 메아리셋 옵션 UI v7.9 — 외부 스크립트 버전
- * product_no=30 전용 (다른 상품에서는 실행 안 됨)
+ * product_no=30 전용 (stage2 clone from option-ui.js)
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 93; /* 버전 번호 (9.3 = 93) — 실제 border 제거, 외곽 shadow만 사용 */
+  var MRS_VERSION = 108; /* 버전 번호 (10.8 = 108) — salePrice 빈 노드 회피 + 추가상품 가격 인식 보정 */
+  var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
+  var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -35,11 +36,16 @@
   window._mrsOptionLoaded = true;
   window._mrsVersion = MRS_VERSION;
 
-  /* test only: product_no=30 에서만 실행 (SEO URL 대응) */
+  /* product_no=30 에서만 실행 (stage2 visual clone) */
   var prdEl = document.querySelector('[data-prd-no]');
   var prdNo = prdEl ? prdEl.getAttribute('data-prd-no') : '';
   var urlHas30 = location.search.indexOf('product_no=30') !== -1 || location.href.indexOf('product_no=30') !== -1;
-  if(!urlHas30 && prdNo !== '30'){ window._mrsOptionLoaded = false; return; }
+  var pathMatch30 = location.pathname.match(/\/product\/[^/]*\/(\d+)\//);
+  var pathHas30 = !!(pathMatch30 && pathMatch30[1] === '30');
+  if(!urlHas30 && !pathHas30 && prdNo !== '30'){ window._mrsOptionLoaded = false; return; }
+
+  if(window.__mrsActiveMode && window.__mrsActiveMode !== 'live30') return;
+  window.__mrsActiveMode = 'live30';
 
   /* placeholder 중복 방지 (같은 버전 재실행 시) */
 
@@ -50,30 +56,76 @@
   (document.body || document.documentElement).appendChild(_placeholder);
 
   /* ── df-bannermanager JS 강제 fix (CSS !important만으론 SSP inline style 못 막음) ── */
+  function _isHeaderSmartBanner(el){
+    if(!el) return false;
+    if(el.closest && el.closest('.top-banner, [df-banner-code="top-banner"]')) return true;
+    if(el.querySelector && el.querySelector('.top-banner__link, [df-banner-code="top-banner"] a')) return true;
+    return false;
+  }
+
+  function _isLoggedOutState(){
+    return !!document.querySelector('.xans-layout-statelogoff .membership__txt, .xans-layout-statelogoff .usm__link[href="/myshop/index.html"]');
+  }
+
+  function _getTopBannerUrl(){
+    return _isLoggedOutState() ? MRS_LOGIN_BANNER_URL : MRS_PRODUCT_BANNER_URL;
+  }
+
+  function _restoreTopBanner(){
+    var banners = document.querySelectorAll('.top-banner, [df-banner-code="top-banner"]');
+    for(var i=0;i<banners.length;i++){
+      var banner = banners[i];
+      banner.hidden = false;
+      banner.style.setProperty('display','block','important');
+      banner.style.setProperty('visibility','visible','important');
+      banner.style.setProperty('opacity','1','important');
+      banner.style.setProperty('pointer-events','auto','important');
+
+      banner.style.setProperty('background','#0a0a0a','important');
+      banner.style.setProperty('color','#ffffff','important');
+
+      var anchors = banner.querySelectorAll('a');
+      for(var j=0;j<anchors.length;j++){
+        anchors[j].href = _getTopBannerUrl();
+        anchors[j].target = '_self';
+        anchors[j].style.setProperty('pointer-events','auto','important');
+        anchors[j].style.setProperty('cursor','pointer','important');
+        anchors[j].style.setProperty('color','#ffffff','important');
+        anchors[j].style.setProperty('background','#0a0a0a','important');
+      }
+
+      var items = banner.querySelectorAll('.top-banner__item');
+      for(var k=0;k<items.length;k++){
+        items[k].style.setProperty('background','#0a0a0a','important');
+        items[k].style.setProperty('color','#ffffff','important');
+      }
+    }
+  }
+
   function _fixDfBanner(){
     var els = document.querySelectorAll('.df-bannermanager, .ssp.df-bannermanager');
     for(var i=0;i<els.length;i++){
-      els[i].style.setProperty('pointer-events','none','important');
-    }
-  }
-  _fixDfBanner();
-  /* MutationObserver: SSP가 나중에 다시 만들거나 style 바꿔도 재적용 */
-  if(window.MutationObserver){
-    var _bannerObs = new MutationObserver(function(muts){
-      for(var i=0;i<muts.length;i++){
-        var m=muts[i];
-        if(m.type==='childList'){ _fixDfBanner(); break; }
-        if(m.type==='attributes' && m.target && m.target.classList && m.target.classList.contains('df-bannermanager')){
-          _fixDfBanner(); break;
-        }
+      var el = els[i];
+      if(_isHeaderSmartBanner(el)){
+        el.style.setProperty('pointer-events','auto','important');
+      } else {
+        el.style.setProperty('pointer-events','none','important');
       }
-    });
-    var _bodyEl = document.body || document.documentElement;
-    _bannerObs.observe(_bodyEl, { childList:true, subtree:true, attributes:true, attributeFilter:['style','class'] });
+    }
+
+    var headerTargets = document.querySelectorAll('.top-banner, .top-banner *, [df-banner-code="top-banner"], [df-banner-code="top-banner"] *');
+    for(var j=0;j<headerTargets.length;j++){
+      headerTargets[j].style.setProperty('pointer-events','auto','important');
+    }
+
+    _restoreTopBanner();
   }
-  /* 추가 안전망: 500ms 후 재실행 (SSP 비동기 로드 대응) */
-  setTimeout(_fixDfBanner, 500);
-  setTimeout(_fixDfBanner, 1500);
+  try{ _fixDfBanner(); }catch(e){}
+  /* 전역 MutationObserver는 상세페이지 렉을 유발해서 제거, 짧은 재시도만 유지 */
+  setTimeout(function(){ try{ _fixDfBanner(); }catch(e){} }, 200);
+  setTimeout(function(){ try{ _fixDfBanner(); }catch(e){} }, 1000);
+  setTimeout(function(){ try{ _fixDfBanner(); }catch(e){} }, 2500);
+  window.addEventListener('load', function(){ try{ _fixDfBanner(); }catch(e){} }, { once:true });
 
   /* ── CSS 주입 ── */
   var css = document.createElement('style');
@@ -82,13 +134,15 @@
   .productOption{position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important}\
   #totalProducts,div#totalPrice,.quantity_price{position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important}\
   .ssp.df-bannermanager,.df-bannermanager{pointer-events:none!important}\
+  .top-banner,.top-banner *,[df-banner-code="top-banner"],[df-banner-code="top-banner"] *{pointer-events:auto!important}\
+  .top-banner{position:relative;z-index:30}\
   .ssp,.ssp__container,.ssp__list,.ssp__item--naver,.ssp__item--kakao{visibility:visible!important}\
   .ssp__item--naver a,.ssp__item--naver button,.ssp__item--naver [onclick],.ssp__item--kakao a,.ssp__item--kakao button,.ssp__item--kakao [onclick]{pointer-events:auto!important}\
-  .mrs-option-wrap{max-width:600px;margin:4px auto;font-family:Pretendard,sans-serif;color:#2D2D2D;background:#fff;border-radius:12px;padding:12px 8px;text-align:center}\
+  .mrs-option-wrap{max-width:600px;margin:4px auto;font-family:Pretendard,sans-serif;color:#2D2D2D;background:#fff;border-radius:12px;padding:12px 8px;text-align:center;overflow:visible}\
   .mrs-option-wrap *{box-sizing:border-box;margin:0;padding:0}\
   .mrs-title{font-size:16px;font-weight:800;margin-bottom:4px;text-align:center;color:#1a1a1a;letter-spacing:0.5px}\
-  .mrs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}\
-  @media(min-width:768px){.mrs-option-wrap{max-width:100%;padding:8px 0;margin:4px auto;border-radius:0;background:transparent}.mrs-grid{grid-template-columns:repeat(4,1fr)!important;gap:6px!important}.mrs-card-img{aspect-ratio:3/4!important}.mrs-card-label{font-size:11px;padding:4px 2px 1px;white-space:nowrap;letter-spacing:-0.3px}.mrs-card-color{font-size:10px;padding:0 2px 4px}.mrs-title{font-size:14px;margin-bottom:6px}.mrs-info{padding:10px 12px;min-height:60px;font-size:13px}}\
+  .mrs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px;overflow:visible}\
+  @media(min-width:768px){.mrs-option-wrap{max-width:100%;padding:8px 6px 0;margin:4px auto;border-radius:0;background:transparent;overflow:visible}.mrs-grid{grid-template-columns:repeat(4,1fr)!important;gap:6px!important;padding:4px 6px 6px!important;overflow:visible}.mrs-card-img{aspect-ratio:3/4!important}.mrs-card-label{font-size:11px;padding:4px 2px 1px;white-space:nowrap;letter-spacing:-0.3px}.mrs-card-color{font-size:10px;padding:0 2px 4px}.mrs-title{font-size:14px;margin-bottom:6px}.mrs-info{padding:10px 12px;min-height:60px;font-size:13px}}\
   .mrs-card{position:relative;border:none;border-radius:12px;overflow:hidden;cursor:pointer;transition:box-shadow .2s,transform .2s;background:#fff;box-shadow:0 0 0 1.5px #ddd;transform:scale(1)}\
   .mrs-card:hover{box-shadow:0 0 0 1.5px #bcbcbc;transform:scale(1.02)}\
   .mrs-card.selected{box-shadow:0 0 0 2.5px #D4A853,0 0 0 6px rgba(212,168,83,.25);transform:scale(1.04)}\
@@ -124,17 +178,17 @@
   #mrsTagline.visible{opacity:1;transform:translateY(0);display:block}\
   #mrsTagline.hidden{display:none!important}\
   #mrsTagline em{font-style:normal;color:#D4A853}\
-  .mrs-sticky{position:fixed;bottom:0;left:0;right:0;z-index:99998;background:#fff;border-top:1.5px solid #eee;padding:10px 16px;display:none;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 -4px 16px rgba(0,0,0,.1)}\
+  .mrs-sticky{position:fixed;bottom:0;left:0;right:0;z-index:99998;background:#fff;border-top:1.5px solid #eee;padding:14px 16px calc(16px + env(safe-area-inset-bottom,0px));display:none;align-items:center;justify-content:space-between;gap:14px;box-shadow:0 -6px 20px rgba(0,0,0,.12)}\
   .mrs-sticky.visible{display:flex}\
-  .mrs-sticky-info{display:flex;flex-direction:column;gap:2px}\
+  .mrs-sticky-info{display:flex;flex-direction:column;gap:4px}\
   .mrs-sticky-label{font-size:12px;color:#999}\
   .mrs-sticky-price{font-size:18px;font-weight:800;color:#2D2D2D}\
-  .mrs-sticky-btn{background:#0A0A0A;color:#fff;border:none;border-radius:10px;padding:12px 24px;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .2s;font-family:Pretendard,sans-serif}\
+  .mrs-sticky-btn{background:#0A0A0A;color:#fff;border:none;border-radius:10px;padding:13px 24px;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .2s;font-family:Pretendard,sans-serif}\
   .mrs-sticky-btn:hover{background:#2a2a2a}\
   .mrs-sticky-btn:active{transform:scale(.97)}\
   a.btnSubmit.gFull{background-color:#0A0A0A!important;border-color:#0A0A0A!important;}\
   @media(min-width:768px){.mrs-sticky{display:none!important}}\
-  @media(max-width:520px){.mrs-sticky-price{font-size:16px}.mrs-sticky-btn{padding:12px 18px;font-size:14px}}\
+  @media(max-width:520px){.mrs-sticky{padding:14px 14px calc(18px + env(safe-area-inset-bottom,0px));gap:12px}.mrs-sticky-price{font-size:16px}.mrs-sticky-btn{padding:13px 18px;font-size:14px}}\
   .mrs-benefit-guide{font-family:Pretendard,sans-serif;background:#FAFAF8;border:1px solid #eee;border-radius:0 0 10px 10px;padding:10px 16px 14px;margin-top:0}\
   .mrs-benefit-title{font-size:13px;font-weight:700;color:#8B6914;text-align:center;margin-bottom:10px;letter-spacing:.3px}\
   .mrs-benefit-list{display:flex;flex-direction:column;gap:6px;text-align:left}\
@@ -281,7 +335,7 @@
   var TAGLINE={1:'"작심삼일을 <em>끝내고 싶은 분</em>"',2:'"180일, <em>습관으로 만들고 싶은 분</em>"',3:'"9개월, <em>진짜 달라지고 싶은 분</em>"',4:'"한 해 전체를 <em>내 것으로 만들고 싶은 분</em>"'};
   var PRESET_BY_COUNT={1:'1',2:'1,2',3:'1,2,3',4:'1,2,3,4'};
 
-  var _prevCount=0,_toastTimer=null,_mrsSubmitting=false;
+  var _prevCount=0,_toastTimer=null,_mrsSubmitting=false,_mrsStickyTimer=null,_mrsNativeObserver=null;
 
   function mrsGetComboKey(){
     var cards=document.querySelectorAll('.mrs-card.selected'),seasons=[];
@@ -300,10 +354,95 @@
     t.textContent=msg;t.classList.remove('red');if(color==='red')t.classList.add('red');
     t.classList.add('show');_toastTimer=setTimeout(function(){t.classList.remove('show','red');},2500);
   }
+  function mrsGetText(el){return((el&&(el.textContent||el.innerText))||'').replace(/\s+/g,' ').trim();}
+  function mrsParsePriceValue(text){
+    var matches=(text||'').match(/\d[\d,]*/g);
+    if(!matches)return 0;
+    for(var i=matches.length-1;i>=0;i--){
+      var num=parseInt(matches[i].replace(/,/g,''),10);
+      if(num>=1000)return num;
+    }
+    return 0;
+  }
+  function mrsGetNativeAddonSelectedPrice(){
+    var sels=document.querySelectorAll('.xans-product-addproduct select,.addProduct select,select[id*="addproduct"],select[name*="addproduct"]');
+    var total=0;
+    for(var i=0;i<sels.length;i++){
+      var sel=sels[i],val=(sel.value||'').trim();
+      if(!val||val==='*')continue;
+      var opt=sel.options&&sel.selectedIndex>=0?sel.options[sel.selectedIndex]:null;
+      var price=mrsParsePriceValue(mrsGetText(opt)||mrsGetText(sel));
+      if(!(price>0)){
+        var row=(sel.closest&& (sel.closest('.xans-product-addproduct .product > li')||sel.closest('.product > li')||sel.closest('li'))) || null;
+        var salePriceNode=row&&row.querySelector('.information .salePrice');
+        price=mrsParsePriceValue(mrsGetText(salePriceNode));
+        if(!(price>0)){
+          var basePriceNode=row&&(row.querySelector('.information .price')||row.querySelector('.price'));
+          price=mrsParsePriceValue(mrsGetText(basePriceNode));
+        }
+      }
+      if(price>0) total+=price;
+    }
+    return total;
+  }
+  function mrsGetNativeTotalPrice(){
+    var selectors=[
+      '#totalPrice .total strong','#totalPrice .total span','#totalPrice strong','#totalPrice',
+      '.quantity_price .total strong','.quantity_price .total span','.quantity_price strong','.quantity_price',
+      '#totalProducts tfoot .right strong','#totalProducts tfoot strong','#totalProducts .total strong','#totalProducts .total'
+    ];
+    for(var i=0;i<selectors.length;i++){
+      var nodes=document.querySelectorAll(selectors[i]);
+      for(var j=nodes.length-1;j>=0;j--){
+        var price=mrsParsePriceValue(mrsGetText(nodes[j]));
+        if(price>0)return price;
+      }
+    }
+    return 0;
+  }
+  function mrsSyncStickySoon(){
+    if(_mrsStickyTimer)clearTimeout(_mrsStickyTimer);
+    _mrsStickyTimer=setTimeout(function(){
+      var count=document.querySelectorAll('.mrs-card.selected').length;
+      if(count>0)mrsUpdateSticky(count);
+    },80);
+    setTimeout(function(){
+      var count=document.querySelectorAll('.mrs-card.selected').length;
+      if(count>0)mrsUpdateSticky(count);
+    },260);
+    setTimeout(function(){
+      var count=document.querySelectorAll('.mrs-card.selected').length;
+      if(count>0)mrsUpdateSticky(count);
+    },700);
+  }
+  function mrsObserveNativeTotals(){
+    var targets=[];
+    var totalProducts=document.getElementById('totalProducts');
+    var totalPrice=document.getElementById('totalPrice')||document.querySelector('div#totalPrice');
+    var quantityPrice=document.querySelector('.quantity_price');
+    if(totalProducts)targets.push(totalProducts);
+    if(totalPrice)targets.push(totalPrice);
+    if(quantityPrice)targets.push(quantityPrice);
+    if(!targets.length){setTimeout(mrsObserveNativeTotals,500);return;}
+    if(_mrsNativeObserver){try{_mrsNativeObserver.disconnect();}catch(e){}}
+    _mrsNativeObserver=new MutationObserver(function(){mrsSyncStickySoon();});
+    for(var i=0;i<targets.length;i++) _mrsNativeObserver.observe(targets[i],{childList:true,subtree:true,characterData:true});
+    mrsSyncStickySoon();
+  }
   function mrsUpdateSticky(count){
     var bar=document.getElementById('mrsStickyBar'),label=document.getElementById('mrsStickyLabel'),pr=document.getElementById('mrsStickyPrice');
     if(!bar)return;
-    if(count>0&&PRICE_BY_COUNT[count]){bar.classList.add('visible');label.textContent=count+'권 선택됨';pr.textContent=PRICE_BY_COUNT[count].toLocaleString('ko-KR')+'원';}
+    if(count>0&&PRICE_BY_COUNT[count]){
+      var basePrice=PRICE_BY_COUNT[count]||0;
+      var addonPrice=mrsGetNativeAddonSelectedPrice();
+      var nativeTotalPrice=mrsGetNativeTotalPrice();
+      var computedTotalPrice=basePrice+addonPrice;
+      var totalPrice=nativeTotalPrice>=computedTotalPrice?nativeTotalPrice:computedTotalPrice;
+      if(totalPrice<basePrice) totalPrice=basePrice;
+      bar.classList.add('visible');
+      label.textContent=count+'권 선택됨'+((addonPrice>0||totalPrice>basePrice)?' · 추가상품 포함':'');
+      pr.textContent=totalPrice.toLocaleString('ko-KR')+'원';
+    }
     else{bar.classList.remove('visible');}
   }
   function mrsInsertTagline(){
@@ -331,14 +470,11 @@
 
   function mrsUpdateBenefit(){
     var rows=document.querySelectorAll('.mrs-benefit-row');
-    var comboKey=mrsGetComboKey();
+    var count=document.querySelectorAll('.mrs-card.selected').length;
     for(var i=0;i<rows.length;i++) rows[i].classList.remove('active');
-    for(var count=1;count<=4;count++){
-      if(comboKey===PRESET_BY_COUNT[count]){
-        var target=rows[count-1];
-        if(target) target.classList.add('active');
-        break;
-      }
+    if(count >= 1 && count <= 4){
+      var target=rows[count-1];
+      if(target) target.classList.add('active');
     }
   }
 
@@ -367,8 +503,24 @@
 
   function mrsClearOptions(){
     var dels=document.querySelectorAll('#totalProducts .option_box_del, #totalProducts img[alt="삭제"]');
-    for(var i=dels.length-1;i>=0;i--){var link=dels[i].closest('a')||dels[i];try{link.click();}catch(e){}}
-    var tp=document.getElementById('totalProducts');if(tp){var tbody=tp.querySelector('tbody');if(tbody)tbody.innerHTML='';}
+    for(var i=dels.length-1;i>=0;i--){
+      var row=dels[i].closest('tr');
+      if(row&&row.classList.contains('add_product')) continue;
+      var link=dels[i].closest('a')||dels[i];
+      try{link.click();}catch(e){}
+    }
+    var tp=document.getElementById('totalProducts');
+    if(tp){
+      var tbody=tp.querySelector('tbody');
+      if(tbody){
+        var rows=tbody.querySelectorAll('tr');
+        for(var j=rows.length-1;j>=0;j--){
+          if(rows[j].classList.contains('add_product')) continue;
+          if(rows[j].querySelector('th')) continue;
+          rows[j].remove();
+        }
+      }
+    }
     var sel=document.getElementById('product_option_id1');if(sel)sel.value='*';
   }
   function mrsSelectOption(optionValue){
@@ -441,6 +593,14 @@
         el=el.parentElement;depth++;
       }
     },true);
+
+    document.addEventListener('change',function(e){
+      var el=e.target;if(!el)return;
+      var id=(el.id||'').toLowerCase(),name=(el.name||'').toLowerCase(),cls=(el.className||'').toString().toLowerCase();
+      if(id.indexOf('addproduct')!==-1||name.indexOf('addproduct')!==-1||cls.indexOf('addproduct')!==-1||id.indexOf('option')!==-1){
+        mrsSyncStickySoon();
+      }
+    },true);
   }
 
   /* ── 네이버페이 방어: 원래 위치에서 이탈 방지 ── */
@@ -472,21 +632,29 @@
       }
     });
     guard.observe(document.body, { childList: true, subtree: true });
-    setTimeout(function(){ guard.disconnect(); }, 30000);
+    setTimeout(function(){ guard.disconnect(); }, 8000);
   }
 
   /* ── 초기화 ── */
+  function mrsEnsureUI(){
+    var readyWrap = document.querySelector('#mrsOptionWrap .mrs-card');
+    if(!readyWrap) insertUI();
+  }
+
   function mrsInit(){
     insertUI();
     mrsInstallCapture();
-    /* SDK 로딩 대기 후 네이버페이 방어 시작 (1초 간격으로 5회 시도) */
-    var tries = 0;
-    var guardInterval = setInterval(function(){
-      mrsGuardNpay();
-      if(++tries >= 5) clearInterval(guardInterval);
-    }, 2000);
+    setTimeout(mrsObserveNativeTotals, 300);
+    setTimeout(mrsSyncStickySoon, 500);
+    setTimeout(mrsEnsureUI, 300);
+    setTimeout(mrsEnsureUI, 1200);
+    setTimeout(mrsEnsureUI, 2500);
+    /* 네이버페이 위치 방어는 짧게 2회만 재확인 */
+    setTimeout(mrsGuardNpay, 1200);
+    setTimeout(mrsGuardNpay, 3500);
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mrsInit);
   else mrsInit();
+  window.addEventListener('load', mrsEnsureUI);
 })();
