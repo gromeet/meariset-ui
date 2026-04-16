@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 113; /* 버전 번호 (11.3 = 113) — 27/30 안정 UI 통합, NPay 강제 개입 제거 */
+  var MRS_VERSION = 114; /* 버전 번호 (11.4 = 114) — 모바일 헤더 로고 중복 응급복구 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
   var MRS_TEST_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-test.js?v=restore1';
@@ -621,6 +621,81 @@
     },true);
   }
 
+  /* ── 모바일 헤더 로고 중복 응급복구 ── */
+  function mrsNormalizeLogoText(text){
+    var raw=(text||'').replace(/\s+/g,'').trim();
+    if(!raw) return '';
+    var sample=((document.getElementById('sample-name')||{}).textContent||'meariset').replace(/\s+/g,'').trim()||'meariset';
+    if(raw===sample) return sample;
+    for(var n=4;n>=2;n--){
+      if(raw===sample.repeat(n)) return sample;
+    }
+    for(var size=1;size<=Math.floor(raw.length/2);size++){
+      if(raw.length%size!==0) continue;
+      var unit=raw.slice(0,size);
+      if(unit && unit.repeat(raw.length/size)===raw) return unit;
+    }
+    return raw;
+  }
+
+  function mrsFixMobileHeaderLogo(){
+    if(window.innerWidth>1024) return;
+    var header=document.querySelector('header.header');
+    if(!header) return;
+
+    var logos=Array.prototype.slice.call(header.querySelectorAll('.top-logo[df-banner-code="logo"]'));
+    if(!logos.length) return;
+
+    var primary=null;
+    for(var i=0;i<logos.length;i++){
+      if(logos[i].closest('.header__top')){ primary=logos[i]; break; }
+    }
+    if(!primary) primary=logos[0];
+
+    for(var j=0;j<logos.length;j++){
+      if(logos[j]!==primary){
+        logos[j].hidden=false;
+        logos[j].style.setProperty('display','none','important');
+      }
+    }
+
+    primary.hidden=false;
+    primary.style.setProperty('display','flex','important');
+    primary.style.setProperty('visibility','visible','important');
+    primary.style.setProperty('opacity','1','important');
+    primary.style.setProperty('left','50%','important');
+    primary.style.setProperty('transform','translateX(-50%)','important');
+
+    var items=Array.prototype.slice.call(primary.querySelectorAll('.top-logo__item'));
+    if(!items.length) return;
+
+    var chosen=null;
+    for(var k=0;k<items.length;k++){
+      var item=items[k];
+      var hasImg=!!item.querySelector('img');
+      var txt=(item.textContent||'').replace(/\s+/g,'').trim();
+      if(hasImg || txt){ chosen=item; break; }
+    }
+    if(!chosen) chosen=items[0];
+
+    for(var m=0;m<items.length;m++){
+      items[m].style.setProperty('display', items[m]===chosen ? 'flex' : 'none', 'important');
+      if(items[m]===chosen){
+        items[m].style.setProperty('align-items','center','important');
+        items[m].style.setProperty('justify-content','center','important');
+        items[m].style.setProperty('height','100%','important');
+      }
+    }
+
+    if(chosen && !chosen.querySelector('img')){
+      var normalized=mrsNormalizeLogoText(chosen.textContent);
+      if(normalized){
+        chosen.textContent=normalized;
+        chosen.style.setProperty('white-space','nowrap','important');
+      }
+    }
+  }
+
   /* ── 초기화 ── */
   function mrsEnsureUI(){
     var readyWrap = document.querySelector('#mrsOptionWrap .mrs-card');
@@ -635,9 +710,13 @@
     setTimeout(mrsEnsureUI, 300);
     setTimeout(mrsEnsureUI, 1200);
     setTimeout(mrsEnsureUI, 2500);
+    setTimeout(mrsFixMobileHeaderLogo, 250);
+    setTimeout(mrsFixMobileHeaderLogo, 900);
+    setTimeout(mrsFixMobileHeaderLogo, 2000);
+    setTimeout(mrsFixMobileHeaderLogo, 4000);
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mrsInit);
   else mrsInit();
-  window.addEventListener('load', mrsEnsureUI);
+  window.addEventListener('load', function(){ mrsEnsureUI(); mrsFixMobileHeaderLogo(); });
 })();
