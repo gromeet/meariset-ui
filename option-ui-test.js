@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 108; /* 버전 번호 (10.8 = 108) — salePrice 빈 노드 회피 + 추가상품 가격 인식 보정 */
+  var MRS_VERSION = 109; /* 버전 번호 (10.9 = 109) — 30 전용 버튼 클릭 차단 overlay 차단 + BE 옵션코드 복구 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -134,6 +134,7 @@
   .productOption{position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important}\
   #totalProducts,div#totalPrice,.quantity_price{position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important}\
   .ssp.df-bannermanager,.df-bannermanager{pointer-events:none!important}\
+  [id^="app-saladlab-alphareview-onsite-box"]{pointer-events:none!important;z-index:1!important}\
   .top-banner,.top-banner *,[df-banner-code="top-banner"],[df-banner-code="top-banner"] *{pointer-events:auto!important}\
   .top-banner{position:relative;z-index:30}\
   .ssp,.ssp__container,.ssp__list,.ssp__item--naver,.ssp__item--kakao{visibility:visible!important}\
@@ -319,11 +320,11 @@
 
   /* ── 로직 (동일) ── */
   var COMBO_MAP = {
-    '1':'P00000BB000D','2':'P00000BB000H','3':'P00000BB000I','4':'P00000BB000J',
-    '1,2':'P00000BB000E','1,3':'P00000BB000K','1,4':'P00000BB000L',
-    '2,3':'P00000BB000M','2,4':'P00000BB000N','3,4':'P00000BB000O',
-    '1,2,3':'P00000BB000F','1,2,4':'P00000BB000P','1,3,4':'P00000BB000Q',
-    '2,3,4':'P00000BB000R','1,2,3,4':'P00000BB000G'
+    '1':'P00000BE000L','2':'P00000BE000T','3':'P00000BE000U','4':'P00000BE000V',
+    '1,2':'P00000BE000P','1,3':'P00000BE000W','1,4':'P00000BE000X',
+    '2,3':'P00000BE000Y','2,4':'P00000BE000Z','3,4':'P00000BE00BA',
+    '1,2,3':'P00000BE000Q','1,2,4':'P00000BE00BB','1,3,4':'P00000BE00BC',
+    '2,3,4':'P00000BE000S','1,2,3,4':'P00000BE000R'
   };
   var PRICE_BY_COUNT={1:29000,2:49000,3:69000,4:89000};
   var INFO_BY_COUNT={
