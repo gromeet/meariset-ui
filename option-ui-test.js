@@ -119,6 +119,7 @@
     }
 
     _restoreTopBanner();
+    _dedupeTopLogo();
   }
   try{ _fixDfBanner(); }catch(e){}
   /* 전역 MutationObserver는 상세페이지 렉을 유발해서 제거, 짧은 재시도만 유지 */
