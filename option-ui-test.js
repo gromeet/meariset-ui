@@ -4,10 +4,9 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 112; /* 버전 번호 (11.2 = 112) — 회원 상태 네이버페이 재적용 + 캐시 무력화 */
+  var MRS_VERSION = 113; /* 버전 번호 (11.3 = 113) — 30 안정판 정리, NPay 강제 개입 제거 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
-  var MRS_NPAY_CONFIG = { EMBED_ID:'NaverChk_Button', BUTTON_KEY:'9D7FF9DE-A33E-45DB-A8B9-725298434480', TYPE:'A', COLOR:'1', COUNT:'2', ENABLE:'Y' };
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -608,76 +607,6 @@
   /* ── 네이버페이 방어: 원래 위치에서 이탈 방지 ── */
   /* v7.9: 구버전 스크립트의 setTimeout(mrsRelocateNpay)가 뒤늦게 실행돼도
      MutationObserver가 즉시 원위치 복구. 30초 후 자동 해제. */
-  function mrsHasRenderedNpay(box){
-    return !!(box && (box.querySelector('.npay_button_box,.npay_btn_link,iframe,table,a,button') || box.children.length));
-  }
-
-  function mrsReapplyNpay(){
-    var npay = document.getElementById('NaverChk_Button');
-    if(!npay || mrsHasRenderedNpay(npay)) return false;
-    if(!(window.nhn && window.nhn.CheckoutButton && typeof window.nhn.CheckoutButton.apply === 'function')) return false;
-    if(typeof window.nv_add_basket_1_product !== 'function' || typeof window.nv_add_basket_2_product !== 'function') return false;
-    try {
-      npay.innerHTML = '';
-      npay.style.setProperty('display','block','important');
-      npay.style.setProperty('visibility','visible','important');
-      window.nhn.CheckoutButton.apply({
-        EMBED_ID: MRS_NPAY_CONFIG.EMBED_ID,
-        BUTTON_KEY: MRS_NPAY_CONFIG.BUTTON_KEY,
-        TYPE: MRS_NPAY_CONFIG.TYPE,
-        COLOR: MRS_NPAY_CONFIG.COLOR,
-        COUNT: MRS_NPAY_CONFIG.COUNT,
-        ENABLE: MRS_NPAY_CONFIG.ENABLE,
-        BUY_BUTTON_HANDLER: window.nv_add_basket_1_product,
-        WISHLIST_BUTTON_HANDLER: window.nv_add_basket_2_product,
-        '': ''
-      });
-      return true;
-    } catch(e) {
-      return false;
-    }
-  }
-
-  function mrsGuardNpay(){
-    var appPay = document.querySelector('.app-pay-wrap');
-    if(!appPay) return;
-    
-    /* 네이버페이 visible 보장 */
-    var npay = document.getElementById('NaverChk_Button');
-    if(npay) {
-      npay.style.setProperty('display','block','important');
-      npay.style.setProperty('visibility','visible','important');
-      /* 이미 app-pay-wrap 밖이면 복구 */
-      if(!appPay.contains(npay)) {
-        appPay.insertBefore(npay, appPay.firstChild);
-      }
-    }
-    mrsReapplyNpay();
-    
-    /* MutationObserver: 네이버페이가 app-pay-wrap에서 빠지면 즉시 복구 */
-    var guard = new MutationObserver(function(){
-      var n = document.getElementById('NaverChk_Button');
-      var ap = document.querySelector('.app-pay-wrap');
-      if(n && ap && !ap.contains(n)) {
-        ap.insertBefore(n, ap.firstChild);
-        n.style.setProperty('display','block','important');
-        n.style.setProperty('visibility','visible','important');
-      }
-      mrsReapplyNpay();
-    });
-    guard.observe(document.body, { childList: true, subtree: true });
-    setTimeout(function(){ guard.disconnect(); }, 8000);
-  }
-
-  function mrsEnsureNpayRender(){
-    var tries = 0;
-    var timer = setInterval(function(){
-      mrsGuardNpay();
-      var npay = document.getElementById('NaverChk_Button');
-      if(mrsHasRenderedNpay(npay) || ++tries >= 8) clearInterval(timer);
-    }, 2000);
-  }
-
   /* ── 초기화 ── */
   function mrsEnsureUI(){
     var readyWrap = document.querySelector('#mrsOptionWrap .mrs-card');
@@ -692,14 +621,9 @@
     setTimeout(mrsEnsureUI, 300);
     setTimeout(mrsEnsureUI, 1200);
     setTimeout(mrsEnsureUI, 2500);
-    /* 네이버페이 위치 방어 + 회원 상태 재렌더 체크 */
-    setTimeout(mrsGuardNpay, 1200);
-    setTimeout(mrsGuardNpay, 3500);
-    setTimeout(mrsEnsureNpayRender, 1500);
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mrsInit);
   else mrsInit();
   window.addEventListener('load', mrsEnsureUI);
-  window.addEventListener('load', mrsEnsureNpayRender);
 })();
