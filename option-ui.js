@@ -4,10 +4,10 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 120; /* 버전 번호 (12.0 = 120) — 안정판 + 로고 클릭 최소 복구 */
+  var MRS_VERSION = 113; /* 버전 번호 (11.3 = 113) — 27/30 안정 UI 통합, NPay 강제 개입 제거 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
-  var MRS_TEST_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-test-v120.js';
+  var MRS_TEST_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-test.js?v=restore1';
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -75,8 +75,8 @@
   /* ── df-bannermanager JS 강제 fix (CSS !important만으론 SSP inline style 못 막음) ── */
   function _isHeaderSmartBanner(el){
     if(!el) return false;
-    if(el.closest && el.closest('.top-banner, [df-banner-code="top-banner"], .top-logo, .top-logo__item')) return true;
-    if(el.querySelector && el.querySelector('.top-banner__link, [df-banner-code="top-banner"] a, .top-logo__item')) return true;
+    if(el.closest && el.closest('.top-banner, [df-banner-code="top-banner"]')) return true;
+    if(el.querySelector && el.querySelector('.top-banner__link, [df-banner-code="top-banner"] a')) return true;
     return false;
   }
 
@@ -130,7 +130,7 @@
       }
     }
 
-    var headerTargets = document.querySelectorAll('.top-banner, .top-banner *, [df-banner-code="top-banner"], [df-banner-code="top-banner"] *, .top-logo, .top-logo *, .top-logo__item, .top-logo__item *');
+    var headerTargets = document.querySelectorAll('.top-banner, .top-banner *, [df-banner-code="top-banner"], [df-banner-code="top-banner"] *');
     for(var j=0;j<headerTargets.length;j++){
       headerTargets[j].style.setProperty('pointer-events','auto','important');
     }
@@ -151,10 +151,8 @@
   .productOption{position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important}\
   #totalProducts,div#totalPrice,.quantity_price{position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important}\
   .ssp.df-bannermanager,.df-bannermanager{pointer-events:none!important}\
-  [id^="app-saladlab-alphareview-onsite-box"]{pointer-events:none!important;z-index:1!important}\
-  .top-banner,.top-banner *,[df-banner-code="top-banner"],[df-banner-code="top-banner"] *,.top-logo,.top-logo *,.top-logo__item,.top-logo__item *{pointer-events:auto!important}\
+  .top-banner,.top-banner *,[df-banner-code="top-banner"],[df-banner-code="top-banner"] *{pointer-events:auto!important}\
   .top-banner{position:relative;z-index:30}\
-  .top-logo,.top-logo__item{position:relative!important;z-index:61!important}\
   .ssp,.ssp__container,.ssp__list,.ssp__item--naver,.ssp__item--kakao{visibility:visible!important}\
   .ssp__item--naver a,.ssp__item--naver button,.ssp__item--naver [onclick],.ssp__item--kakao a,.ssp__item--kakao button,.ssp__item--kakao [onclick]{pointer-events:auto!important}\
   .mrs-option-wrap{max-width:600px;margin:4px auto;font-family:Pretendard,sans-serif;color:#2D2D2D;background:#fff;border-radius:12px;padding:12px 8px;text-align:center;overflow:visible}\
