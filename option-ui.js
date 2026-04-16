@@ -1,6 +1,6 @@
 /**
  * 메아리셋 옵션 UI v7.9 — 외부 스크립트 버전
- * product_no=27 전용 (다른 상품에서는 실행 안 됨)
+ * product_no=27 안정판 + product_no=30 step2 clone
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
@@ -36,13 +36,16 @@
   window._mrsOptionLoaded = true;
   window._mrsVersion = MRS_VERSION;
 
-  /* product_no=27 에서만 실행 (SEO URL 대응 강화) */
+  /* product_no=27 안정판 + product_no=30 step2 clone 에서만 실행 (SEO URL 대응 강화) */
   var prdEl = document.querySelector('[data-prd-no]');
   var prdNo = prdEl ? prdEl.getAttribute('data-prd-no') : '';
   var urlHas27 = location.search.indexOf('product_no=27') !== -1 || location.href.indexOf('product_no=27') !== -1;
   var pathMatch27 = location.pathname.match(/\/product\/[^/]*\/(\d+)\//);
-  var pathHas27 = !!(pathMatch27 && pathMatch27[1] === '27');
-  if(!urlHas27 && !pathHas27 && prdNo !== '27'){ window._mrsOptionLoaded = false; return; }
+  var urlHas30 = location.search.indexOf('product_no=30') !== -1 || location.href.indexOf('product_no=30') !== -1;
+  var pathMatch = location.pathname.match(/\/product\/[^/]*\/(\d+)\//);
+  var pathHasSupported = !!(pathMatch && (pathMatch[1] === '27' || pathMatch[1] === '30'));
+  var prdSupported = prdNo === '27' || prdNo === '30';
+  if(!urlHas27 && !urlHas30 && !pathHasSupported && !prdSupported){ window._mrsOptionLoaded = false; return; }
 
   if(window.__mrsActiveMode && window.__mrsActiveMode !== 'live27') return;
   window.__mrsActiveMode = 'live27';
