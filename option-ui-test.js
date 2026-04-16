@@ -192,14 +192,14 @@
   .mrs-benefit-guide{font-family:Pretendard,sans-serif;background:#FAFAF8;border:1px solid #eee;border-radius:0 0 10px 10px;padding:10px 16px 14px;margin-top:0}\
   .mrs-benefit-title{font-size:13px;font-weight:700;color:#8B6914;text-align:center;margin-bottom:10px;letter-spacing:.3px}\
   .mrs-benefit-list{display:flex;flex-direction:column;gap:6px;text-align:left}\
-  .mrs-benefit-row{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;padding:10px 14px;border-radius:8px;transition:background .2s;cursor:pointer}\
+  .mrs-benefit-row{display:flex;align-items:center;flex-wrap:nowrap;gap:6px;padding:10px 14px;border-radius:8px;transition:background .2s;cursor:pointer}\
   .mrs-benefit-row:hover{background:rgba(212,168,83,.06)}\
   .mrs-benefit-row.active{background:rgba(212,168,83,.1)!important}\
   .mrs-benefit-row:last-child{background:rgba(212,168,83,.06)}\
   .mrs-benefit-qty{font-size:12px;font-weight:700;color:#fff;background:#2D2D2D;min-width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}\
-  .mrs-benefit-price{font-size:15px;font-weight:800;color:#1a1a1a}\
-  .mrs-benefit-unit{font-size:12px;color:#888;font-weight:500}\
-  .mrs-benefit-discount{font-size:11px;font-weight:700;color:#D32F2F}\
+  .mrs-benefit-price{font-size:15px;font-weight:800;color:#1a1a1a;white-space:nowrap}\
+  .mrs-benefit-discount{font-size:11px;font-weight:700;color:#D32F2F;white-space:nowrap}\
+  .mrs-benefit-unit{font-size:10px;color:#999;font-weight:500;white-space:nowrap}\
   .mrs-benefit-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;white-space:nowrap;margin-left:auto}\
   .mrs-benefit-badge.popular{background:rgba(45,45,45,.08);color:#2D2D2D}\
   .mrs-benefit-badge.saving{background:rgba(45,45,45,.08);color:#2D2D2D}\
@@ -211,8 +211,8 @@
   .mrs-cafe-banner{display:flex;align-items:center;gap:10px;background:#F5F3EF;border-left:3px solid #2D4A3E;padding:11px 14px;border-radius:0 10px 10px 0;margin-bottom:12px;text-align:left}\
   .mrs-cafe-text{font-size:13px;font-weight:600;color:#2D2D2D;line-height:1.4}\
   .mrs-cafe-free{font-weight:800;color:#2D4A3E}\
-  @media(min-width:768px){.mrs-benefit-guide{padding:8px 8px 0}.mrs-benefit-row{padding:6px 8px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:11px;min-width:28px;height:28px}.mrs-benefit-price{font-size:13px}.mrs-benefit-unit{display:none}.mrs-benefit-discount{font-size:10px}.mrs-benefit-badge{font-size:10px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px}}\
-  @media(max-width:767px){.mrs-benefit-guide{padding:8px 8px 10px;margin-top:6px}.mrs-benefit-row{padding:8px 10px;gap:6px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:11px;min-width:28px;height:28px}.mrs-benefit-price{font-size:13px}.mrs-benefit-unit{display:none}.mrs-benefit-discount{font-size:10px}.mrs-benefit-badge{font-size:10px;padding:2px 6px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px;padding:11px 14px}}\
+  @media(min-width:768px){.mrs-benefit-guide{padding:8px 8px 0}.mrs-benefit-row{padding:6px 8px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:11px;min-width:28px;height:28px}.mrs-benefit-price{font-size:13px}.mrs-benefit-discount{font-size:10px}.mrs-benefit-unit{display:inline;font-size:10px}.mrs-benefit-badge{font-size:10px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px}}\
+  @media(max-width:767px){.mrs-benefit-guide{padding:8px 8px 10px;margin-top:6px}.mrs-benefit-row{padding:8px 10px;gap:4px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:11px;min-width:28px;height:28px}.mrs-benefit-price{font-size:13px}.mrs-benefit-discount{font-size:10px}.mrs-benefit-unit{display:inline;font-size:9px}.mrs-benefit-badge{font-size:10px;padding:2px 6px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px;padding:11px 14px}}\
   ';
   document.head.appendChild(css);
 
@@ -264,29 +264,29 @@
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(1)">\
           <span class="mrs-benefit-qty">1권</span>\
           <span class="mrs-benefit-price">29,000원</span>\
-          <span class="mrs-benefit-unit">(29,000원/권)</span>\
           <span class="mrs-benefit-discount">36%↓</span>\
+          <span class="mrs-benefit-unit">(권당 29,000원)</span>\
           <span class="mrs-benefit-badge popular">⭐ 가장 많이 선택</span>\
         </div>\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(2)">\
           <span class="mrs-benefit-qty">2권</span>\
           <span class="mrs-benefit-price">49,000원</span>\
-          <span class="mrs-benefit-unit">(24,500원/권)</span>\
           <span class="mrs-benefit-discount">46%↓</span>\
+          <span class="mrs-benefit-unit">(권당 24,500원)</span>\
           <span class="mrs-benefit-badge saving">💰 9,000원 절약</span>\
         </div>\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(3)">\
           <span class="mrs-benefit-qty">3권</span>\
           <span class="mrs-benefit-price">69,000원</span>\
-          <span class="mrs-benefit-unit">(23,000원/권)</span>\
           <span class="mrs-benefit-discount">49%↓</span>\
+          <span class="mrs-benefit-unit">(권당 23,000원)</span>\
           <span class="mrs-benefit-badge freeship">🚚 무료배송</span>\
         </div>\
         <div class="mrs-benefit-row best-deal" onclick="mrsBenefitSelect(4)">\
           <span class="mrs-benefit-qty">4권</span>\
           <span class="mrs-benefit-price">89,000원</span>\
-          <span class="mrs-benefit-unit">(22,250원/권)</span>\
           <span class="mrs-benefit-discount">51%↓</span>\
+          <span class="mrs-benefit-unit">(권당 22,250원)</span>\
           <span class="mrs-benefit-badge lowest">🏆 최저가+무배</span>\
         </div>\
       </div>\

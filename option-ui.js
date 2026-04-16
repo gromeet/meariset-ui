@@ -1,12 +1,13 @@
 /**
  * 메아리셋 옵션 UI v7.9 — 외부 스크립트 버전
- * product_no=27 안정판 + product_no=30 step2 clone
+ * product_no=27 전용 (다른 상품에서는 실행 안 됨)
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
   var MRS_VERSION = 108; /* 버전 번호 (10.8 = 108) — salePrice 빈 노드 회피 + 추가상품 가격 인식 보정 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
+  var MRS_TEST_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-test.js';
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -36,16 +37,29 @@
   window._mrsOptionLoaded = true;
   window._mrsVersion = MRS_VERSION;
 
-  /* product_no=27 안정판 + product_no=30 step2 clone 에서만 실행 (SEO URL 대응 강화) */
+  /* product_no=30은 별도 테스트 자산으로 분리 관리 */
   var prdEl = document.querySelector('[data-prd-no]');
   var prdNo = prdEl ? prdEl.getAttribute('data-prd-no') : '';
+  var urlHas30 = location.search.indexOf('product_no=30') !== -1 || location.href.indexOf('product_no=30') !== -1;
+  var pathMatch30 = location.pathname.match(/\/product\/[^/]*\/(\d+)\//);
+  var pathHas30 = !!(pathMatch30 && pathMatch30[1] === '30');
+  if(urlHas30 || pathHas30 || prdNo === '30'){
+    window._mrsOptionLoaded = false;
+    if(!document.querySelector('script[data-mrs-test-loader="1"]')){
+      var testScript = document.createElement('script');
+      testScript.src = MRS_TEST_SCRIPT_URL;
+      testScript.defer = true;
+      testScript.setAttribute('data-mrs-test-loader', '1');
+      (document.head || document.documentElement).appendChild(testScript);
+    }
+    return;
+  }
+
+  /* product_no=27 에서만 실행 (SEO URL 대응 강화) */
   var urlHas27 = location.search.indexOf('product_no=27') !== -1 || location.href.indexOf('product_no=27') !== -1;
   var pathMatch27 = location.pathname.match(/\/product\/[^/]*\/(\d+)\//);
-  var urlHas30 = location.search.indexOf('product_no=30') !== -1 || location.href.indexOf('product_no=30') !== -1;
-  var pathMatch = location.pathname.match(/\/product\/[^/]*\/(\d+)\//);
-  var pathHasSupported = !!(pathMatch && (pathMatch[1] === '27' || pathMatch[1] === '30'));
-  var prdSupported = prdNo === '27' || prdNo === '30';
-  if(!urlHas27 && !urlHas30 && !pathHasSupported && !prdSupported){ window._mrsOptionLoaded = false; return; }
+  var pathHas27 = !!(pathMatch27 && pathMatch27[1] === '27');
+  if(!urlHas27 && !pathHas27 && prdNo !== '27'){ window._mrsOptionLoaded = false; return; }
 
   if(window.__mrsActiveMode && window.__mrsActiveMode !== 'live27') return;
   window.__mrsActiveMode = 'live27';
