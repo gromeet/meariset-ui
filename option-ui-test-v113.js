@@ -1,13 +1,12 @@
 /**
  * 메아리셋 옵션 UI v7.9 — 외부 스크립트 버전
- * product_no=27 전용 (다른 상품에서는 실행 안 됨)
+ * product_no=30 전용 (stage2 clone from option-ui.js)
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 113; /* 버전 번호 (11.3 = 113) — 27/30 안정 UI 통합, NPay 강제 개입 제거 */
+  var MRS_VERSION = 113; /* 버전 번호 (11.3 = 113) — 30 안정판 정리, NPay 강제 개입 제거 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
-  var MRS_TEST_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-test-v113.js';
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -37,32 +36,16 @@
   window._mrsOptionLoaded = true;
   window._mrsVersion = MRS_VERSION;
 
-  /* product_no=30은 별도 테스트 자산으로 분리 관리 */
+  /* product_no=30 에서만 실행 (stage2 visual clone) */
   var prdEl = document.querySelector('[data-prd-no]');
   var prdNo = prdEl ? prdEl.getAttribute('data-prd-no') : '';
   var urlHas30 = location.search.indexOf('product_no=30') !== -1 || location.href.indexOf('product_no=30') !== -1;
   var pathMatch30 = location.pathname.match(/\/product\/[^/]*\/(\d+)\//);
   var pathHas30 = !!(pathMatch30 && pathMatch30[1] === '30');
-  if(urlHas30 || pathHas30 || prdNo === '30'){
-    window._mrsOptionLoaded = false;
-    if(!document.querySelector('script[data-mrs-test-loader="1"]')){
-      var testScript = document.createElement('script');
-      testScript.src = MRS_TEST_SCRIPT_URL;
-      testScript.defer = true;
-      testScript.setAttribute('data-mrs-test-loader', '1');
-      (document.head || document.documentElement).appendChild(testScript);
-    }
-    return;
-  }
+  if(!urlHas30 && !pathHas30 && prdNo !== '30'){ window._mrsOptionLoaded = false; return; }
 
-  /* product_no=27 에서만 실행 (SEO URL 대응 강화) */
-  var urlHas27 = location.search.indexOf('product_no=27') !== -1 || location.href.indexOf('product_no=27') !== -1;
-  var pathMatch27 = location.pathname.match(/\/product\/[^/]*\/(\d+)\//);
-  var pathHas27 = !!(pathMatch27 && pathMatch27[1] === '27');
-  if(!urlHas27 && !pathHas27 && prdNo !== '27'){ window._mrsOptionLoaded = false; return; }
-
-  if(window.__mrsActiveMode && window.__mrsActiveMode !== 'live27') return;
-  window.__mrsActiveMode = 'live27';
+  if(window.__mrsActiveMode && window.__mrsActiveMode !== 'live30') return;
+  window.__mrsActiveMode = 'live30';
 
   /* placeholder 중복 방지 (같은 버전 재실행 시) */
 
@@ -151,6 +134,7 @@
   .productOption{position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important}\
   #totalProducts,div#totalPrice,.quantity_price{position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important}\
   .ssp.df-bannermanager,.df-bannermanager{pointer-events:none!important}\
+  [id^="app-saladlab-alphareview-onsite-box"]{pointer-events:none!important;z-index:1!important}\
   .top-banner,.top-banner *,[df-banner-code="top-banner"],[df-banner-code="top-banner"] *{pointer-events:auto!important}\
   .top-banner{position:relative;z-index:30}\
   .ssp,.ssp__container,.ssp__list,.ssp__item--naver,.ssp__item--kakao{visibility:visible!important}\
@@ -336,11 +320,11 @@
 
   /* ── 로직 (동일) ── */
   var COMBO_MAP = {
-    '1':'P00000BB000D','2':'P00000BB000H','3':'P00000BB000I','4':'P00000BB000J',
-    '1,2':'P00000BB000E','1,3':'P00000BB000K','1,4':'P00000BB000L',
-    '2,3':'P00000BB000M','2,4':'P00000BB000N','3,4':'P00000BB000O',
-    '1,2,3':'P00000BB000F','1,2,4':'P00000BB000P','1,3,4':'P00000BB000Q',
-    '2,3,4':'P00000BB000R','1,2,3,4':'P00000BB000G'
+    '1':'P00000BE000L','2':'P00000BE000T','3':'P00000BE000U','4':'P00000BE000V',
+    '1,2':'P00000BE000P','1,3':'P00000BE000W','1,4':'P00000BE000X',
+    '2,3':'P00000BE000Y','2,4':'P00000BE000Z','3,4':'P00000BE00BA',
+    '1,2,3':'P00000BE000Q','1,2,4':'P00000BE00BB','1,3,4':'P00000BE00BC',
+    '2,3,4':'P00000BE000S','1,2,3,4':'P00000BE000R'
   };
   var PRICE_BY_COUNT={1:29000,2:49000,3:69000,4:89000};
   var INFO_BY_COUNT={
@@ -620,6 +604,9 @@
     },true);
   }
 
+  /* ── 네이버페이 방어: 원래 위치에서 이탈 방지 ── */
+  /* v7.9: 구버전 스크립트의 setTimeout(mrsRelocateNpay)가 뒤늦게 실행돼도
+     MutationObserver가 즉시 원위치 복구. 30초 후 자동 해제. */
   /* ── 초기화 ── */
   function mrsEnsureUI(){
     var readyWrap = document.querySelector('#mrsOptionWrap .mrs-card');
