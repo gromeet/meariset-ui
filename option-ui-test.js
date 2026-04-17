@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 123; /* 버전 번호 (12.3 = 123) — 30 가격 30% 할인 반영 */
+  var MRS_VERSION = 124; /* 버전 번호 (12.4 = 124) — 30 1권 전용 할인 구조 반영 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -278,7 +278,7 @@
   var html = '\
   <div class="mrs-option-wrap" id="mrsOptionWrap">\
     <div class="mrs-cafe-banner">\
-      <span class="mrs-cafe-text">☕ 네이버카페 12주 인증 완료 시 <span class="mrs-cafe-free">다음 시즌 무료!</span></span>\
+      <span class="mrs-cafe-text">☕ <span class="mrs-cafe-free">6주 챌린지 인증 고객 전용 30% 할인</span></span>\
     </div>\
     <div class="mrs-grid">\
       <div class="mrs-card" data-season="1" onclick="mrsToggle(this)">\
@@ -309,40 +309,19 @@
     </div>\
     <div class="mrs-info" id="mrsInfo">\
       <p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p>\
-      <p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>\
+      <p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">원하는 시즌 1권을 선택하세요</p>\
     </div>\
     <div class="mrs-benefit-guide" id="mrsBenefitGuide">\
       <div class="mrs-benefit-list">\
-        <div class="mrs-benefit-row" onclick="mrsBenefitSelect(1)">\
+        <div class="mrs-benefit-row active">\
           <span class="mrs-benefit-qty">1권</span>\
           <span class="mrs-benefit-price">20,300원</span>\
           <span class="mrs-benefit-discount">30%↓</span>\
           <span class="mrs-benefit-unit">(권당 20,300원)</span>\
-          <span class="mrs-benefit-badge popular">⭐ 가장 많이 선택</span>\
-        </div>\
-        <div class="mrs-benefit-row" onclick="mrsBenefitSelect(2)">\
-          <span class="mrs-benefit-qty">2권</span>\
-          <span class="mrs-benefit-price">34,300원</span>\
-          <span class="mrs-benefit-discount">30%↓</span>\
-          <span class="mrs-benefit-unit">(권당 17,150원)</span>\
-          <span class="mrs-benefit-badge saving">🎯 2권 세트</span>\
-        </div>\
-        <div class="mrs-benefit-row" onclick="mrsBenefitSelect(3)">\
-          <span class="mrs-benefit-qty">3권</span>\
-          <span class="mrs-benefit-price">48,300원</span>\
-          <span class="mrs-benefit-discount">30%↓</span>\
-          <span class="mrs-benefit-unit">(권당 16,100원)</span>\
-          <span class="mrs-benefit-badge freeship">🎯 3권 세트</span>\
-        </div>\
-        <div class="mrs-benefit-row best-deal" onclick="mrsBenefitSelect(4)">\
-          <span class="mrs-benefit-qty">4권</span>\
-          <span class="mrs-benefit-price">62,300원</span>\
-          <span class="mrs-benefit-discount">30%↓</span>\
-          <span class="mrs-benefit-unit">(권당 15,575원)</span>\
-          <span class="mrs-benefit-badge lowest">🏆 4권 세트</span>\
+          <span class="mrs-benefit-badge popular">인증 고객 전용</span>\
         </div>\
       </div>\
-      <p class="mrs-benefit-coupon">💳 회원가입 시 <span class="mrs-coupon-amount">3,000원 웰컴쿠폰</span> 지급!</p>\
+      <p class="mrs-benefit-coupon">원하는 시즌 <span class="mrs-coupon-amount">1권만 선택 가능</span></p>\
     </div>\
   </div>\
   <div class="mrs-toast" id="mrsToast"></div>\
@@ -371,21 +350,13 @@
 
   /* ── 로직 (동일) ── */
   var COMBO_MAP = {
-    '1':'P00000BE000L','2':'P00000BE000T','3':'P00000BE000U','4':'P00000BE000V',
-    '1,2':'P00000BE000P','1,3':'P00000BE000W','1,4':'P00000BE000X',
-    '2,3':'P00000BE000Y','2,4':'P00000BE000Z','3,4':'P00000BE00BA',
-    '1,2,3':'P00000BE000Q','1,2,4':'P00000BE00BB','1,3,4':'P00000BE00BC',
-    '2,3,4':'P00000BE000S','1,2,3,4':'P00000BE000R'
+    '1':'P00000BE000L','2':'P00000BE000T','3':'P00000BE000U','4':'P00000BE000V'
   };
-  var PRICE_BY_COUNT={1:20300,2:34300,3:48300,4:62300};
+  var PRICE_BY_COUNT={1:20300};
   var INFO_BY_COUNT={
-    1:'<span class="mrs-info-tag best">⭐ 30% 할인</span><p class="mrs-info-price"><span id="mrsPriceNum">20,300</span>원 <span style="font-size:14px;font-weight:400;color:#777">(권당 20,300원)</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">💡 2권 이상도 같은 30% 할인</p>',
-    2:'<span class="mrs-info-tag best">🎯 30% 할인</span><p class="mrs-info-price"><span id="mrsPriceNum">34,300</span>원 <span style="font-size:14px;font-weight:400;color:#777">(권당 17,150원)</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">💡 3권 세트도 준비돼 있어요</p>',
-    3:'<span class="mrs-info-tag best">🎯 30% 할인</span><p class="mrs-info-price"><span id="mrsPriceNum">48,300</span>원 <span style="font-size:14px;font-weight:400;color:#777">(권당 16,100원)</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">💡 4권 세트도 준비돼 있어요</p>',
-    4:'<span class="mrs-info-tag lowest">🏆 30% 할인</span><p class="mrs-info-price"><span id="mrsPriceNum">62,300</span>원 <span style="font-size:14px;font-weight:400;color:#777">(권당 15,575원)</span></p><p class="mrs-info-hint" style="cursor:default;animation:none">365일 메아리셋 완성 🎉</p>'
+    1:'<span class="mrs-info-tag best">6주 챌린지 인증 고객 전용</span><p class="mrs-info-price"><span id="mrsPriceNum">20,300</span>원 <span style="font-size:14px;font-weight:400;color:#777">(선택한 시즌 1권)</span></p><p class="mrs-info-hint" style="cursor:default;animation:none">원하는 시즌 1권만 선택할 수 있어요</p>'
   };
-  var TAGLINE={1:'"작심삼일을 <em>끝내고 싶은 분</em>"',2:'"180일, <em>습관으로 만들고 싶은 분</em>"',3:'"9개월, <em>진짜 달라지고 싶은 분</em>"',4:'"한 해 전체를 <em>내 것으로 만들고 싶은 분</em>"'};
-  var PRESET_BY_COUNT={1:'1',2:'1,2',3:'1,2,3',4:'1,2,3,4'};
+  var TAGLINE={1:'"시즌 1로 <em>다시 시작하고 싶은 분</em>"',2:'"시즌 2를 <em>이어가고 싶은 분</em>"',3:'"시즌 3를 <em>집중해서 완주하고 싶은 분</em>"',4:'"시즌 4로 <em>마무리하고 싶은 분</em>"'};
 
   var _prevCount=0,_toastTimer=null,_mrsSubmitting=false,_mrsStickyTimer=null,_mrsNativeObserver=null;
 
@@ -484,15 +455,15 @@
   function mrsUpdateSticky(count){
     var bar=document.getElementById('mrsStickyBar'),label=document.getElementById('mrsStickyLabel'),pr=document.getElementById('mrsStickyPrice');
     if(!bar)return;
-    if(count>0&&PRICE_BY_COUNT[count]){
-      var basePrice=PRICE_BY_COUNT[count]||0;
+    if(count>0&&PRICE_BY_COUNT[1]){
+      var basePrice=PRICE_BY_COUNT[1]||0;
       var addonPrice=mrsGetNativeAddonSelectedPrice();
       var nativeTotalPrice=mrsGetNativeTotalPrice();
       var computedTotalPrice=basePrice+addonPrice;
       var totalPrice=nativeTotalPrice>=computedTotalPrice?nativeTotalPrice:computedTotalPrice;
       if(totalPrice<basePrice) totalPrice=basePrice;
       bar.classList.add('visible');
-      label.textContent=count+'권 선택됨'+((addonPrice>0||totalPrice>basePrice)?' · 추가상품 포함':'');
+      label.textContent='선택한 시즌 1권'+((addonPrice>0||totalPrice>basePrice)?' · 추가상품 포함':'');
       pr.textContent=totalPrice.toLocaleString('ko-KR')+'원';
     }
     else{bar.classList.remove('visible');}
@@ -509,49 +480,27 @@
   }
 
   window.mrsToggle=function(card){
-    card.classList.toggle('selected');
-    var count=document.querySelectorAll('.mrs-card.selected').length,prevPrice=PRICE_BY_COUNT[_prevCount]||0;
+    var wasSelected=card.classList.contains('selected');
+    var allCards=document.querySelectorAll('.mrs-card');
+    for(var i=0;i<allCards.length;i++) allCards[i].classList.remove('selected');
+    if(!wasSelected) card.classList.add('selected');
+    var count=document.querySelectorAll('.mrs-card.selected').length;
+    var prevPrice=PRICE_BY_COUNT[_prevCount]||0;
     var info=INFO_BY_COUNT[count];
-    document.getElementById('mrsInfo').innerHTML=info?info:'<p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p><p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>';
-    if(info&&PRICE_BY_COUNT[count]) requestAnimationFrame(function(){mrsAnimatePrice(prevPrice,PRICE_BY_COUNT[count],350);});
-    if(_prevCount<3&&count>=3&&count<4) setTimeout(function(){mrsShowToast('🎉 배송비 무료 달성!','green');},150);
-    if(_prevCount<4&&count>=4) setTimeout(function(){mrsShowToast('🏆 최저가 달성!','red');},150);
-    mrsUpdateTagline(count);mrsUpdateSticky(count);mrsUpdateBenefit();_prevCount=count;
+    document.getElementById('mrsInfo').innerHTML=info?info:'<p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p><p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">원하는 시즌 1권을 선택하세요</p>';
+    if(info&&PRICE_BY_COUNT[1]) requestAnimationFrame(function(){mrsAnimatePrice(prevPrice,PRICE_BY_COUNT[1],350);});
+    mrsUpdateTagline(count?parseInt(mrsGetComboKey(),10):0);mrsUpdateSticky(count);mrsUpdateBenefit();_prevCount=count;
   };
-  window.mrsHintAdd=function(){var cards=document.querySelectorAll('.mrs-card:not(.selected)');if(cards.length)cards[0].click();};
+  window.mrsHintAdd=function(){};
 
   function mrsUpdateBenefit(){
     var rows=document.querySelectorAll('.mrs-benefit-row');
     var count=document.querySelectorAll('.mrs-card.selected').length;
     for(var i=0;i<rows.length;i++) rows[i].classList.remove('active');
-    if(count >= 1 && count <= 4){
-      var target=rows[count-1];
-      if(target) target.classList.add('active');
-    }
+    if(count===1&&rows[0]) rows[0].classList.add('active');
   }
 
-  window.mrsBenefitSelect=function(count){
-    var currentKey=mrsGetComboKey();
-    var targetKey=PRESET_BY_COUNT[count];
-    var allCards=document.querySelectorAll('.mrs-card');
-    for(var i=0;i<allCards.length;i++) allCards[i].classList.remove('selected');
-    if(currentKey===targetKey){
-      var emptyInfo=document.getElementById('mrsInfo');
-      if(emptyInfo) emptyInfo.innerHTML='<p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p><p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>';
-      mrsUpdateTagline(0);mrsUpdateSticky(0);mrsUpdateBenefit();_prevCount=0;
-      return;
-    }
-    for(var s=1;s<=count;s++){
-      var card=document.querySelector('.mrs-card[data-season="'+s+'"]');
-      if(card) card.classList.add('selected');
-    }
-    var prevPrice=PRICE_BY_COUNT[_prevCount]||0;
-    var info=INFO_BY_COUNT[count];
-    var infoEl=document.getElementById('mrsInfo');
-    if(infoEl) infoEl.innerHTML=info||'<p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p><p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>';
-    if(info&&PRICE_BY_COUNT[count]) requestAnimationFrame(function(){mrsAnimatePrice(prevPrice,PRICE_BY_COUNT[count],350);});
-    mrsUpdateTagline(count);mrsUpdateSticky(count);mrsUpdateBenefit();_prevCount=count;
-  };
+  window.mrsBenefitSelect=function(){};
 
   function mrsClearOptions(){
     var dels=document.querySelectorAll('#totalProducts .option_box_del, #totalProducts img[alt="삭제"]');
