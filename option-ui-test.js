@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 129; /* 버전 번호 (12.9 = 129) — 30 커스텀 하단바 제거, 기본 구매버튼 유지 */
+  var MRS_VERSION = 130; /* 버전 번호 (13.0 = 130) — 30 시즌 변경 alert 없이 옵션 교체 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -363,7 +363,7 @@
   };
   var TAGLINE={1:'"시즌 1로 <em>다시 시작하고 싶은 분</em>"',2:'"시즌 2를 <em>이어가고 싶은 분</em>"',3:'"시즌 3를 <em>집중해서 완주하고 싶은 분</em>"',4:'"시즌 4로 <em>마무리하고 싶은 분</em>"'};
 
-  var _prevCount=0,_toastTimer=null,_mrsSubmitting=false,_mrsStickyTimer=null,_mrsNativeObserver=null;
+  var _prevCount=0,_toastTimer=null,_mrsSubmitting=false,_mrsStickyTimer=null,_mrsNativeObserver=null,_mrsAlertRestoreTimer=null;
 
   function mrsGetComboKey(){
     var cards=document.querySelectorAll('.mrs-card.selected'),seasons=[];
@@ -408,24 +408,71 @@
       }
     }
   }
+  function mrsSuppressNativeOptionAlerts(ms){
+    var orig=window._mrsOrigAlert || window.alert;
+    window._mrsOrigAlert=orig;
+    window.alert=function(msg){
+      var text=(msg||'')+'';
+      if(text.indexOf('이미 선택된 옵션')!==-1 || text.indexOf('아래 리스트에서')!==-1 || text.indexOf('삭제 후 다시 선택')!==-1){
+        return;
+      }
+      return window._mrsOrigAlert.apply(this, arguments);
+    };
+    if(_mrsAlertRestoreTimer) clearTimeout(_mrsAlertRestoreTimer);
+    _mrsAlertRestoreTimer=setTimeout(function(){
+      if(window._mrsOrigAlert) window.alert=window._mrsOrigAlert;
+    }, ms || 1200);
+  }
+  function mrsClearMainOptionRowsSilent(){
+    var removed=false;
+    var dels=document.querySelectorAll('#totalProducts .option_box_del, #totalProducts img[alt="삭제"]');
+    for(var i=dels.length-1;i>=0;i--){
+      var row=dels[i].closest('tr');
+      if(row&&row.classList.contains('add_product')) continue;
+      var link=dels[i].closest('a')||dels[i];
+      try{link.click();removed=true;}catch(e){}
+    }
+    var tp=document.getElementById('totalProducts');
+    if(tp){
+      var tbody=tp.querySelector('tbody');
+      if(tbody){
+        var rows=tbody.querySelectorAll('tr');
+        for(var j=rows.length-1;j>=0;j--){
+          if(rows[j].classList.contains('add_product')) continue;
+          if(rows[j].querySelector('th')) continue;
+          rows[j].remove();
+          removed=true;
+        }
+      }
+    }
+    return removed;
+  }
   function mrsSyncNativeSelection(force){
     var sel=document.getElementById('product_option_id1');
     if(!sel) return false;
     var selectedValue=mrsGetSelectedOptionValue();
     var desiredValue=selectedValue||'*';
     mrsSetProductOptionVisible(true);
-    if(force && desiredValue!=='*' && sel.value===desiredValue){
-      sel.value='*';
+    if(!force){
+      if(sel.value!==desiredValue) sel.value=desiredValue;
       mrsTriggerNativeChange(sel);
+      setTimeout(function(){ mrsSetProductOptionVisible(false); },300);
+      return desiredValue!=='*';
     }
-    if(sel.value!==desiredValue){
+    mrsSuppressNativeOptionAlerts(1500);
+    var hadRows=mrsClearMainOptionRowsSilent();
+    sel.value='*';
+    mrsTriggerNativeChange(sel);
+    if(desiredValue==='*'){
+      setTimeout(function(){ mrsSetProductOptionVisible(false); },300);
+      return false;
+    }
+    setTimeout(function(){
       sel.value=desiredValue;
       mrsTriggerNativeChange(sel);
-    }else if(force){
-      mrsTriggerNativeChange(sel);
-    }
-    setTimeout(function(){ mrsSetProductOptionVisible(false); },300);
-    return desiredValue!=='*';
+      setTimeout(function(){ mrsSetProductOptionVisible(false); },300);
+    }, hadRows ? 120 : 60);
+    return true;
   }
   function mrsAnimatePrice(from,to,dur){
     var el=document.getElementById('mrsPriceNum'); if(!el)return;
