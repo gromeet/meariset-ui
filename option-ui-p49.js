@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 151; /* 버전 번호 (15.1 = 151) — product_no=49 하단 바 제거 + 기본 구매버튼 유지 */
+  var MRS_VERSION = 152; /* 버전 번호 (15.2 = 152) — product_no=49 간편결제 실제 터치 유지 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/detail.html?product_no=49&cate_no=1&display_group=2';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
   var MRS_DISPLAY_PRICE_BY_COUNT = {1:24650};
@@ -643,18 +643,13 @@
       }
     },true);
 
-    var _mrsPayBypass=false;
     document.addEventListener('click',function(e){
       var el=e.target,depth=0;
       while(el&&el.tagName!=='BODY'&&depth<6){
         var cls=(el.className||'').toString();
         if(cls.indexOf('kakao')!==-1||cls.indexOf('kakaopay')!==-1||cls.indexOf('naverpay')!==-1||cls.indexOf('naver-pay')!==-1||cls.indexOf('npay')!==-1||cls.indexOf('checkout_btn')!==-1||cls.indexOf('Npay')!==-1){
-          if(_mrsPayBypass){_mrsPayBypass=false;return;}
           var count=document.querySelectorAll('.mrs-card.selected').length;
           if(!count){e.preventDefault();e.stopImmediatePropagation();alert('시즌을 먼저 선택해 주세요 😊');return;}
-          e.preventDefault();e.stopImmediatePropagation();
-          var clickTarget=el;mrsClearOptions();
-          setTimeout(function(){mrsSelectOption(COMBO_MAP[mrsGetComboKey()]);setTimeout(function(){_mrsPayBypass=true;clickTarget.click();},800);},200);
           return;
         }
         el=el.parentElement;depth++;

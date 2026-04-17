@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 118; /* 버전 번호 (11.8 = 118) — 추가구성상품 선택 선택화 + 커스텀 하단바 비노출 */
+  var MRS_VERSION = 119; /* 버전 번호 (11.9 = 119) — 간편결제는 실제 터치 유지, 선택 안 했을 때만 차단 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
   var MRS_TEST_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-test.js?v=restore1';
@@ -695,18 +695,13 @@
       }
     },true);
 
-    var _mrsPayBypass=false;
     document.addEventListener('click',function(e){
       var el=e.target,depth=0;
       while(el&&el.tagName!=='BODY'&&depth<6){
         var cls=(el.className||'').toString();
         if(cls.indexOf('kakao')!==-1||cls.indexOf('kakaopay')!==-1||cls.indexOf('naverpay')!==-1||cls.indexOf('naver-pay')!==-1||cls.indexOf('npay')!==-1||cls.indexOf('checkout_btn')!==-1||cls.indexOf('Npay')!==-1){
-          if(_mrsPayBypass){_mrsPayBypass=false;return;}
           var count=document.querySelectorAll('.mrs-card.selected').length;
           if(!count){e.preventDefault();e.stopImmediatePropagation();alert('시즌을 먼저 선택해 주세요 😊');return;}
-          e.preventDefault();e.stopImmediatePropagation();
-          var clickTarget=el;mrsClearOptions();
-          setTimeout(function(){mrsSelectOption(COMBO_MAP[mrsGetComboKey()]);setTimeout(function(){_mrsPayBypass=true;clickTarget.click();},800);},200);
           return;
         }
         el=el.parentElement;depth++;
