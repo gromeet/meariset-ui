@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 127; /* 버전 번호 (12.7 = 127) — 30 하단 구매바 body 기준 고정 */
+  var MRS_VERSION = 128; /* 버전 번호 (12.8 = 128) — 30 sticky 가격 누적 오계산 수정 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -520,12 +520,10 @@
     if(count>0&&PRICE_BY_COUNT[1]){
       var basePrice=PRICE_BY_COUNT[1]||0;
       var addonPrice=mrsGetNativeAddonSelectedPrice();
-      var nativeTotalPrice=mrsGetNativeTotalPrice();
-      var computedTotalPrice=basePrice+addonPrice;
-      var totalPrice=nativeTotalPrice>=computedTotalPrice?nativeTotalPrice:computedTotalPrice;
+      var totalPrice=basePrice+addonPrice;
       if(totalPrice<basePrice) totalPrice=basePrice;
       bar.classList.add('visible');
-      label.textContent='선택한 시즌 1권'+((addonPrice>0||totalPrice>basePrice)?' · 추가상품 포함':'');
+      label.textContent='선택한 시즌 1권'+(addonPrice>0?' · 추가상품 포함':'');
       pr.textContent=totalPrice.toLocaleString('ko-KR')+'원';
     }
     else{bar.classList.remove('visible');}
