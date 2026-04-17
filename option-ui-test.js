@@ -1,10 +1,10 @@
 /**
- * 메아리셋 옵션 UI v7.9 — 외부 스크립트 버전
+ * 메아리셋 옵션 UI v8.1 — 외부 스크립트 버전
  * product_no=30 전용 (stage2 clone from option-ui.js)
- * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
+ * v8.1: 클립펜 업셀 카드 추가, 카카오/네이버 결제 복구 로직 유지
  */
 (function(){
-  var MRS_VERSION = 136; /* 버전 번호 (13.6 = 136) — 30 카카오 버튼 강제 재생성 제거, 카페24 기본 버튼 유지 */
+  var MRS_VERSION = 137; /* 버전 번호 (13.7 = 137) — product_no=30 클립펜 업셀 UI 추가, 카카오/NaverPay 복구 로직 유지 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -263,8 +263,25 @@
   .mrs-cafe-banner{display:flex;align-items:center;gap:10px;background:#F5F3EF;border-left:3px solid #2D4A3E;padding:12px 15px;border-radius:0 10px 10px 0;margin-bottom:14px;text-align:left}\
   .mrs-cafe-text{font-size:14px;font-weight:700;color:#2D2D2D;line-height:1.45}\
   .mrs-cafe-free{font-weight:900;color:#2D4A3E}\
+  .mrs-upsell-card{position:relative;margin-top:14px;padding:16px;border-radius:18px;background:linear-gradient(145deg,#111315 0%,#23272b 58%,#2f3438 100%);color:#F8F4EC;overflow:hidden;box-shadow:0 18px 40px rgba(17,19,21,.18)}\
+  .mrs-upsell-card::before{content:"";position:absolute;top:-42px;right:-16px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(255,215,148,.28) 0%,rgba(255,215,148,0) 72%);pointer-events:none}\
+  .mrs-upsell-card::after{content:"";position:absolute;left:-30px;bottom:-48px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.09) 0%,rgba(255,255,255,0) 74%);pointer-events:none}\
+  .mrs-upsell-inner{position:relative;z-index:1;display:grid;grid-template-columns:minmax(72px,88px) minmax(0,1fr);gap:14px;align-items:center}\
+  .mrs-upsell-figure{width:100%;max-width:88px;aspect-ratio:1/1;border-radius:16px;overflow:hidden;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}\
+  .mrs-upsell-img{width:100%;height:100%;display:block;object-fit:cover}\
+  .mrs-upsell-copy{text-align:left;min-width:0}\
+  .mrs-upsell-kicker{display:inline-flex;align-items:center;gap:6px;max-width:100%;margin-bottom:9px;padding:6px 10px;border-radius:999px;background:rgba(255,248,231,.12);border:1px solid rgba(255,231,177,.18);font-size:11px;font-weight:800;letter-spacing:.08em;color:#F4D9A1;text-transform:uppercase}\
+  .mrs-upsell-title{font-size:20px;font-weight:900;line-height:1.2;letter-spacing:-.03em;color:#fff}\
+  .mrs-upsell-benefit{margin-top:7px;font-size:13px;line-height:1.55;color:rgba(248,244,236,.82)}\
+  .mrs-upsell-price{margin-top:10px;font-size:15px;font-weight:800;color:#FFE4AC;letter-spacing:-.02em}\
+  .mrs-upsell-price span{display:inline-block;font-size:12px;font-weight:600;color:rgba(248,244,236,.68);margin-left:6px}\
+  .mrs-upsell-cta{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:14px;padding:13px 16px;border:none;border-radius:14px;background:linear-gradient(135deg,#F2D39A 0%,#CBA465 100%);color:#16181A;font-size:14px;font-weight:900;font-family:Pretendard,sans-serif;cursor:pointer;box-shadow:0 10px 24px rgba(203,164,101,.25);transition:transform .2s ease,box-shadow .2s ease,filter .2s ease}\
+  .mrs-upsell-cta:hover{transform:translateY(-1px);box-shadow:0 12px 26px rgba(203,164,101,.32);filter:brightness(1.02)}\
+  .mrs-upsell-cta:active{transform:translateY(0) scale(.99)}\
+  .mrs-addon-focus{animation:mrs-addon-focus-ring 1.6s ease}\
+  @keyframes mrs-addon-focus-ring{0%{box-shadow:0 0 0 0 rgba(212,168,83,0)}20%{box-shadow:0 0 0 3px rgba(212,168,83,.36)}100%{box-shadow:0 0 0 0 rgba(212,168,83,0)}}\
   @media(min-width:768px){.mrs-benefit-guide{padding:14px 14px 8px}.mrs-benefit-row{padding:14px 16px;gap:10px;flex-wrap:nowrap;min-height:70px}.mrs-benefit-qty{font-size:13px;min-width:40px;height:40px}.mrs-benefit-price{font-size:22px}.mrs-benefit-discount{font-size:13px}.mrs-benefit-unit{display:inline;font-size:12px}.mrs-benefit-badge{font-size:12px;padding:5px 11px;white-space:nowrap}.mrs-benefit-coupon{font-size:14px}}\
-  @media(max-width:767px){.mrs-benefit-guide{padding:12px 10px 14px;margin-top:6px}.mrs-benefit-row{padding:12px 12px;gap:6px;flex-wrap:nowrap;min-height:62px}.mrs-benefit-qty{font-size:12px;min-width:34px;height:34px}.mrs-benefit-price{font-size:18px}.mrs-benefit-discount{font-size:11px}.mrs-benefit-unit{display:inline;font-size:10px}.mrs-benefit-badge{font-size:11px;padding:4px 8px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px;padding:12px 14px}}\
+  @media(max-width:767px){.mrs-benefit-guide{padding:12px 10px 14px;margin-top:6px}.mrs-benefit-row{padding:12px 12px;gap:6px;flex-wrap:nowrap;min-height:62px}.mrs-benefit-qty{font-size:12px;min-width:34px;height:34px}.mrs-benefit-price{font-size:18px}.mrs-benefit-discount{font-size:11px}.mrs-benefit-unit{display:inline;font-size:10px}.mrs-benefit-badge{font-size:11px;padding:4px 8px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px;padding:12px 14px}.mrs-upsell-card{margin-top:12px;padding:14px}.mrs-upsell-inner{grid-template-columns:76px minmax(0,1fr);gap:12px;align-items:start}.mrs-upsell-kicker{font-size:10px;padding:5px 9px;margin-bottom:8px}.mrs-upsell-title{font-size:17px}.mrs-upsell-benefit{font-size:12px;margin-top:6px}.mrs-upsell-price{font-size:14px;margin-top:9px}.mrs-upsell-price span{display:block;margin:4px 0 0}.mrs-upsell-cta{margin-top:12px;padding:12px 14px;font-size:13px}}\
   ';
   document.head.appendChild(css);
 
@@ -322,6 +339,20 @@
         </div>\
       </div>\
       <p class="mrs-benefit-coupon">원하는 시즌 <span class="mrs-coupon-amount">1권만 선택 가능</span></p>\
+    </div>\
+    <div class="mrs-upsell-card" id="mrsClipPenUpsell">\
+      <div class="mrs-upsell-inner">\
+        <div class="mrs-upsell-figure">\
+          <img class="mrs-upsell-img" src="/meariset/clip_pen_real.png" onerror="this.src=\'/meariset/clip_pen.png\'" alt="메아리셋 클립펜">\
+        </div>\
+        <div class="mrs-upsell-copy">\
+          <span class="mrs-upsell-kicker">Premium Writing Add-on</span>\
+          <p class="mrs-upsell-title">메아리셋 클립펜</p>\
+          <p class="mrs-upsell-benefit">노트와 같이 쓰기 좋은 필기감으로 챌린지 기록 흐름을 자연스럽게 이어줘요.</p>\
+          <p class="mrs-upsell-price" id="mrsClipPenPrice">함께 구매 옵션가 확인 <span id="mrsClipPenMeta">추가상품 영역에서 선택 가능</span></p>\
+        </div>\
+      </div>\
+      <button type="button" class="mrs-upsell-cta" id="mrsClipPenCta" onclick="mrsOpenClipPenAddon()">클립펜도 함께 보기</button>\
     </div>\
   </div>\
   <div class="mrs-toast" id="mrsToast"></div>\
@@ -487,6 +518,50 @@
     t.classList.add('show');_toastTimer=setTimeout(function(){t.classList.remove('show','red');},2500);
   }
   function mrsGetText(el){return((el&&(el.textContent||el.innerText))||'').replace(/\s+/g,' ').trim();}
+  function mrsFindAddonRoot(){
+    return document.querySelector('.xans-product-addproduct, .addProduct, [class*="addProduct"], [id*="addproduct"]');
+  }
+  function mrsFindClipPenAddonData(){
+    var selectors=document.querySelectorAll('.xans-product-addproduct select,.addProduct select,select[id*="addproduct"],select[name*="addproduct"]');
+    var keywords=['클립펜','클립 펜','clip pen','clip_pen','clip-pen'];
+    for(var i=0;i<selectors.length;i++){
+      var sel=selectors[i];
+      var row=(sel.closest && (sel.closest('.product > li') || sel.closest('li'))) || null;
+      var rowText=mrsGetText(row);
+      for(var k=0;k<keywords.length;k++){
+        if(rowText.toLowerCase().indexOf(keywords[k].toLowerCase())!==-1){
+          var rowPriceNode=row && (row.querySelector('.information .salePrice') || row.querySelector('.information .price') || row.querySelector('.price'));
+          return { select: sel, row: row, text: rowText, price: mrsParsePriceValue(mrsGetText(rowPriceNode) || rowText) };
+        }
+      }
+      if(!sel.options) continue;
+      for(var j=0;j<sel.options.length;j++){
+        var optText=mrsGetText(sel.options[j]);
+        for(var m=0;m<keywords.length;m++){
+          if(optText.toLowerCase().indexOf(keywords[m].toLowerCase())!==-1){
+            return { select: sel, row: row, text: optText, price: mrsParsePriceValue(optText) };
+          }
+        }
+      }
+    }
+    return null;
+  }
+  function mrsUpdateClipPenUpsell(){
+    var priceEl=document.getElementById('mrsClipPenPrice');
+    var metaEl=document.getElementById('mrsClipPenMeta');
+    var ctaEl=document.getElementById('mrsClipPenCta');
+    if(!priceEl || !metaEl || !ctaEl) return;
+    var addon=mrsFindClipPenAddonData();
+    if(addon && addon.price>0){
+      priceEl.innerHTML=addon.price.toLocaleString('ko-KR') + '원 <span id="mrsClipPenMeta">추가상품에서 바로 선택 가능</span>';
+      metaEl=document.getElementById('mrsClipPenMeta');
+      if(metaEl) metaEl.textContent='추가상품에서 바로 선택 가능';
+      ctaEl.textContent='클립펜도 함께 보기';
+      return;
+    }
+    priceEl.innerHTML='함께 구매 옵션가 확인 <span id="mrsClipPenMeta">추가상품 영역에서 선택 가능</span>';
+    ctaEl.textContent='클립펜도 함께 보기';
+  }
   function mrsParsePriceValue(text){
     var matches=(text||'').match(/\d[\d,]*/g);
     if(!matches)return 0;
@@ -572,6 +647,19 @@
     var wrap=document.getElementById('mrsOptionWrap');if(!wrap){setTimeout(mrsInsertTagline,400);return;}
     var el=document.createElement('div');el.id='mrsTagline';el.className='hidden';wrap.parentNode.insertBefore(el,wrap);
   }
+  window.mrsOpenClipPenAddon=function(){
+    var addon=mrsFindClipPenAddonData();
+    var target=(addon && (addon.row || addon.select)) || mrsFindAddonRoot();
+    if(!target){
+      mrsShowToast('추가상품 영역을 불러오는 중이에요.', 'red');
+      return;
+    }
+    if(target.scrollIntoView) target.scrollIntoView({behavior:'smooth',block:'center'});
+    target.classList.remove('mrs-addon-focus');
+    void target.offsetWidth;
+    target.classList.add('mrs-addon-focus');
+    if(addon && addon.select && addon.select.focus) addon.select.focus({preventScroll:true});
+  };
   function mrsUpdateTagline(count){
     var el=document.getElementById('mrsTagline');if(!el)return;
     if(TAGLINE[count]){el.innerHTML=TAGLINE[count];el.classList.remove('hidden');void el.offsetWidth;el.classList.add('visible');}
@@ -727,7 +815,11 @@
     insertUI();
     mrsInstallCapture();
     mrsMakeAddonOptional();
+    mrsUpdateClipPenUpsell();
     setTimeout(mrsMakeAddonOptional, 300);
+    setTimeout(mrsUpdateClipPenUpsell, 300);
+    setTimeout(mrsUpdateClipPenUpsell, 1200);
+    setTimeout(mrsUpdateClipPenUpsell, 2500);
     setTimeout(mrsObserveNativeTotals, 300);
     setTimeout(mrsSyncStickySoon, 500);
     setTimeout(mrsEnsureUI, 300);
