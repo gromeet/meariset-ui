@@ -1,14 +1,13 @@
 /**
  * 메아리셋 옵션 UI v7.9 — 외부 스크립트 버전
- * product_no=27 전용 (다른 상품에서는 실행 안 됨)
+ * product_no=49 전용 (27과 분리된 재구매 자산)
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 116; /* 버전 번호 (11.6 = 116) — 데스크톱/모바일 로고 홈 링크 안전 복구 */
-  var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
+  var MRS_VERSION = 149; /* 버전 번호 (14.9 = 149) — product_no=49 전용 split */
+  var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/detail.html?product_no=49&cate_no=1&display_group=2';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
-  var MRS_TEST_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-test.js?v=restore1';
-  var MRS_P49_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-p49.js';
+  var MRS_DISPLAY_PRICE_BY_COUNT = {1:24650,2:41650,3:58650,4:75650};
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -38,48 +37,16 @@
   window._mrsOptionLoaded = true;
   window._mrsVersion = MRS_VERSION;
 
-  /* product_no=30은 별도 테스트 자산으로 분리 관리 */
+  /* product_no=49 에서만 실행 (SEO URL 대응 강화) */
   var prdEl = document.querySelector('[data-prd-no]');
   var prdNo = prdEl ? prdEl.getAttribute('data-prd-no') : '';
-  var urlHas30 = location.search.indexOf('product_no=30') !== -1 || location.href.indexOf('product_no=30') !== -1;
-  var pathMatch30 = location.pathname.match(/\/product\/[^/]*\/(\d+)\//);
-  var pathHas30 = !!(pathMatch30 && pathMatch30[1] === '30');
-  if(urlHas30 || pathHas30 || prdNo === '30'){
-    window._mrsOptionLoaded = false;
-    if(!document.querySelector('script[data-mrs-test-loader="1"]')){
-      var testScript = document.createElement('script');
-      testScript.src = MRS_TEST_SCRIPT_URL;
-      testScript.defer = true;
-      testScript.setAttribute('data-mrs-test-loader', '1');
-      (document.head || document.documentElement).appendChild(testScript);
-    }
-    return;
-  }
-
-  /* product_no=49은 별도 재구매 자산으로 분리 관리 */
   var urlHas49 = location.search.indexOf('product_no=49') !== -1 || location.href.indexOf('product_no=49') !== -1;
   var pathMatch49 = location.pathname.match(/\/product\/[^/]*\/(\d+)\//);
   var pathHas49 = !!(pathMatch49 && pathMatch49[1] === '49');
-  if(urlHas49 || pathHas49 || prdNo === '49'){
-    window._mrsOptionLoaded = false;
-    if(!document.querySelector('script[data-mrs-p49-loader="1"]')){
-      var p49Script = document.createElement('script');
-      p49Script.src = MRS_P49_SCRIPT_URL;
-      p49Script.defer = true;
-      p49Script.setAttribute('data-mrs-p49-loader', '1');
-      (document.head || document.documentElement).appendChild(p49Script);
-    }
-    return;
-  }
+  if(!urlHas49 && !pathHas49 && prdNo !== '49'){ window._mrsOptionLoaded = false; return; }
 
-  /* product_no=27 에서만 실행 (SEO URL 대응 강화) */
-  var urlHas27 = location.search.indexOf('product_no=27') !== -1 || location.href.indexOf('product_no=27') !== -1;
-  var pathMatch27 = location.pathname.match(/\/product\/[^/]*\/(\d+)\//);
-  var pathHas27 = !!(pathMatch27 && pathMatch27[1] === '27');
-  if(!urlHas27 && !pathHas27 && prdNo !== '27'){ window._mrsOptionLoaded = false; return; }
-
-  if(window.__mrsActiveMode && window.__mrsActiveMode !== 'live27') return;
-  window.__mrsActiveMode = 'live27';
+  if(window.__mrsActiveMode && window.__mrsActiveMode !== 'live49') return;
+  window.__mrsActiveMode = 'live49';
 
   /* placeholder 중복 방지 (같은 버전 재실행 시) */
 
@@ -348,31 +315,31 @@
       <div class="mrs-benefit-list">\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(1)">\
           <span class="mrs-benefit-qty">1권</span>\
-          <span class="mrs-benefit-price">29,000원</span>\
-          <span class="mrs-benefit-discount">36%↓</span>\
-          <span class="mrs-benefit-unit">(권당 29,000원)</span>\
-          <span class="mrs-benefit-badge popular">⭐ 가장 많이 선택</span>\
+          <span class="mrs-benefit-price">24,650원</span>\
+          <span class="mrs-benefit-discount">15%↓</span>\
+          <span class="mrs-benefit-unit">(권당 24,650원)</span>\
+          <span class="mrs-benefit-badge popular">⭐ 첫 재구매 추천</span>\
         </div>\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(2)">\
           <span class="mrs-benefit-qty">2권</span>\
-          <span class="mrs-benefit-price">49,000원</span>\
-          <span class="mrs-benefit-discount">46%↓</span>\
-          <span class="mrs-benefit-unit">(권당 24,500원)</span>\
-          <span class="mrs-benefit-badge saving">💰 9,000원 절약</span>\
+          <span class="mrs-benefit-price">41,650원</span>\
+          <span class="mrs-benefit-discount">15%↓</span>\
+          <span class="mrs-benefit-unit">(권당 20,825원)</span>\
+          <span class="mrs-benefit-badge saving">💰 7,650원 절약</span>\
         </div>\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(3)">\
           <span class="mrs-benefit-qty">3권</span>\
-          <span class="mrs-benefit-price">69,000원</span>\
-          <span class="mrs-benefit-discount">49%↓</span>\
-          <span class="mrs-benefit-unit">(권당 23,000원)</span>\
-          <span class="mrs-benefit-badge freeship">🚚 무료배송</span>\
+          <span class="mrs-benefit-price">58,650원</span>\
+          <span class="mrs-benefit-discount">15%↓</span>\
+          <span class="mrs-benefit-unit">(권당 19,550원)</span>\
+          <span class="mrs-benefit-badge freeship">🚚 3권 구성</span>\
         </div>\
         <div class="mrs-benefit-row best-deal" onclick="mrsBenefitSelect(4)">\
           <span class="mrs-benefit-qty">4권</span>\
-          <span class="mrs-benefit-price">89,000원</span>\
-          <span class="mrs-benefit-discount">51%↓</span>\
-          <span class="mrs-benefit-unit">(권당 22,250원)</span>\
-          <span class="mrs-benefit-badge lowest">🏆 최저가+사은품</span>\
+          <span class="mrs-benefit-price">75,650원</span>\
+          <span class="mrs-benefit-discount">15%↓</span>\
+          <span class="mrs-benefit-unit">(권당 약 18,913원)</span>\
+          <span class="mrs-benefit-badge lowest">🏆 최대 할인 구성</span>\
         </div>\
       </div>\
       <p class="mrs-benefit-coupon">💳 회원가입 시 <span class="mrs-coupon-amount">3,000원 웰컴쿠폰</span> 지급!</p>\
@@ -402,20 +369,21 @@
     setTimeout(mrsInsertTagline, 500);
   }
 
-  /* ── 로직 (동일) ── */
+  /* ── 로직 ── */
+  /* A~D는 사용자 제공 라이브 검증값, E~O는 기존 27 조합 순서를 기준으로 배치한 추정 매핑 */
   var COMBO_MAP = {
-    '1':'P00000BB000D','2':'P00000BB000H','3':'P00000BB000I','4':'P00000BB000J',
-    '1,2':'P00000BB000E','1,3':'P00000BB000K','1,4':'P00000BB000L',
-    '2,3':'P00000BB000M','2,4':'P00000BB000N','3,4':'P00000BB000O',
-    '1,2,3':'P00000BB000F','1,2,4':'P00000BB000P','1,3,4':'P00000BB000Q',
-    '2,3,4':'P00000BB000R','1,2,3,4':'P00000BB000G'
+    '1':'P00000BX000A','1,2':'P00000BX000B','1,2,3':'P00000BX000C','1,2,3,4':'P00000BX000D',
+    '2':'P00000BX000E','3':'P00000BX000F','4':'P00000BX000G',
+    '1,3':'P00000BX000H','1,4':'P00000BX000I','2,3':'P00000BX000J',
+    '2,4':'P00000BX000K','3,4':'P00000BX000L',
+    '1,2,4':'P00000BX000M','1,3,4':'P00000BX000N','2,3,4':'P00000BX000O'
   };
-  var PRICE_BY_COUNT={1:29000,2:49000,3:69000,4:89000};
+  var PRICE_BY_COUNT = MRS_DISPLAY_PRICE_BY_COUNT;
   var INFO_BY_COUNT={
-    1:'<span class="mrs-info-tag best">⭐ 가장 많이 선택</span><p class="mrs-info-price"><span id="mrsPriceNum">29,000</span>원 <span style="font-size:14px;font-weight:400;color:#e65100">+ 배송비 3,000원</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">💡 1권 더 담으면 9,000원 절약</p>',
-    2:'<span class="mrs-info-tag best">💰 9,000원 절약</span><p class="mrs-info-price"><span id="mrsPriceNum">49,000</span>원 <span style="font-size:14px;font-weight:400;color:#e65100">+ 배송비 3,000원</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">💡 1권만 더 담으면 배송비 무료</p>',
-    3:'<span class="mrs-info-tag best">🚚 배송비 무료</span><p class="mrs-info-price"><span id="mrsPriceNum">69,000</span>원 <span style="font-size:14px;font-weight:400;color:#777">(권당 23,000원)</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">🎁 1권만 더 담으면 최저가 + 한정판 사은품</p>',
-    4:'<span class="mrs-info-tag lowest">🏆 최저가 + 한정판 사은품</span><p class="mrs-info-price"><span id="mrsPriceNum">89,000</span>원 <span style="font-size:14px;font-weight:400;color:#777">(권당 22,250원)</span></p><p class="mrs-info-hint" style="cursor:default;animation:none">365일 메아리셋 완성 🎉</p>'
+    1:'<span class="mrs-info-tag best">⭐ 첫 재구매 추천</span><p class="mrs-info-price"><span id="mrsPriceNum">24,650</span>원 <span style="font-size:14px;font-weight:400;color:#777">(권당 24,650원)</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">💡 1권 더 담으면 7,650원 절약</p>',
+    2:'<span class="mrs-info-tag best">💰 7,650원 절약</span><p class="mrs-info-price"><span id="mrsPriceNum">41,650</span>원 <span style="font-size:14px;font-weight:400;color:#777">(권당 20,825원)</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">💡 1권 더 담으면 58,650원 구성</p>',
+    3:'<span class="mrs-info-tag best">📚 3권 할인 구성</span><p class="mrs-info-price"><span id="mrsPriceNum">58,650</span>원 <span style="font-size:14px;font-weight:400;color:#777">(권당 19,550원)</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">🎁 1권 더 담으면 최대 할인 구성이 완성돼요</p>',
+    4:'<span class="mrs-info-tag lowest">🏆 최대 할인 구성</span><p class="mrs-info-price"><span id="mrsPriceNum">75,650</span>원 <span style="font-size:14px;font-weight:400;color:#777">(권당 약 18,913원)</span></p><p class="mrs-info-hint" style="cursor:default;animation:none">재구매 할인 15% 적용 기준 구성입니다</p>'
   };
   var TAGLINE={1:'"작심삼일을 <em>끝내고 싶은 분</em>"',2:'"180일, <em>습관으로 만들고 싶은 분</em>"',3:'"9개월, <em>진짜 달라지고 싶은 분</em>"',4:'"한 해 전체를 <em>내 것으로 만들고 싶은 분</em>"'};
   var PRESET_BY_COUNT={1:'1',2:'1,2',3:'1,2,3',4:'1,2,3,4'};
@@ -547,8 +515,8 @@
     var info=INFO_BY_COUNT[count];
     document.getElementById('mrsInfo').innerHTML=info?info:'<p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p><p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>';
     if(info&&PRICE_BY_COUNT[count]) requestAnimationFrame(function(){mrsAnimatePrice(prevPrice,PRICE_BY_COUNT[count],350);});
-    if(_prevCount<3&&count>=3&&count<4) setTimeout(function(){mrsShowToast('🎉 배송비 무료 달성!','green');},150);
-    if(_prevCount<4&&count>=4) setTimeout(function(){mrsShowToast('🏆 최저가 달성!','red');},150);
+    if(_prevCount<3&&count>=3&&count<4) setTimeout(function(){mrsShowToast('📚 3권 할인 구성이 선택됐어요','green');},150);
+    if(_prevCount<4&&count>=4) setTimeout(function(){mrsShowToast('🏆 최대 할인 구성이 완성됐어요','red');},150);
     mrsUpdateTagline(count);mrsUpdateSticky(count);mrsUpdateBenefit();_prevCount=count;
   };
   window.mrsHintAdd=function(){var cards=document.querySelectorAll('.mrs-card:not(.selected)');if(cards.length)cards[0].click();};
@@ -688,127 +656,31 @@
     },true);
   }
 
-  /* ── 모바일 헤더 로고 중복 응급복구 ── */
-  function mrsNormalizeLogoText(text){
-    var raw=(text||'').replace(/\s+/g,'').trim();
-    if(!raw) return '';
-    if(raw.indexOf('{#')!==-1 || raw.indexOf('%7B#')!==-1) return '';
-    var sample=((document.getElementById('sample-name')||{}).textContent||'meariset').replace(/\s+/g,'').trim()||'meariset';
-    if(raw===sample) return sample;
-    for(var n=4;n>=2;n--){
-      if(raw===sample.repeat(n)) return sample;
-    }
-    for(var size=1;size<=Math.floor(raw.length/2);size++){
-      if(raw.length%size!==0) continue;
-      var unit=raw.slice(0,size);
-      if(unit && unit.repeat(raw.length/size)===raw) return unit;
-    }
-    return raw;
-  }
+  /* ── 네이버페이 방어: 원래 위치에서 이탈 방지 ── */
+  function mrsGuardNpay(){
+    var appPay = document.querySelector('.app-pay-wrap');
+    if(!appPay) return;
 
-  function mrsHasUsableLogoHref(item){
-    if(!item) return false;
-    var href=(item.getAttribute('href')||'').trim();
-    if(!href) return false;
-    if(href.indexOf('{#')!==-1 || href.indexOf('%7B#')!==-1) return false;
-    if(/^javascript:/i.test(href)) return false;
-    return true;
-  }
-
-  function mrsFixMobileHeaderLogo(){
-    if(window.innerWidth>1024) return;
-    var header=document.querySelector('header.header');
-    if(!header) return;
-
-    var topLogo=header.querySelector('.header__top .top-logo[df-banner-code="logo"]');
-    var bottomLogo=header.querySelector('.header__bottom .top-logo[df-banner-code="logo"]');
-    var primary=topLogo || bottomLogo;
-    if(!primary) return;
-
-    if(bottomLogo && bottomLogo!==primary){
-      bottomLogo.hidden=false;
-      bottomLogo.setAttribute('aria-hidden','true');
-      bottomLogo.style.setProperty('display','none','important');
-      bottomLogo.style.setProperty('visibility','hidden','important');
-      bottomLogo.style.setProperty('opacity','0','important');
-      bottomLogo.style.setProperty('pointer-events','none','important');
-    }
-
-    primary.hidden=false;
-    primary.removeAttribute('aria-hidden');
-    primary.style.setProperty('display','flex','important');
-    primary.style.setProperty('visibility','visible','important');
-    primary.style.setProperty('opacity','1','important');
-    primary.style.setProperty('left','50%','important');
-    primary.style.setProperty('transform','translateX(-50%)','important');
-
-    var items=Array.prototype.slice.call(primary.querySelectorAll('.top-logo__item'));
-    if(!items.length) return;
-
-    var chosen=null;
-    for(var i=0;i<items.length;i++){
-      var item=items[i];
-      var img=item.querySelector('img');
-      var txt=mrsNormalizeLogoText(item.textContent);
-      var usableImg=!!(img && img.getAttribute('src') && img.getAttribute('src').trim() && img.naturalWidth>0);
-      if((mrsHasUsableLogoHref(item) || usableImg) && (usableImg || txt)){ chosen=item; break; }
-    }
-    if(!chosen){
-      for(var j=0;j<items.length;j++){
-        var fallbackItem=items[j];
-        var fallbackTxt=mrsNormalizeLogoText(fallbackItem.textContent);
-        if(fallbackItem.querySelector('img') || fallbackTxt){ chosen=fallbackItem; break; }
-      }
-    }
-    if(!chosen) chosen=items[0];
-
-    for(var k=0;k<items.length;k++){
-      var active=items[k]===chosen;
-      items[k].style.setProperty('display', active ? 'flex' : 'none', 'important');
-      if(active){
-        items[k].style.setProperty('align-items','center','important');
-        items[k].style.setProperty('justify-content','center','important');
-        items[k].style.setProperty('height','100%','important');
-        items[k].style.setProperty('pointer-events','auto','important');
-        items[k].style.setProperty('cursor','pointer','important');
-        items[k].style.setProperty('max-width','180px','important');
-        items[k].style.setProperty('overflow','hidden','important');
+    var npay = document.getElementById('NaverChk_Button');
+    if(npay) {
+      npay.style.setProperty('display','block','important');
+      npay.style.setProperty('visibility','visible','important');
+      if(!appPay.contains(npay)) {
+        appPay.insertBefore(npay, appPay.firstChild);
       }
     }
 
-    if(chosen){
-      if(!mrsHasUsableLogoHref(chosen)){
-        chosen.setAttribute('href','/');
+    var guard = new MutationObserver(function(){
+      var n = document.getElementById('NaverChk_Button');
+      var ap = document.querySelector('.app-pay-wrap');
+      if(n && ap && !ap.contains(n)) {
+        ap.insertBefore(n, ap.firstChild);
+        n.style.setProperty('display','block','important');
+        n.style.setProperty('visibility','visible','important');
       }
-      chosen.setAttribute('target','_self');
-    }
-
-    var chosenImg=chosen.querySelector('img');
-    var hasUsableImg=!!(chosenImg && chosenImg.getAttribute('src') && chosenImg.getAttribute('src').trim() && chosenImg.naturalWidth>0);
-    if(hasUsableImg){
-      chosen.style.setProperty('white-space','nowrap','important');
-      chosenImg.style.setProperty('display','block','important');
-      chosenImg.style.setProperty('max-width','180px','important');
-      chosenImg.style.setProperty('height','auto','important');
-      return;
-    }
-
-    var normalized=mrsNormalizeLogoText(chosen.textContent) || 'meariset';
-    chosen.textContent=normalized;
-    chosen.style.setProperty('white-space','nowrap','important');
-    chosen.style.setProperty('font-size','0','important');
-
-    var fallback=document.createElement('span');
-    fallback.className='mrs-logo-fallback';
-    fallback.textContent=normalized;
-    fallback.style.setProperty('display','block','important');
-    fallback.style.setProperty('font-size','24px','important');
-    fallback.style.setProperty('font-weight','800','important');
-    fallback.style.setProperty('line-height','1','important');
-    fallback.style.setProperty('letter-spacing','-0.02em','important');
-    fallback.style.setProperty('white-space','nowrap','important');
-    fallback.style.setProperty('color','#111','important');
-    chosen.appendChild(fallback);
+    });
+    guard.observe(document.body, { childList: true, subtree: true });
+    setTimeout(function(){ guard.disconnect(); }, 8000);
   }
 
   /* ── 초기화 ── */
@@ -825,13 +697,11 @@
     setTimeout(mrsEnsureUI, 300);
     setTimeout(mrsEnsureUI, 1200);
     setTimeout(mrsEnsureUI, 2500);
-    setTimeout(mrsFixMobileHeaderLogo, 250);
-    setTimeout(mrsFixMobileHeaderLogo, 900);
-    setTimeout(mrsFixMobileHeaderLogo, 2000);
-    setTimeout(mrsFixMobileHeaderLogo, 4000);
+    setTimeout(mrsGuardNpay, 1200);
+    setTimeout(mrsGuardNpay, 3500);
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mrsInit);
   else mrsInit();
-  window.addEventListener('load', function(){ mrsEnsureUI(); mrsFixMobileHeaderLogo(); });
+  window.addEventListener('load', mrsEnsureUI);
 })();
