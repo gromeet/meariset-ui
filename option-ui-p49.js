@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 150; /* 버전 번호 (15.0 = 150) — product_no=49 시즌 변경 alert 없이 옵션 교체 */
+  var MRS_VERSION = 151; /* 버전 번호 (15.1 = 151) — product_no=49 하단 바 제거 + 기본 구매버튼 유지 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/detail.html?product_no=49&cate_no=1&display_group=2';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
   var MRS_DISPLAY_PRICE_BY_COUNT = {1:24650};
@@ -460,22 +460,10 @@
     mrsSyncStickySoon();
   }
   function mrsUpdateSticky(count){
-    var bar=document.getElementById('mrsStickyBar'),label=document.getElementById('mrsStickyLabel'),pr=document.getElementById('mrsStickyPrice');
+    var bar=document.getElementById('mrsStickyBar');
     if(!bar)return;
-    var selected=document.querySelector('.mrs-card.selected');
-    if(selected&&count>0){
-      var basePrice=MRS_DISPLAY_PRICE_BY_COUNT[1]||0;
-      var addonPrice=mrsGetNativeAddonSelectedPrice();
-      var nativeTotalPrice=mrsGetNativeTotalPrice();
-      var computedTotalPrice=basePrice+addonPrice;
-      var totalPrice=nativeTotalPrice>=computedTotalPrice?nativeTotalPrice:computedTotalPrice;
-      if(totalPrice<basePrice) totalPrice=basePrice;
-      var seasonLabel=((selected.querySelector('.mrs-card-label')||{}).textContent||'선택 시즌').trim();
-      bar.classList.add('visible');
-      label.textContent=seasonLabel+' 선택'+((addonPrice>0||totalPrice>basePrice)?' · 추가상품 포함':'');
-      pr.textContent=totalPrice.toLocaleString('ko-KR')+'원';
-    }
-    else{bar.classList.remove('visible');}
+    bar.classList.remove('visible');
+    bar.style.display='none';
   }
   function mrsInsertTagline(){
     if(document.getElementById('mrsTagline'))return;
