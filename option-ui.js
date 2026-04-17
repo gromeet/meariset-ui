@@ -420,7 +420,7 @@
   var TAGLINE={1:'"작심삼일을 <em>끝내고 싶은 분</em>"',2:'"180일, <em>습관으로 만들고 싶은 분</em>"',3:'"9개월, <em>진짜 달라지고 싶은 분</em>"',4:'"한 해 전체를 <em>내 것으로 만들고 싶은 분</em>"'};
   var PRESET_BY_COUNT={1:'1',2:'1,2',3:'1,2,3',4:'1,2,3,4'};
 
-  var _prevCount=0,_toastTimer=null,_mrsSubmitting=false,_mrsStickyTimer=null,_mrsNativeObserver=null,_mrsNativeOptionTimer=null;
+  var _prevCount=0,_toastTimer=null,_mrsSubmitting=false,_mrsStickyTimer=null,_mrsNativeObserver=null;
 
   function mrsGetComboKey(){
     var cards=document.querySelectorAll('.mrs-card.selected'),seasons=[];
@@ -515,22 +515,6 @@
     mrsSyncStickySoon();
   }
 
-  function mrsMakeAddonOptional(){
-    var sels=document.querySelectorAll('.xans-product-addproduct select,.addProduct select,select[id*="addproduct"],select[name*="addproduct"]');
-    if(!sels.length) return;
-    for(var i=0;i<sels.length;i++){
-      var sel=sels[i];
-      sel.required=false;
-      sel.removeAttribute('required');
-      sel.setAttribute('data-mrs-optional','T');
-      if(sel.options && sel.options.length){
-        var first=sel.options[0];
-        if(first && /\[필수\]/.test(first.text)) first.text='- 선택 안함 -';
-      }
-      var label=(sel.closest&&sel.closest('li')&&sel.closest('li').querySelector('strong.name'))||null;
-      if(label && !/선택/i.test((label.textContent||''))) label.textContent='상품선택';
-    }
-  }
   function mrsUpdateSticky(count){
     var bar=document.getElementById('mrsStickyBar'),label=document.getElementById('mrsStickyLabel'),pr=document.getElementById('mrsStickyPrice');
     if(!bar)return;
@@ -558,23 +542,6 @@
     else{el.classList.remove('visible');el.classList.add('hidden');}
   }
 
-  function mrsSyncNativeOptionSoon(){
-    if(_mrsNativeOptionTimer) clearTimeout(_mrsNativeOptionTimer);
-    _mrsNativeOptionTimer=setTimeout(function(){
-      var key=mrsGetComboKey();
-      var optVal=COMBO_MAP[key];
-      mrsClearOptions();
-      if(!optVal){
-        mrsSyncStickySoon();
-        return;
-      }
-      setTimeout(function(){
-        mrsSelectOption(optVal);
-        mrsSyncStickySoon();
-      },120);
-    },60);
-  }
-
   window.mrsToggle=function(card){
     card.classList.toggle('selected');
     var count=document.querySelectorAll('.mrs-card.selected').length,prevPrice=PRICE_BY_COUNT[_prevCount]||0;
@@ -583,7 +550,7 @@
     if(info&&PRICE_BY_COUNT[count]) requestAnimationFrame(function(){mrsAnimatePrice(prevPrice,PRICE_BY_COUNT[count],350);});
     if(_prevCount<3&&count>=3&&count<4) setTimeout(function(){mrsShowToast('🎉 배송비 무료 달성!','green');},150);
     if(_prevCount<4&&count>=4) setTimeout(function(){mrsShowToast('🏆 최저가 달성!','red');},150);
-    mrsUpdateTagline(count);mrsUpdateSticky(count);mrsUpdateBenefit();mrsSyncNativeOptionSoon();_prevCount=count;
+    mrsUpdateTagline(count);mrsUpdateSticky(count);mrsUpdateBenefit();_prevCount=count;
   };
   window.mrsHintAdd=function(){var cards=document.querySelectorAll('.mrs-card:not(.selected)');if(cards.length)cards[0].click();};
 
@@ -605,7 +572,7 @@
     if(currentKey===targetKey){
       var emptyInfo=document.getElementById('mrsInfo');
       if(emptyInfo) emptyInfo.innerHTML='<p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p><p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>';
-      mrsUpdateTagline(0);mrsUpdateSticky(0);mrsUpdateBenefit();mrsSyncNativeOptionSoon();_prevCount=0;
+      mrsUpdateTagline(0);mrsUpdateSticky(0);mrsUpdateBenefit();_prevCount=0;
       return;
     }
     for(var s=1;s<=count;s++){
@@ -617,7 +584,7 @@
     var infoEl=document.getElementById('mrsInfo');
     if(infoEl) infoEl.innerHTML=info||'<p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p><p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>';
     if(info&&PRICE_BY_COUNT[count]) requestAnimationFrame(function(){mrsAnimatePrice(prevPrice,PRICE_BY_COUNT[count],350);});
-    mrsUpdateTagline(count);mrsUpdateSticky(count);mrsUpdateBenefit();mrsSyncNativeOptionSoon();_prevCount=count;
+    mrsUpdateTagline(count);mrsUpdateSticky(count);mrsUpdateBenefit();_prevCount=count;
   };
 
   function mrsClearOptions(){
@@ -849,15 +816,11 @@
   function mrsInit(){
     insertUI();
     mrsInstallCapture();
-    mrsMakeAddonOptional();
     setTimeout(mrsObserveNativeTotals, 300);
     setTimeout(mrsSyncStickySoon, 500);
     setTimeout(mrsEnsureUI, 300);
     setTimeout(mrsEnsureUI, 1200);
     setTimeout(mrsEnsureUI, 2500);
-    setTimeout(mrsMakeAddonOptional, 300);
-    setTimeout(mrsMakeAddonOptional, 1200);
-    setTimeout(mrsMakeAddonOptional, 2500);
     setTimeout(mrsFixMobileHeaderLogo, 250);
     setTimeout(mrsFixMobileHeaderLogo, 900);
     setTimeout(mrsFixMobileHeaderLogo, 2000);
@@ -866,5 +829,5 @@
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mrsInit);
   else mrsInit();
-  window.addEventListener('load', function(){ mrsEnsureUI(); mrsMakeAddonOptional(); mrsFixMobileHeaderLogo(); });
+  window.addEventListener('load', function(){ mrsEnsureUI(); mrsFixMobileHeaderLogo(); });
 })();
