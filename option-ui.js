@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 116; /* 버전 번호 (11.6 = 116) — 데스크톱/모바일 로고 홈 링크 안전 복구 */
+  var MRS_VERSION = 117; /* 버전 번호 (11.7 = 117) — 카드 선택 즉시 네이티브 옵션 동기화로 카카오/네이버 간편결제 활성화 보정 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
   var MRS_TEST_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-test.js?v=restore1';
@@ -420,7 +420,7 @@
   var TAGLINE={1:'"작심삼일을 <em>끝내고 싶은 분</em>"',2:'"180일, <em>습관으로 만들고 싶은 분</em>"',3:'"9개월, <em>진짜 달라지고 싶은 분</em>"',4:'"한 해 전체를 <em>내 것으로 만들고 싶은 분</em>"'};
   var PRESET_BY_COUNT={1:'1',2:'1,2',3:'1,2,3',4:'1,2,3,4'};
 
-  var _prevCount=0,_toastTimer=null,_mrsSubmitting=false,_mrsStickyTimer=null,_mrsNativeObserver=null;
+  var _prevCount=0,_toastTimer=null,_mrsSubmitting=false,_mrsStickyTimer=null,_mrsNativeObserver=null,_mrsNativeOptionTimer=null;
 
   function mrsGetComboKey(){
     var cards=document.querySelectorAll('.mrs-card.selected'),seasons=[];
@@ -541,6 +541,23 @@
     else{el.classList.remove('visible');el.classList.add('hidden');}
   }
 
+  function mrsSyncNativeOptionSoon(){
+    if(_mrsNativeOptionTimer) clearTimeout(_mrsNativeOptionTimer);
+    _mrsNativeOptionTimer=setTimeout(function(){
+      var key=mrsGetComboKey();
+      var optVal=COMBO_MAP[key];
+      mrsClearOptions();
+      if(!optVal){
+        mrsSyncStickySoon();
+        return;
+      }
+      setTimeout(function(){
+        mrsSelectOption(optVal);
+        mrsSyncStickySoon();
+      },120);
+    },60);
+  }
+
   window.mrsToggle=function(card){
     card.classList.toggle('selected');
     var count=document.querySelectorAll('.mrs-card.selected').length,prevPrice=PRICE_BY_COUNT[_prevCount]||0;
@@ -549,7 +566,7 @@
     if(info&&PRICE_BY_COUNT[count]) requestAnimationFrame(function(){mrsAnimatePrice(prevPrice,PRICE_BY_COUNT[count],350);});
     if(_prevCount<3&&count>=3&&count<4) setTimeout(function(){mrsShowToast('🎉 배송비 무료 달성!','green');},150);
     if(_prevCount<4&&count>=4) setTimeout(function(){mrsShowToast('🏆 최저가 달성!','red');},150);
-    mrsUpdateTagline(count);mrsUpdateSticky(count);mrsUpdateBenefit();_prevCount=count;
+    mrsUpdateTagline(count);mrsUpdateSticky(count);mrsUpdateBenefit();mrsSyncNativeOptionSoon();_prevCount=count;
   };
   window.mrsHintAdd=function(){var cards=document.querySelectorAll('.mrs-card:not(.selected)');if(cards.length)cards[0].click();};
 
@@ -571,7 +588,7 @@
     if(currentKey===targetKey){
       var emptyInfo=document.getElementById('mrsInfo');
       if(emptyInfo) emptyInfo.innerHTML='<p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p><p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>';
-      mrsUpdateTagline(0);mrsUpdateSticky(0);mrsUpdateBenefit();_prevCount=0;
+      mrsUpdateTagline(0);mrsUpdateSticky(0);mrsUpdateBenefit();mrsSyncNativeOptionSoon();_prevCount=0;
       return;
     }
     for(var s=1;s<=count;s++){
@@ -583,7 +600,7 @@
     var infoEl=document.getElementById('mrsInfo');
     if(infoEl) infoEl.innerHTML=info||'<p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p><p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>';
     if(info&&PRICE_BY_COUNT[count]) requestAnimationFrame(function(){mrsAnimatePrice(prevPrice,PRICE_BY_COUNT[count],350);});
-    mrsUpdateTagline(count);mrsUpdateSticky(count);mrsUpdateBenefit();_prevCount=count;
+    mrsUpdateTagline(count);mrsUpdateSticky(count);mrsUpdateBenefit();mrsSyncNativeOptionSoon();_prevCount=count;
   };
 
   function mrsClearOptions(){
