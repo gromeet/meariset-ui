@@ -242,7 +242,7 @@
   @media(min-width:768px){.mrs-sticky{display:none!important}}\
   @media(max-width:520px){.mrs-sticky{padding:14px 14px calc(18px + env(safe-area-inset-bottom,0px));gap:12px}.mrs-sticky-price{font-size:16px}.mrs-sticky-btn{padding:13px 18px;font-size:14px}}\
   .mrs-benefit-guide{font-family:Pretendard,sans-serif;background:#FAFAF8;border:1px solid #eee;border-radius:0 0 10px 10px;padding:10px 16px 14px;margin-top:0}\
-  .mrs-benefit-title{font-size:13px;font-weight:700;color:#8B6914;text-align:center;margin-bottom:10px;letter-spacing:.3px}\
+  .mrs-benefit-title{display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;text-align:center;margin:0 auto 12px;padding:7px 14px;background:#2D2D2D;border-radius:999px;letter-spacing:.2px;box-shadow:0 4px 12px rgba(45,45,45,.14)}\
   .mrs-benefit-list{display:flex;flex-direction:column;gap:6px;text-align:left}\
   .mrs-benefit-row{display:flex;align-items:center;flex-wrap:nowrap;gap:6px;padding:10px 14px;border-radius:8px;transition:background .2s;cursor:pointer}\
   .mrs-benefit-row:hover{background:rgba(212,168,83,.06)}\
