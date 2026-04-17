@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 113; /* 버전 번호 (11.3 = 113) — 30 안정판 정리, NPay 강제 개입 제거 */
+  var MRS_VERSION = 122; /* 버전 번호 (12.2 = 122) — 30 로고 홈 링크 안전 복구 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -98,6 +98,56 @@
       for(var k=0;k<items.length;k++){
         items[k].style.setProperty('background','#0a0a0a','important');
         items[k].style.setProperty('color','#ffffff','important');
+      }
+    }
+  }
+
+  function _dedupeTopLogo(){
+    var logos = document.querySelectorAll('header.header .top-logo[df-banner-code="logo"]');
+    for(var i=0;i<logos.length;i++){
+      var logo = logos[i];
+      logo.style.setProperty('pointer-events','auto','important');
+      var items = Array.prototype.slice.call(logo.querySelectorAll('.top-logo__item'));
+      if(!items.length) continue;
+
+      var chosen = null;
+      for(var j=0;j<items.length;j++){
+        var item = items[j];
+        var href = (item.getAttribute('href') || '').trim();
+        var img = item.querySelector('img');
+        var imgSrc = img && img.getAttribute('src') ? img.getAttribute('src').trim() : '';
+        var txt = (item.textContent || '').replace(/\s+/g,'').trim();
+        var hasMeaningfulText = !!(txt && txt.indexOf('{#') === -1 && txt.indexOf('%7B#') === -1);
+        var hasUsableHref = !!(href && href.indexOf('{#') === -1 && href.indexOf('%7B#') === -1 && !/^javascript:/i.test(href));
+        if((imgSrc || hasMeaningfulText) && (hasUsableHref || imgSrc)){
+          chosen = item;
+          break;
+        }
+      }
+
+      if(!chosen){
+        for(var k=0;k<items.length;k++){
+          var fallback = items[k];
+          var fallbackImg = fallback.querySelector('img');
+          var fallbackTxt = (fallback.textContent || '').replace(/\s+/g,'').trim();
+          if((fallbackImg && fallbackImg.getAttribute('src')) || (fallbackTxt && fallbackTxt.indexOf('{#') === -1 && fallbackTxt.indexOf('%7B#') === -1)){
+            chosen = fallback;
+            break;
+          }
+        }
+      }
+      if(!chosen) chosen = items[0];
+
+      for(var m=0;m<items.length;m++){
+        items[m].style.setProperty('pointer-events','auto','important');
+        items[m].style.setProperty('cursor','pointer','important');
+        if(items[m] === chosen){
+          var chosenHref = (items[m].getAttribute('href') || '').trim();
+          if(!chosenHref || chosenHref.indexOf('{#') !== -1 || chosenHref.indexOf('%7B#') !== -1 || /^javascript:/i.test(chosenHref)){
+            items[m].setAttribute('href','/');
+          }
+          items[m].setAttribute('target','_self');
+        }
       }
     }
   }
