@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 128; /* 버전 번호 (12.8 = 128) — 30 sticky 가격 누적 오계산 수정 */
+  var MRS_VERSION = 129; /* 버전 번호 (12.9 = 129) — 30 커스텀 하단바 제거, 기본 구매버튼 유지 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -230,8 +230,8 @@
   #mrsTagline.visible{opacity:1;transform:translateY(0);display:block}\
   #mrsTagline.hidden{display:none!important}\
   #mrsTagline em{font-style:normal;color:#D4A853}\
-  .mrs-sticky{position:fixed;bottom:0;left:0;right:0;z-index:99998;background:#fff;border-top:1.5px solid #eee;padding:14px 16px calc(16px + env(safe-area-inset-bottom,0px));display:none;align-items:center;justify-content:space-between;gap:14px;box-shadow:0 -6px 20px rgba(0,0,0,.12)}\
-  .mrs-sticky.visible{display:flex}\
+  .mrs-sticky{display:none!important}\
+  .mrs-sticky.visible{display:none!important}\
   .mrs-sticky-info{display:flex;flex-direction:column;gap:4px}\
   .mrs-sticky-label{font-size:12px;color:#999}\
   .mrs-sticky-price{font-size:18px;font-weight:800;color:#2D2D2D}\
@@ -515,18 +515,10 @@
     mrsSyncStickySoon();
   }
   function mrsUpdateSticky(count){
-    var bar=document.getElementById('mrsStickyBar'),label=document.getElementById('mrsStickyLabel'),pr=document.getElementById('mrsStickyPrice');
+    var bar=document.getElementById('mrsStickyBar');
     if(!bar)return;
-    if(count>0&&PRICE_BY_COUNT[1]){
-      var basePrice=PRICE_BY_COUNT[1]||0;
-      var addonPrice=mrsGetNativeAddonSelectedPrice();
-      var totalPrice=basePrice+addonPrice;
-      if(totalPrice<basePrice) totalPrice=basePrice;
-      bar.classList.add('visible');
-      label.textContent='선택한 시즌 1권'+(addonPrice>0?' · 추가상품 포함':'');
-      pr.textContent=totalPrice.toLocaleString('ko-KR')+'원';
-    }
-    else{bar.classList.remove('visible');}
+    bar.classList.remove('visible');
+    bar.style.display='none';
   }
   function mrsInsertTagline(){
     if(document.getElementById('mrsTagline'))return;
