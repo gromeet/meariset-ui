@@ -209,12 +209,12 @@
   .mrs-card.selected::after{background:transparent}\
   .mrs-card-label{text-align:center;padding:6px 4px 2px;font-size:12px;font-weight:600;white-space:nowrap}\
   .mrs-card-color{text-align:center;font-size:11px;color:#999;padding:0 4px 6px;letter-spacing:0.3px}\
-  @media(max-width:767px){.mrs-option-wrap{padding:8px 4px}.mrs-title{font-size:13px;margin-bottom:6px}.mrs-card-img{aspect-ratio:3/4!important}.mrs-start-badge{font-size:8px;padding:4px 8px}.mrs-check{width:20px;height:20px;font-size:11px;top:4px;right:4px}.mrs-info{padding:10px 8px;min-height:auto;font-size:12px}.mrs-info-price{font-size:17px}.mrs-info-sub{font-size:11px}.mrs-info-copy{font-size:13px}.mrs-info-hint{font-size:11px;padding:5px 12px}}\
+  @media(max-width:767px){.mrs-option-wrap{padding:8px 4px}.mrs-title{font-size:13px;margin-bottom:6px}.mrs-card-img{aspect-ratio:3/4!important}.mrs-start-badge{font-size:8px;padding:4px 8px}.mrs-check{width:20px;height:20px;font-size:11px;top:4px;right:4px}.mrs-info{padding:10px 8px;min-height:auto;font-size:12px}.mrs-info-price{font-size:32px}.mrs-info-sub{font-size:11px}.mrs-info-copy{font-size:13px}.mrs-info-hint{font-size:12px;padding:6px 14px}}\
   .mrs-info{background:#FAFAF8;border:1px solid #eee;border-bottom:none;border-radius:10px 10px 0 0;padding:14px 16px;text-align:center;min-height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:all .25s}\
   .mrs-info-tag{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:2px}\
   .mrs-info-tag.best{background:#E8F5E9;color:#2E7D32}\
   .mrs-info-tag.lowest{background:#FFF3E0;color:#E65100}\
-  .mrs-info-price{font-size:20px;font-weight:800;color:#2D2D2D}\
+  .mrs-info-price{font-size:30px;font-weight:800;color:#2D2D2D;line-height:1.15}\
   .mrs-info-sub{font-size:13px;color:#777;line-height:1.5}\
   .mrs-info-copy{font-size:15px;font-weight:600;line-height:1.6}\
   .mrs-info-hint{display:inline-block;font-size:13px;color:#8B6914;font-weight:700;margin-top:8px;cursor:pointer;background:#FFF8E7;border:1.5px solid #D4A853;border-radius:20px;padding:6px 16px;transition:background .2s}\
@@ -249,7 +249,7 @@
   .mrs-benefit-row.active{background:rgba(212,168,83,.1)!important}\
   .mrs-benefit-row:last-child{background:rgba(212,168,83,.06)}\
   .mrs-benefit-qty{font-size:12px;font-weight:700;color:#fff;background:#2D2D2D;min-width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}\
-  .mrs-benefit-price{font-size:15px;font-weight:800;color:#1a1a1a;white-space:nowrap}\
+  .mrs-benefit-price{font-size:18px;font-weight:800;color:#1a1a1a;white-space:nowrap}\
   .mrs-benefit-discount{font-size:11px;font-weight:700;color:#D32F2F;white-space:nowrap}\
   .mrs-benefit-unit{font-size:10px;color:#999;font-weight:500;white-space:nowrap}\
   .mrs-benefit-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;white-space:nowrap;margin-left:auto}\
@@ -263,8 +263,8 @@
   .mrs-cafe-banner{display:flex;align-items:center;gap:10px;background:#F5F3EF;border-left:3px solid #2D4A3E;padding:11px 14px;border-radius:0 10px 10px 0;margin-bottom:12px;text-align:left}\
   .mrs-cafe-text{font-size:13px;font-weight:600;color:#2D2D2D;line-height:1.4}\
   .mrs-cafe-free{font-weight:800;color:#2D4A3E}\
-  @media(min-width:768px){.mrs-benefit-guide{padding:8px 8px 0}.mrs-benefit-row{padding:6px 8px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:11px;min-width:28px;height:28px}.mrs-benefit-price{font-size:13px}.mrs-benefit-discount{font-size:10px}.mrs-benefit-unit{display:inline;font-size:10px}.mrs-benefit-badge{font-size:10px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px}}\
-  @media(max-width:767px){.mrs-benefit-guide{padding:8px 8px 10px;margin-top:6px}.mrs-benefit-row{padding:8px 10px;gap:4px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:11px;min-width:28px;height:28px}.mrs-benefit-price{font-size:13px}.mrs-benefit-discount{font-size:10px}.mrs-benefit-unit{display:inline;font-size:9px}.mrs-benefit-badge{font-size:10px;padding:2px 6px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px;padding:11px 14px}}\
+  @media(min-width:768px){.mrs-benefit-guide{padding:8px 8px 0}.mrs-benefit-row{padding:8px 10px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:12px;min-width:30px;height:30px}.mrs-benefit-price{font-size:19px}.mrs-benefit-discount{font-size:11px}.mrs-benefit-unit{display:inline;font-size:11px}.mrs-benefit-badge{font-size:10px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px}}\
+  @media(max-width:767px){.mrs-benefit-guide{padding:8px 8px 10px;margin-top:6px}.mrs-benefit-row{padding:9px 10px;gap:5px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:11px;min-width:28px;height:28px}.mrs-benefit-price{font-size:18px}.mrs-benefit-discount{font-size:11px}.mrs-benefit-unit{display:inline;font-size:10px}.mrs-benefit-badge{font-size:10px;padding:2px 6px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px;padding:11px 14px}}\
   ';
   document.head.appendChild(css);
 
@@ -360,7 +360,7 @@
   };
   var PRICE_BY_COUNT = MRS_DISPLAY_PRICE_BY_COUNT;
   var INFO_BY_COUNT={
-    1:'<span class="mrs-info-tag best">🔁 재구매 전용</span><p class="mrs-info-price"><span id="mrsPriceNum">24,650</span>원 <span style="font-size:14px;font-weight:400;color:#777">(선택 시즌 1권)</span></p><p class="mrs-info-hint" style="cursor:default;animation:none">위에서 원하는 시즌을 고르면 해당 시즌 1권만 구매돼요</p>'
+    1:'<span class="mrs-info-tag best">🔁 재구매 전용</span><p class="mrs-info-price"><span id="mrsPriceNum">24,650</span>원 <span style="font-size:15px;font-weight:500;color:#777">(선택 시즌 1권)</span></p><p class="mrs-info-hint" style="cursor:default;animation:none">15% 혜택은 한 권만 받을 수 있어요!</p>'
   };
   var TAGLINE={1:'"작심삼일을 <em>끝내고 싶은 분</em>"',2:'"180일, <em>습관으로 만들고 싶은 분</em>"',3:'"9개월, <em>진짜 달라지고 싶은 분</em>"',4:'"한 해 전체를 <em>내 것으로 만들고 싶은 분</em>"'};
   var PRESET_BY_COUNT={1:'1',2:'1,2',3:'1,2,3',4:'1,2,3,4'};
