@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 126; /* 버전 번호 (12.6 = 126) — 30 카드 선택 즉시 네이티브 옵션/간편결제 동기화 */
+  var MRS_VERSION = 127; /* 버전 번호 (12.7 = 127) — 30 하단 구매바 body 기준 고정 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -336,15 +336,20 @@
   /* ── 옵션 영역 앞에 삽입 ── */
   function insertUI(){
     var existingWrap = document.getElementById('mrsOptionWrap');
-    if(existingWrap && existingWrap.querySelector('.mrs-card')) return; /* 이미 완성된 UI */
+    var existingSticky = document.getElementById('mrsStickyBar');
+    if(existingWrap && existingWrap.querySelector('.mrs-card') && existingSticky && existingSticky.parentNode === document.body) return; /* 이미 완성된 UI */
+    if(existingSticky) existingSticky.remove();
     if(existingWrap) existingWrap.remove(); /* placeholder 제거 */
     var optArea = document.querySelector('.productOption');
     if(!optArea){ setTimeout(insertUI, 300); return; }
     var container = document.createElement('div');
     container.innerHTML = html;
+    var stickyBar = container.querySelector('#mrsStickyBar');
+    if(stickyBar) stickyBar.remove();
     while(container.firstChild){
       optArea.parentNode.insertBefore(container.firstChild, optArea);
     }
+    if(stickyBar) (document.body || document.documentElement).appendChild(stickyBar);
     setTimeout(mrsInsertTagline, 500);
   }
 
