@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 125; /* 버전 번호 (12.5 = 125) — 30 1권 가격바 가독성 확대 */
+  var MRS_VERSION = 126; /* 버전 번호 (12.6 = 126) — 30 카드 선택 즉시 네이티브 옵션/간편결제 동기화 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -365,6 +365,63 @@
     for(var i=0;i<cards.length;i++) seasons.push(parseInt(cards[i].getAttribute('data-season')));
     seasons.sort(); return seasons.join(',');
   }
+  function mrsTriggerNativeChange(el){
+    if(!el) return;
+    if(window.jQuery){
+      window.jQuery(el).trigger('input');
+      window.jQuery(el).trigger('change');
+    }else{
+      el.dispatchEvent(new Event('input',{bubbles:true}));
+      el.dispatchEvent(new Event('change',{bubbles:true}));
+    }
+  }
+  function mrsSetProductOptionVisible(show){
+    var prodOpt=document.querySelector('.productOption');
+    if(!prodOpt) return null;
+    prodOpt.setAttribute('style',show
+      ? 'position:fixed!important;left:0!important;top:0!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0.01!important;z-index:-1!important;'
+      : 'position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;');
+    return prodOpt;
+  }
+  function mrsGetSelectedOptionValue(){
+    var key=mrsGetComboKey();
+    return COMBO_MAP[key]||'';
+  }
+  function mrsMakeAddonOptional(){
+    var sels=document.querySelectorAll('.xans-product-addproduct select,.addProduct select,select[id*="addproduct"],select[name*="addproduct"]');
+    for(var i=0;i<sels.length;i++){
+      var sel=sels[i];
+      sel.required=false;
+      sel.removeAttribute('required');
+      if(sel.getAttribute('aria-required')==='true') sel.setAttribute('aria-required','false');
+      var first=sel.options&&sel.options.length?sel.options[0]:null;
+      if(first){
+        var txt=mrsGetText(first);
+        if(txt.indexOf('[필수]')!==-1){
+          first.textContent=txt.replace('[필수] ','').replace('[필수]','').replace('상품 선택','상품 선택 (선택)');
+        }
+      }
+    }
+  }
+  function mrsSyncNativeSelection(force){
+    var sel=document.getElementById('product_option_id1');
+    if(!sel) return false;
+    var selectedValue=mrsGetSelectedOptionValue();
+    var desiredValue=selectedValue||'*';
+    mrsSetProductOptionVisible(true);
+    if(force && desiredValue!=='*' && sel.value===desiredValue){
+      sel.value='*';
+      mrsTriggerNativeChange(sel);
+    }
+    if(sel.value!==desiredValue){
+      sel.value=desiredValue;
+      mrsTriggerNativeChange(sel);
+    }else if(force){
+      mrsTriggerNativeChange(sel);
+    }
+    setTimeout(function(){ mrsSetProductOptionVisible(false); },300);
+    return desiredValue!=='*';
+  }
   function mrsAnimatePrice(from,to,dur){
     var el=document.getElementById('mrsPriceNum'); if(!el)return;
     var start=null;
@@ -490,6 +547,9 @@
     document.getElementById('mrsInfo').innerHTML=info?info:'<p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p><p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">원하는 시즌 1권을 선택하세요</p>';
     if(info&&PRICE_BY_COUNT[1]) requestAnimationFrame(function(){mrsAnimatePrice(prevPrice,PRICE_BY_COUNT[1],350);});
     mrsUpdateTagline(count?parseInt(mrsGetComboKey(),10):0);mrsUpdateSticky(count);mrsUpdateBenefit();_prevCount=count;
+    mrsSyncNativeSelection(true);
+    setTimeout(mrsMakeAddonOptional, 60);
+    setTimeout(mrsSyncStickySoon, 120);
   };
   window.mrsHintAdd=function(){};
 
@@ -522,15 +582,20 @@
         }
       }
     }
-    var sel=document.getElementById('product_option_id1');if(sel)sel.value='*';
+    var sel=document.getElementById('product_option_id1');
+    if(sel){
+      mrsSetProductOptionVisible(true);
+      sel.value='*';
+      mrsTriggerNativeChange(sel);
+      setTimeout(function(){ mrsSetProductOptionVisible(false); },300);
+    }
   }
   function mrsSelectOption(optionValue){
     var sel=document.getElementById('product_option_id1');if(!sel)return false;
-    var prodOpt=document.querySelector('.productOption');
-    if(prodOpt)prodOpt.setAttribute('style','position:fixed!important;left:0!important;top:0!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0.01!important;z-index:-1!important;');
+    mrsSetProductOptionVisible(true);
     sel.value=optionValue;
-    if(window.jQuery){window.jQuery(sel).trigger('change');}else{sel.dispatchEvent(new Event('change',{bubbles:true}));}
-    setTimeout(function(){if(prodOpt)prodOpt.setAttribute('style','position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;');},300);
+    mrsTriggerNativeChange(sel);
+    setTimeout(function(){ mrsSetProductOptionVisible(false); },300);
     return true;
   }
 
@@ -598,7 +663,15 @@
     document.addEventListener('change',function(e){
       var el=e.target;if(!el)return;
       var id=(el.id||'').toLowerCase(),name=(el.name||'').toLowerCase(),cls=(el.className||'').toString().toLowerCase();
-      if(id.indexOf('addproduct')!==-1||name.indexOf('addproduct')!==-1||cls.indexOf('addproduct')!==-1||id.indexOf('option')!==-1){
+      var isAddon=id.indexOf('addproduct')!==-1||name.indexOf('addproduct')!==-1||cls.indexOf('addproduct')!==-1;
+      var isMainOption=id==='product_option_id1';
+      if(isAddon){
+        mrsMakeAddonOptional();
+        mrsSyncStickySoon();
+        setTimeout(function(){ mrsSyncNativeSelection(true); },80);
+        return;
+      }
+      if(isMainOption){
         mrsSyncStickySoon();
       }
     },true);
@@ -616,6 +689,8 @@
   function mrsInit(){
     insertUI();
     mrsInstallCapture();
+    mrsMakeAddonOptional();
+    setTimeout(mrsMakeAddonOptional, 300);
     setTimeout(mrsObserveNativeTotals, 300);
     setTimeout(mrsSyncStickySoon, 500);
     setTimeout(mrsEnsureUI, 300);
