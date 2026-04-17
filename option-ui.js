@@ -4,11 +4,11 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 124; /* 버전 번호 (12.4 = 124) — 30/49 전용 스크립트 캐시버스트 */
+  var MRS_VERSION = 125; /* 버전 번호 (12.5 = 125) — 30/49 카카오 기본 UI 원복 캐시버스트 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
-  var MRS_TEST_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-test.js?v=134';
-  var MRS_P49_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-p49.js?v=155';
+  var MRS_TEST_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-test.js?v=135';
+  var MRS_P49_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-p49.js?v=156';
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
