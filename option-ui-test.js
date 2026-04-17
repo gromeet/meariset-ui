@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 124; /* 버전 번호 (12.4 = 124) — 30 1권 전용 할인 구조 반영 */
+  var MRS_VERSION = 125; /* 버전 번호 (12.5 = 125) — 30 1권 가격바 가독성 확대 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -241,30 +241,30 @@
   a.btnSubmit.gFull{background-color:#0A0A0A!important;border-color:#0A0A0A!important;}\
   @media(min-width:768px){.mrs-sticky{display:none!important}}\
   @media(max-width:520px){.mrs-sticky{padding:14px 14px calc(18px + env(safe-area-inset-bottom,0px));gap:12px}.mrs-sticky-price{font-size:16px}.mrs-sticky-btn{padding:13px 18px;font-size:14px}}\
-  .mrs-benefit-guide{font-family:Pretendard,sans-serif;background:#FAFAF8;border:1px solid #eee;border-radius:0 0 10px 10px;padding:10px 16px 14px;margin-top:0}\
+  .mrs-benefit-guide{font-family:Pretendard,sans-serif;background:#FAFAF8;border:1px solid #eee;border-radius:0 0 12px 12px;padding:14px 18px 18px;margin-top:0}\
   .mrs-benefit-title{font-size:13px;font-weight:700;color:#8B6914;text-align:center;margin-bottom:10px;letter-spacing:.3px}\
-  .mrs-benefit-list{display:flex;flex-direction:column;gap:6px;text-align:left}\
-  .mrs-benefit-row{display:flex;align-items:center;flex-wrap:nowrap;gap:6px;padding:10px 14px;border-radius:8px;transition:background .2s;cursor:pointer}\
+  .mrs-benefit-list{display:flex;flex-direction:column;gap:8px;text-align:left}\
+  .mrs-benefit-row{display:flex;align-items:center;flex-wrap:nowrap;gap:10px;padding:16px 18px;border-radius:12px;transition:background .2s;cursor:pointer;min-height:72px}\
   .mrs-benefit-row:hover{background:rgba(212,168,83,.06)}\
-  .mrs-benefit-row.active{background:rgba(212,168,83,.1)!important}\
+  .mrs-benefit-row.active{background:rgba(212,168,83,.12)!important;box-shadow:inset 0 0 0 1px rgba(212,168,83,.22)}\
   .mrs-benefit-row:last-child{background:rgba(212,168,83,.06)}\
-  .mrs-benefit-qty{font-size:12px;font-weight:700;color:#fff;background:#2D2D2D;min-width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}\
-  .mrs-benefit-price{font-size:15px;font-weight:800;color:#1a1a1a;white-space:nowrap}\
-  .mrs-benefit-discount{font-size:11px;font-weight:700;color:#D32F2F;white-space:nowrap}\
-  .mrs-benefit-unit{font-size:10px;color:#999;font-weight:500;white-space:nowrap}\
-  .mrs-benefit-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;white-space:nowrap;margin-left:auto}\
-  .mrs-benefit-badge.popular{background:rgba(45,45,45,.08);color:#2D2D2D}\
-  .mrs-benefit-badge.saving{background:rgba(45,45,45,.08);color:#2D2D2D}\
-  .mrs-benefit-badge.freeship{background:rgba(45,45,45,.08);color:#2D2D2D}\
-  .mrs-benefit-badge.lowest{background:rgba(45,45,45,.08);color:#2D2D2D}\
+  .mrs-benefit-qty{font-size:14px;font-weight:800;color:#fff;background:#2D2D2D;min-width:42px;height:42px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}\
+  .mrs-benefit-price{font-size:24px;font-weight:900;color:#1a1a1a;white-space:nowrap;letter-spacing:-.3px}\
+  .mrs-benefit-discount{font-size:14px;font-weight:800;color:#D32F2F;white-space:nowrap}\
+  .mrs-benefit-unit{font-size:13px;color:#777;font-weight:600;white-space:nowrap}\
+  .mrs-benefit-badge{font-size:13px;font-weight:800;padding:6px 12px;border-radius:999px;white-space:nowrap;margin-left:auto}\
+  .mrs-benefit-badge.popular{background:rgba(45,45,45,.1);color:#2D2D2D}\
+  .mrs-benefit-badge.saving{background:rgba(45,45,45,.1);color:#2D2D2D}\
+  .mrs-benefit-badge.freeship{background:rgba(45,45,45,.1);color:#2D2D2D}\
+  .mrs-benefit-badge.lowest{background:rgba(45,45,45,.1);color:#2D2D2D}\
   .mrs-benefit-row.best-deal{background:transparent;border:none}\
-  .mrs-benefit-coupon{font-size:13px;font-weight:600;color:#2D2D2D;text-align:left;margin-top:10px;padding:11px 14px;background:#F5F3EF;border-radius:0 10px 10px 0;border:none;border-left:3px solid #C8B48C}\
-  .mrs-coupon-amount{font-weight:800;color:#D32F2F}\
-  .mrs-cafe-banner{display:flex;align-items:center;gap:10px;background:#F5F3EF;border-left:3px solid #2D4A3E;padding:11px 14px;border-radius:0 10px 10px 0;margin-bottom:12px;text-align:left}\
-  .mrs-cafe-text{font-size:13px;font-weight:600;color:#2D2D2D;line-height:1.4}\
-  .mrs-cafe-free{font-weight:800;color:#2D4A3E}\
-  @media(min-width:768px){.mrs-benefit-guide{padding:8px 8px 0}.mrs-benefit-row{padding:6px 8px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:11px;min-width:28px;height:28px}.mrs-benefit-price{font-size:13px}.mrs-benefit-discount{font-size:10px}.mrs-benefit-unit{display:inline;font-size:10px}.mrs-benefit-badge{font-size:10px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px}}\
-  @media(max-width:767px){.mrs-benefit-guide{padding:8px 8px 10px;margin-top:6px}.mrs-benefit-row{padding:8px 10px;gap:4px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:11px;min-width:28px;height:28px}.mrs-benefit-price{font-size:13px}.mrs-benefit-discount{font-size:10px}.mrs-benefit-unit{display:inline;font-size:9px}.mrs-benefit-badge{font-size:10px;padding:2px 6px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px;padding:11px 14px}}\
+  .mrs-benefit-coupon{font-size:14px;font-weight:700;color:#2D2D2D;text-align:left;margin-top:12px;padding:13px 16px;background:#F5F3EF;border-radius:0 10px 10px 0;border:none;border-left:3px solid #C8B48C}\
+  .mrs-coupon-amount{font-weight:900;color:#D32F2F}\
+  .mrs-cafe-banner{display:flex;align-items:center;gap:10px;background:#F5F3EF;border-left:3px solid #2D4A3E;padding:12px 15px;border-radius:0 10px 10px 0;margin-bottom:14px;text-align:left}\
+  .mrs-cafe-text{font-size:14px;font-weight:700;color:#2D2D2D;line-height:1.45}\
+  .mrs-cafe-free{font-weight:900;color:#2D4A3E}\
+  @media(min-width:768px){.mrs-benefit-guide{padding:14px 14px 8px}.mrs-benefit-row{padding:14px 16px;gap:10px;flex-wrap:nowrap;min-height:70px}.mrs-benefit-qty{font-size:13px;min-width:40px;height:40px}.mrs-benefit-price{font-size:22px}.mrs-benefit-discount{font-size:13px}.mrs-benefit-unit{display:inline;font-size:12px}.mrs-benefit-badge{font-size:12px;padding:5px 11px;white-space:nowrap}.mrs-benefit-coupon{font-size:14px}}\
+  @media(max-width:767px){.mrs-benefit-guide{padding:12px 10px 14px;margin-top:6px}.mrs-benefit-row{padding:12px 12px;gap:6px;flex-wrap:nowrap;min-height:62px}.mrs-benefit-qty{font-size:12px;min-width:34px;height:34px}.mrs-benefit-price{font-size:18px}.mrs-benefit-discount{font-size:11px}.mrs-benefit-unit{display:inline;font-size:10px}.mrs-benefit-badge{font-size:11px;padding:4px 8px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px;padding:12px 14px}}\
   ';
   document.head.appendChild(css);
 
