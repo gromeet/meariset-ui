@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 132; /* 버전 번호 (13.2 = 132) — 옵션 선택 시 카카오 간편결제 재활성화 */
+  var MRS_VERSION = 133; /* 버전 번호 (13.3 = 133) — 30 카카오 버튼 재동기화 강화 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -456,7 +456,7 @@
     if(!force){
       if(sel.value!==desiredValue) sel.value=desiredValue;
       mrsTriggerNativeChange(sel);
-      setTimeout(mrsSyncKakaoButton,80);
+      mrsScheduleKakaoButtonSync();
       setTimeout(function(){ mrsSetProductOptionVisible(false); },300);
       return desiredValue!=='*';
     }
@@ -465,14 +465,14 @@
     sel.value='*';
     mrsTriggerNativeChange(sel);
     if(desiredValue==='*'){
-      setTimeout(mrsSyncKakaoButton,80);
+      mrsScheduleKakaoButtonSync();
       setTimeout(function(){ mrsSetProductOptionVisible(false); },300);
       return false;
     }
     setTimeout(function(){
       sel.value=desiredValue;
       mrsTriggerNativeChange(sel);
-      setTimeout(mrsSyncKakaoButton,80);
+      mrsScheduleKakaoButtonSync();
       setTimeout(function(){ mrsSetProductOptionVisible(false); },300);
     }, hadRows ? 120 : 60);
     return true;
@@ -540,6 +540,16 @@
       });
     }catch(e){ return false; }
     return true;
+  }
+
+
+  function mrsScheduleKakaoButtonSync(){
+    var delays=[80,250,700,1500,3000];
+    for(var i=0;i<delays.length;i++){
+      (function(delay){
+        setTimeout(function(){ mrsSyncKakaoButton(); }, delay);
+      })(delays[i]);
+    }
   }
 
   function mrsAnimatePrice(from,to,dur){
@@ -801,9 +811,11 @@
     setTimeout(mrsEnsureUI, 300);
     setTimeout(mrsEnsureUI, 1200);
     setTimeout(mrsEnsureUI, 2500);
+    setTimeout(mrsScheduleKakaoButtonSync, 600);
+    setTimeout(mrsScheduleKakaoButtonSync, 1800);
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mrsInit);
   else mrsInit();
-  window.addEventListener('load', mrsEnsureUI);
+  window.addEventListener('load', function(){ mrsEnsureUI(); mrsScheduleKakaoButtonSync(); });
 })();
