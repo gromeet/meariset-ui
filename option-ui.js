@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 121; /* 버전 번호 (12.1 = 121) — 모바일 헤더 로고 컨테이너 선택 복구 */
+  var MRS_VERSION = 122; /* 버전 번호 (12.2 = 122) — 모바일 헤더 로고 중복 노출 제거 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
   var MRS_TEST_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-test.js?v=restore1';
@@ -820,13 +820,14 @@
     var primary=bottomLogo || topLogo;
     if(!primary) return;
 
-    if(bottomLogo && bottomLogo!==primary){
-      bottomLogo.hidden=false;
-      bottomLogo.setAttribute('aria-hidden','true');
-      bottomLogo.style.setProperty('display','none','important');
-      bottomLogo.style.setProperty('visibility','hidden','important');
-      bottomLogo.style.setProperty('opacity','0','important');
-      bottomLogo.style.setProperty('pointer-events','none','important');
+    var secondary=(primary===bottomLogo)?topLogo:bottomLogo;
+    if(secondary){
+      secondary.hidden=false;
+      secondary.setAttribute('aria-hidden','true');
+      secondary.style.setProperty('display','none','important');
+      secondary.style.setProperty('visibility','hidden','important');
+      secondary.style.setProperty('opacity','0','important');
+      secondary.style.setProperty('pointer-events','none','important');
     }
 
     primary.hidden=false;
