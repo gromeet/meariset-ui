@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 122; /* 버전 번호 (12.2 = 122) — 30 로고 홈 링크 안전 복구 */
+  var MRS_VERSION = 123; /* 버전 번호 (12.3 = 123) — 30 가격 30% 할인 반영 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -315,31 +315,31 @@
       <div class="mrs-benefit-list">\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(1)">\
           <span class="mrs-benefit-qty">1권</span>\
-          <span class="mrs-benefit-price">29,000원</span>\
-          <span class="mrs-benefit-discount">36%↓</span>\
-          <span class="mrs-benefit-unit">(권당 29,000원)</span>\
+          <span class="mrs-benefit-price">20,300원</span>\
+          <span class="mrs-benefit-discount">30%↓</span>\
+          <span class="mrs-benefit-unit">(권당 20,300원)</span>\
           <span class="mrs-benefit-badge popular">⭐ 가장 많이 선택</span>\
         </div>\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(2)">\
           <span class="mrs-benefit-qty">2권</span>\
-          <span class="mrs-benefit-price">49,000원</span>\
-          <span class="mrs-benefit-discount">46%↓</span>\
-          <span class="mrs-benefit-unit">(권당 24,500원)</span>\
-          <span class="mrs-benefit-badge saving">💰 9,000원 절약</span>\
+          <span class="mrs-benefit-price">34,300원</span>\
+          <span class="mrs-benefit-discount">30%↓</span>\
+          <span class="mrs-benefit-unit">(권당 17,150원)</span>\
+          <span class="mrs-benefit-badge saving">🎯 2권 세트</span>\
         </div>\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(3)">\
           <span class="mrs-benefit-qty">3권</span>\
-          <span class="mrs-benefit-price">69,000원</span>\
-          <span class="mrs-benefit-discount">49%↓</span>\
-          <span class="mrs-benefit-unit">(권당 23,000원)</span>\
-          <span class="mrs-benefit-badge freeship">🚚 무료배송</span>\
+          <span class="mrs-benefit-price">48,300원</span>\
+          <span class="mrs-benefit-discount">30%↓</span>\
+          <span class="mrs-benefit-unit">(권당 16,100원)</span>\
+          <span class="mrs-benefit-badge freeship">🎯 3권 세트</span>\
         </div>\
         <div class="mrs-benefit-row best-deal" onclick="mrsBenefitSelect(4)">\
           <span class="mrs-benefit-qty">4권</span>\
-          <span class="mrs-benefit-price">89,000원</span>\
-          <span class="mrs-benefit-discount">51%↓</span>\
-          <span class="mrs-benefit-unit">(권당 22,250원)</span>\
-          <span class="mrs-benefit-badge lowest">🏆 최저가+사은품</span>\
+          <span class="mrs-benefit-price">62,300원</span>\
+          <span class="mrs-benefit-discount">30%↓</span>\
+          <span class="mrs-benefit-unit">(권당 15,575원)</span>\
+          <span class="mrs-benefit-badge lowest">🏆 4권 세트</span>\
         </div>\
       </div>\
       <p class="mrs-benefit-coupon">💳 회원가입 시 <span class="mrs-coupon-amount">3,000원 웰컴쿠폰</span> 지급!</p>\
@@ -377,12 +377,12 @@
     '1,2,3':'P00000BE000Q','1,2,4':'P00000BE00BB','1,3,4':'P00000BE00BC',
     '2,3,4':'P00000BE000S','1,2,3,4':'P00000BE000R'
   };
-  var PRICE_BY_COUNT={1:29000,2:49000,3:69000,4:89000};
+  var PRICE_BY_COUNT={1:20300,2:34300,3:48300,4:62300};
   var INFO_BY_COUNT={
-    1:'<span class="mrs-info-tag best">⭐ 가장 많이 선택</span><p class="mrs-info-price"><span id="mrsPriceNum">29,000</span>원 <span style="font-size:14px;font-weight:400;color:#e65100">+ 배송비 3,000원</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">💡 1권 더 담으면 9,000원 절약</p>',
-    2:'<span class="mrs-info-tag best">💰 9,000원 절약</span><p class="mrs-info-price"><span id="mrsPriceNum">49,000</span>원 <span style="font-size:14px;font-weight:400;color:#e65100">+ 배송비 3,000원</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">💡 1권만 더 담으면 배송비 무료</p>',
-    3:'<span class="mrs-info-tag best">🚚 배송비 무료</span><p class="mrs-info-price"><span id="mrsPriceNum">69,000</span>원 <span style="font-size:14px;font-weight:400;color:#777">(권당 23,000원)</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">🎁 1권만 더 담으면 최저가 + 한정판 사은품</p>',
-    4:'<span class="mrs-info-tag lowest">🏆 최저가 + 한정판 사은품</span><p class="mrs-info-price"><span id="mrsPriceNum">89,000</span>원 <span style="font-size:14px;font-weight:400;color:#777">(권당 22,250원)</span></p><p class="mrs-info-hint" style="cursor:default;animation:none">365일 메아리셋 완성 🎉</p>'
+    1:'<span class="mrs-info-tag best">⭐ 30% 할인</span><p class="mrs-info-price"><span id="mrsPriceNum">20,300</span>원 <span style="font-size:14px;font-weight:400;color:#777">(권당 20,300원)</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">💡 2권 이상도 같은 30% 할인</p>',
+    2:'<span class="mrs-info-tag best">🎯 30% 할인</span><p class="mrs-info-price"><span id="mrsPriceNum">34,300</span>원 <span style="font-size:14px;font-weight:400;color:#777">(권당 17,150원)</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">💡 3권 세트도 준비돼 있어요</p>',
+    3:'<span class="mrs-info-tag best">🎯 30% 할인</span><p class="mrs-info-price"><span id="mrsPriceNum">48,300</span>원 <span style="font-size:14px;font-weight:400;color:#777">(권당 16,100원)</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">💡 4권 세트도 준비돼 있어요</p>',
+    4:'<span class="mrs-info-tag lowest">🏆 30% 할인</span><p class="mrs-info-price"><span id="mrsPriceNum">62,300</span>원 <span style="font-size:14px;font-weight:400;color:#777">(권당 15,575원)</span></p><p class="mrs-info-hint" style="cursor:default;animation:none">365일 메아리셋 완성 🎉</p>'
   };
   var TAGLINE={1:'"작심삼일을 <em>끝내고 싶은 분</em>"',2:'"180일, <em>습관으로 만들고 싶은 분</em>"',3:'"9개월, <em>진짜 달라지고 싶은 분</em>"',4:'"한 해 전체를 <em>내 것으로 만들고 싶은 분</em>"'};
   var PRESET_BY_COUNT={1:'1',2:'1,2',3:'1,2,3',4:'1,2,3,4'};
