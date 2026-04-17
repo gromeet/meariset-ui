@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 122; /* 버전 번호 (12.2 = 122) — 모바일 헤더 로고 중복 노출 제거 */
+  var MRS_VERSION = 123; /* 버전 번호 (12.3 = 123) — 모바일 로고 원위치 복구 + 중복 컨테이너만 숨김 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
   var MRS_TEST_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-test.js?v=restore1';
@@ -817,10 +817,10 @@
 
     var topLogo=header.querySelector('.header__top .top-logo[df-banner-code="logo"]');
     var bottomLogo=header.querySelector('.header__bottom .top-logo[df-banner-code="logo"]');
-    var primary=bottomLogo || topLogo;
+    var primary=topLogo || bottomLogo;
     if(!primary) return;
 
-    var secondary=(primary===bottomLogo)?topLogo:bottomLogo;
+    var secondary=(primary===topLogo)?bottomLogo:topLogo;
     if(secondary){
       secondary.hidden=false;
       secondary.setAttribute('aria-hidden','true');
@@ -832,11 +832,13 @@
 
     primary.hidden=false;
     primary.removeAttribute('aria-hidden');
-    primary.style.setProperty('display','flex','important');
+    primary.style.removeProperty('left');
+    primary.style.removeProperty('transform');
+    primary.style.removeProperty('top');
+    primary.style.setProperty('display','block','important');
     primary.style.setProperty('visibility','visible','important');
     primary.style.setProperty('opacity','1','important');
-    primary.style.setProperty('left','50%','important');
-    primary.style.setProperty('transform','translateX(-50%)','important');
+    primary.style.setProperty('pointer-events','auto','important');
 
     var items=Array.prototype.slice.call(primary.querySelectorAll('.top-logo__item'));
     if(!items.length) return;
@@ -860,15 +862,13 @@
 
     for(var k=0;k<items.length;k++){
       var active=items[k]===chosen;
-      items[k].style.setProperty('display', active ? 'flex' : 'none', 'important');
+      items[k].style.setProperty('display', active ? 'inline-flex' : 'none', 'important');
       if(active){
-        items[k].style.setProperty('align-items','center','important');
-        items[k].style.setProperty('justify-content','center','important');
-        items[k].style.setProperty('height','100%','important');
         items[k].style.setProperty('pointer-events','auto','important');
         items[k].style.setProperty('cursor','pointer','important');
-        items[k].style.setProperty('max-width','180px','important');
-        items[k].style.setProperty('overflow','hidden','important');
+        items[k].style.removeProperty('height');
+        items[k].style.removeProperty('max-width');
+        items[k].style.removeProperty('overflow');
       }
     }
 
@@ -882,10 +882,11 @@
     var chosenImg=chosen.querySelector('img');
     var hasUsableImg=!!(chosenImg && chosenImg.getAttribute('src') && chosenImg.getAttribute('src').trim() && chosenImg.naturalWidth>0);
     if(hasUsableImg){
-      chosen.style.setProperty('white-space','nowrap','important');
+      chosen.style.removeProperty('font-size');
+      chosen.style.removeProperty('white-space');
+      chosenImg.style.removeProperty('max-width');
+      chosenImg.style.removeProperty('height');
       chosenImg.style.setProperty('display','block','important');
-      chosenImg.style.setProperty('max-width','180px','important');
-      chosenImg.style.setProperty('height','auto','important');
       return;
     }
 
