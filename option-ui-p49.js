@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 149; /* 버전 번호 (14.9 = 149) — product_no=49 전용 split */
+  var MRS_VERSION = 150; /* 버전 번호 (15.0 = 150) — product_no=49 시즌 변경 alert 없이 옵션 교체 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/detail.html?product_no=49&cate_no=1&display_group=2';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
   var MRS_DISPLAY_PRICE_BY_COUNT = {1:24650};
@@ -365,7 +365,7 @@
   var TAGLINE={1:'"작심삼일을 <em>끝내고 싶은 분</em>"',2:'"180일, <em>습관으로 만들고 싶은 분</em>"',3:'"9개월, <em>진짜 달라지고 싶은 분</em>"',4:'"한 해 전체를 <em>내 것으로 만들고 싶은 분</em>"'};
   var PRESET_BY_COUNT={1:'1',2:'1,2',3:'1,2,3',4:'1,2,3,4'};
 
-  var _prevCount=0,_toastTimer=null,_mrsSubmitting=false,_mrsStickyTimer=null,_mrsNativeObserver=null;
+  var _prevCount=0,_toastTimer=null,_mrsSubmitting=false,_mrsStickyTimer=null,_mrsNativeObserver=null,_mrsAlertRestoreTimer=null;
 
   function mrsGetComboKey(){
     var cards=document.querySelectorAll('.mrs-card.selected'),seasons=[];
@@ -500,6 +500,8 @@
     var infoEl=document.getElementById('mrsInfo');
     if(infoEl) infoEl.innerHTML=selectedSeason?INFO_BY_COUNT[1]:'<p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p><p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>';
     mrsUpdateTagline(selectedSeason);mrsUpdateSticky(selectedSeason?1:0);mrsUpdateBenefit();_prevCount=selectedSeason?1:0;
+    mrsSyncNativeSelection(true);
+    setTimeout(mrsSyncStickySoon,120);
   };
   window.mrsHintAdd=function(){var cards=document.querySelectorAll('.mrs-card:not(.selected)');if(cards.length)cards[0].click();};
 
@@ -515,13 +517,39 @@
     if(firstUnselected) firstUnselected.click();
   };
 
-  function mrsClearOptions(){
+  function mrsTriggerNativeChange(sel){
+    if(window.jQuery){window.jQuery(sel).trigger('change');}
+    else{sel.dispatchEvent(new Event('change',{bubbles:true}));}
+  }
+  function mrsSetProductOptionVisible(show){
+    var prodOpt=document.querySelector('.productOption');
+    if(!prodOpt)return;
+    if(show) prodOpt.setAttribute('style','position:fixed!important;left:0!important;top:0!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0.01!important;z-index:-1!important;');
+    else prodOpt.setAttribute('style','position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;');
+  }
+  function mrsSuppressNativeOptionAlerts(ms){
+    var orig=window._mrsOrigAlert || window.alert;
+    window._mrsOrigAlert=orig;
+    window.alert=function(msg){
+      var text=(msg||'')+'';
+      if(text.indexOf('이미 선택된 옵션')!==-1 || text.indexOf('아래 리스트에서')!==-1 || text.indexOf('삭제 후 다시 선택')!==-1){
+        return;
+      }
+      return window._mrsOrigAlert.apply(this, arguments);
+    };
+    if(_mrsAlertRestoreTimer) clearTimeout(_mrsAlertRestoreTimer);
+    _mrsAlertRestoreTimer=setTimeout(function(){
+      if(window._mrsOrigAlert) window.alert=window._mrsOrigAlert;
+    }, ms || 1200);
+  }
+  function mrsClearMainOptionRowsSilent(){
+    var removed=false;
     var dels=document.querySelectorAll('#totalProducts .option_box_del, #totalProducts img[alt="삭제"]');
     for(var i=dels.length-1;i>=0;i--){
       var row=dels[i].closest('tr');
       if(row&&row.classList.contains('add_product')) continue;
       var link=dels[i].closest('a')||dels[i];
-      try{link.click();}catch(e){}
+      try{link.click();removed=true;}catch(e){}
     }
     var tp=document.getElementById('totalProducts');
     if(tp){
@@ -532,18 +560,55 @@
           if(rows[j].classList.contains('add_product')) continue;
           if(rows[j].querySelector('th')) continue;
           rows[j].remove();
+          removed=true;
         }
       }
     }
-    var sel=document.getElementById('product_option_id1');if(sel)sel.value='*';
+    return removed;
+  }
+  function mrsClearOptions(){
+    var removed=mrsClearMainOptionRowsSilent();
+    var sel=document.getElementById('product_option_id1');
+    if(sel){
+      mrsSetProductOptionVisible(true);
+      sel.value='*';
+      mrsTriggerNativeChange(sel);
+      setTimeout(function(){ mrsSetProductOptionVisible(false); },300);
+    }
+    return removed;
+  }
+  function mrsSyncNativeSelection(force){
+    var sel=document.getElementById('product_option_id1');
+    if(!sel) return false;
+    var desiredValue=COMBO_MAP[mrsGetComboKey()]||'*';
+    mrsSetProductOptionVisible(true);
+    if(!force){
+      if(sel.value!==desiredValue) sel.value=desiredValue;
+      mrsTriggerNativeChange(sel);
+      setTimeout(function(){ mrsSetProductOptionVisible(false); },300);
+      return desiredValue!=='*';
+    }
+    mrsSuppressNativeOptionAlerts(1500);
+    var hadRows=mrsClearMainOptionRowsSilent();
+    sel.value='*';
+    mrsTriggerNativeChange(sel);
+    if(desiredValue==='*'){
+      setTimeout(function(){ mrsSetProductOptionVisible(false); },300);
+      return false;
+    }
+    setTimeout(function(){
+      sel.value=desiredValue;
+      mrsTriggerNativeChange(sel);
+      setTimeout(function(){ mrsSetProductOptionVisible(false); },300);
+    }, hadRows ? 120 : 60);
+    return true;
   }
   function mrsSelectOption(optionValue){
     var sel=document.getElementById('product_option_id1');if(!sel)return false;
-    var prodOpt=document.querySelector('.productOption');
-    if(prodOpt)prodOpt.setAttribute('style','position:fixed!important;left:0!important;top:0!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0.01!important;z-index:-1!important;');
+    mrsSetProductOptionVisible(true);
     sel.value=optionValue;
-    if(window.jQuery){window.jQuery(sel).trigger('change');}else{sel.dispatchEvent(new Event('change',{bubbles:true}));}
-    setTimeout(function(){if(prodOpt)prodOpt.setAttribute('style','position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;');},300);
+    mrsTriggerNativeChange(sel);
+    setTimeout(function(){ mrsSetProductOptionVisible(false); },300);
     return true;
   }
 
