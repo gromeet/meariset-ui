@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 119; /* 버전 번호 (11.9 = 119) — 간편결제는 실제 터치 유지, 선택 안 했을 때만 차단 */
+  var MRS_VERSION = 120; /* 버전 번호 (12.0 = 120) — 시즌 선택 시 네이티브 옵션/카카오 간편결제 동기화 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
   var MRS_TEST_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-test.js?v=restore1';
@@ -542,6 +542,100 @@
     else{el.classList.remove('visible');el.classList.add('hidden');}
   }
 
+
+
+  function mrsTriggerNativeChange(sel){
+    if(window.jQuery){window.jQuery(sel).trigger('change');}
+    else{sel.dispatchEvent(new Event('change',{bubbles:true}));}
+  }
+  function mrsSetProductOptionVisible(show){
+    var prodOpt=document.querySelector('.productOption');
+    if(!prodOpt)return;
+    if(show) prodOpt.setAttribute('style','position:fixed!important;left:0!important;top:0!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0.01!important;z-index:-1!important;');
+    else prodOpt.setAttribute('style','position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;');
+  }
+  function mrsGetKakaoButtonConfig(){
+    if(window._mrsKakaoConfig) return window._mrsKakaoConfig;
+    var scripts=document.scripts||[];
+    function grab(text,re){ var m=text.match(re); return m?m[1]:null; }
+    for(var i=0;i<scripts.length;i++){
+      var t=(scripts[i].textContent||scripts[i].innerText||'');
+      if(t.indexOf('kakaoCheckout.createButton')===-1 || t.indexOf('authKey:')===-1) continue;
+      var cfg={
+        authKey: grab(t,/authKey:\s*"([^"]+)"/),
+        shopProductId: grab(t,/shopProductId:\s*'([^']+)'/),
+        buttonType: grab(t,/buttonType:\s*"([^"]+)"/),
+        darkMode: grab(t,/darkMode:\s*(true|false)/)==='true',
+        showWishButton: grab(t,/showWishButton:\s*(true|false)/)!=='false',
+        usePayOrder: grab(t,/usePayOrder:\s*(true|false)/)!=='false',
+        isLogin: grab(t,/isLogin:\s*(true|false)/)==='true',
+        snackMode: grab(t,/snackMode:\s*(true|false)/)==='true'
+      };
+      if(cfg.authKey){ window._mrsKakaoConfig=cfg; return cfg; }
+    }
+    return null;
+  }
+  function mrsSyncKakaoButton(){
+    var box=document.getElementById('appPaymentButtonBox');
+    if(!box || typeof kakaoCheckout==='undefined') return false;
+    var cfg=mrsGetKakaoButtonConfig();
+    if(!cfg || typeof setKakaoBasketAction!=='function' || typeof createKakaoOrderSheet!=='function') return false;
+    var enabled=!!(COMBO_MAP[mrsGetComboKey()]);
+    var mount=box.querySelector('#kakao-checkout-button');
+    if(mount && mount.getAttribute('data-mrs-enabled')===String(enabled)) return true;
+    box.innerHTML='';
+    mount=document.createElement('div');
+    mount.id='kakao-checkout-button';
+    mount.setAttribute('data-mrs-enabled', String(enabled));
+    box.appendChild(mount);
+    try{
+      kakaoCheckout.createButton({
+        authKey: cfg.authKey,
+        shopProductId: cfg.shopProductId || (typeof iProductNo!=='undefined' ? String(iProductNo) : false),
+        buttonType: cfg.buttonType || '285x88',
+        darkMode: !!cfg.darkMode,
+        containerId: 'kakao-checkout-button',
+        showWishButton: cfg.showWishButton !== false,
+        usePayOrder: cfg.usePayOrder !== false,
+        isLogin: !!cfg.isLogin,
+        snackMode: !!cfg.snackMode,
+        enable: enabled,
+        onOrder: function(){ return setKakaoBasketAction().then(function(){ return createKakaoOrderSheet; }).catch(function(){ return; }); },
+        onPayOrder: function(){
+          return setKakaoBasketAction().then(function(){
+            if(typeof(basket_type)==='undefined') basket_type='A0000';
+            if(typeof(iProductNo)!=='undefined' && iProductNo>0){
+              var oTarget=CAPP_SHOP_FRONT_COMMON_UTIL.findTargetFrame();
+              oTarget.location.href='/order/orderform.html?basket_type='+basket_type+'&delvtype='+delvtype+'&paymethod=kakaopay&only_one_paymethod=T';
+            } else if(typeof Basket!=='undefined' && Basket.orderEasyKakaopay){
+              Basket.orderEasyKakaopay();
+            }
+          }).catch(function(){ return; });
+        },
+        onWish: function(err){}
+      });
+    }catch(e){ return false; }
+    return true;
+  }
+  function mrsSyncNativeOptionSoon(){
+    if(_mrsNativeOptionTimer) clearTimeout(_mrsNativeOptionTimer);
+    _mrsNativeOptionTimer=setTimeout(function(){
+      var key=mrsGetComboKey();
+      var optVal=COMBO_MAP[key];
+      mrsClearOptions();
+      if(!optVal){
+        setTimeout(mrsSyncKakaoButton,80);
+        mrsSyncStickySoon();
+        return;
+      }
+      setTimeout(function(){
+        mrsSelectOption(optVal);
+        setTimeout(mrsSyncKakaoButton,80);
+        mrsSyncStickySoon();
+      },120);
+    },60);
+  }
+
   window.mrsToggle=function(card){
     card.classList.toggle('selected');
     var count=document.querySelectorAll('.mrs-card.selected').length,prevPrice=PRICE_BY_COUNT[_prevCount]||0;
@@ -550,7 +644,7 @@
     if(info&&PRICE_BY_COUNT[count]) requestAnimationFrame(function(){mrsAnimatePrice(prevPrice,PRICE_BY_COUNT[count],350);});
     if(_prevCount<3&&count>=3&&count<4) setTimeout(function(){mrsShowToast('🎉 배송비 무료 달성!','green');},150);
     if(_prevCount<4&&count>=4) setTimeout(function(){mrsShowToast('🏆 최저가 달성!','red');},150);
-    mrsUpdateTagline(count);mrsUpdateSticky(count);mrsUpdateBenefit();_prevCount=count;
+    mrsUpdateTagline(count);mrsUpdateSticky(count);mrsUpdateBenefit();mrsSyncNativeOptionSoon();_prevCount=count;
   };
   window.mrsHintAdd=function(){var cards=document.querySelectorAll('.mrs-card:not(.selected)');if(cards.length)cards[0].click();};
 
@@ -572,7 +666,7 @@
     if(currentKey===targetKey){
       var emptyInfo=document.getElementById('mrsInfo');
       if(emptyInfo) emptyInfo.innerHTML='<p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p><p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>';
-      mrsUpdateTagline(0);mrsUpdateSticky(0);mrsUpdateBenefit();_prevCount=0;
+      mrsUpdateTagline(0);mrsUpdateSticky(0);mrsUpdateBenefit();mrsSyncNativeOptionSoon();_prevCount=0;
       return;
     }
     for(var s=1;s<=count;s++){
@@ -584,7 +678,7 @@
     var infoEl=document.getElementById('mrsInfo');
     if(infoEl) infoEl.innerHTML=info||'<p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p><p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>';
     if(info&&PRICE_BY_COUNT[count]) requestAnimationFrame(function(){mrsAnimatePrice(prevPrice,PRICE_BY_COUNT[count],350);});
-    mrsUpdateTagline(count);mrsUpdateSticky(count);mrsUpdateBenefit();_prevCount=count;
+    mrsUpdateTagline(count);mrsUpdateSticky(count);mrsUpdateBenefit();mrsSyncNativeOptionSoon();_prevCount=count;
   };
 
   function mrsClearOptions(){
@@ -607,15 +701,20 @@
         }
       }
     }
-    var sel=document.getElementById('product_option_id1');if(sel)sel.value='*';
+    var sel=document.getElementById('product_option_id1');
+    if(sel){
+      mrsSetProductOptionVisible(true);
+      sel.value='*';
+      mrsTriggerNativeChange(sel);
+      setTimeout(function(){ mrsSetProductOptionVisible(false); },300);
+    }
   }
   function mrsSelectOption(optionValue){
     var sel=document.getElementById('product_option_id1');if(!sel)return false;
-    var prodOpt=document.querySelector('.productOption');
-    if(prodOpt)prodOpt.setAttribute('style','position:fixed!important;left:0!important;top:0!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0.01!important;z-index:-1!important;');
+    mrsSetProductOptionVisible(true);
     sel.value=optionValue;
-    if(window.jQuery){window.jQuery(sel).trigger('change');}else{sel.dispatchEvent(new Event('change',{bubbles:true}));}
-    setTimeout(function(){if(prodOpt)prodOpt.setAttribute('style','position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;');},300);
+    mrsTriggerNativeChange(sel);
+    setTimeout(function(){ mrsSetProductOptionVisible(false); },300);
     return true;
   }
 
