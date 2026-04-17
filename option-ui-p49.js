@@ -312,6 +312,7 @@
       <p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>\
     </div>\
     <div class="mrs-benefit-guide" id="mrsBenefitGuide">\
+      <div class="mrs-benefit-title">재구매 고객 전용 15% 혜택가</div>\
       <div class="mrs-benefit-list">\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(1)">\
           <span class="mrs-benefit-qty">1권</span>\
