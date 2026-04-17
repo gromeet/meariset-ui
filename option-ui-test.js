@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 135; /* 버전 번호 (13.5 = 135) — 30 카카오 기본 UI 원복 + 활성화 재시도 */
+  var MRS_VERSION = 136; /* 버전 번호 (13.6 = 136) — 30 카카오 버튼 강제 재생성 제거, 카페24 기본 버튼 유지 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -456,7 +456,6 @@
     if(!force){
       if(sel.value!==desiredValue) sel.value=desiredValue;
       mrsTriggerNativeChange(sel);
-      mrsScheduleKakaoButtonSync();
       setTimeout(function(){ mrsSetProductOptionVisible(false); },300);
       return desiredValue!=='*';
     }
@@ -465,93 +464,16 @@
     sel.value='*';
     mrsTriggerNativeChange(sel);
     if(desiredValue==='*'){
-      mrsScheduleKakaoButtonSync();
       setTimeout(function(){ mrsSetProductOptionVisible(false); },300);
       return false;
     }
     setTimeout(function(){
       sel.value=desiredValue;
       mrsTriggerNativeChange(sel);
-      mrsScheduleKakaoButtonSync();
       setTimeout(function(){ mrsSetProductOptionVisible(false); },300);
     }, hadRows ? 120 : 60);
     return true;
   }
-
-  function mrsGetKakaoButtonConfig(){
-    if(window._mrsKakaoConfig) return window._mrsKakaoConfig;
-    var scripts=document.scripts||[];
-    function grab(text,re){ var m=text.match(re); return m?m[1]:null; }
-    for(var i=0;i<scripts.length;i++){
-      var t=(scripts[i].textContent||scripts[i].innerText||'');
-      if(t.indexOf('kakaoCheckout.createButton')===-1 || t.indexOf('authKey:')===-1) continue;
-      var cfg={
-        authKey: grab(t,/authKey:\s*"([^"]+)"/),
-        shopProductId: grab(t,/shopProductId:\s*'([^']+)'/),
-        buttonType: grab(t,/buttonType:\s*"([^"]+)"/),
-        darkMode: grab(t,/darkMode:\s*(true|false)/)==='true',
-        showWishButton: grab(t,/showWishButton:\s*(true|false)/)!=='false',
-        usePayOrder: grab(t,/usePayOrder:\s*(true|false)/)!=='false',
-        isLogin: grab(t,/isLogin:\s*(true|false)/)==='true',
-        snackMode: grab(t,/snackMode:\s*(true|false)/)==='true'
-      };
-      if(cfg.authKey){ window._mrsKakaoConfig=cfg; return cfg; }
-    }
-    return null;
-  }
-  function mrsSyncKakaoButton(){
-    var box=document.getElementById('appPaymentButtonBox');
-    if(!box || typeof kakaoCheckout==='undefined') return false;
-    var cfg=mrsGetKakaoButtonConfig();
-    if(!cfg || typeof setKakaoBasketAction!=='function' || typeof createKakaoOrderSheet!=='function') return false;
-    var enabled=!!(COMBO_MAP[mrsGetComboKey()]);
-    var mount=box.querySelector('#kakao-checkout-button');
-    if(mount && mount.getAttribute('data-mrs-enabled')===String(enabled)) return true;
-    box.innerHTML='';
-    mount=document.createElement('div');
-    mount.id='kakao-checkout-button';
-    mount.setAttribute('data-mrs-enabled', String(enabled));
-    box.appendChild(mount);
-    try{
-      kakaoCheckout.createButton({
-        authKey: cfg.authKey,
-        shopProductId: cfg.shopProductId || (typeof iProductNo!=='undefined' ? String(iProductNo) : false),
-        buttonType: cfg.buttonType || '285x88',
-        darkMode: !!cfg.darkMode,
-        containerId: 'kakao-checkout-button',
-        showWishButton: cfg.showWishButton !== false,
-        usePayOrder: cfg.usePayOrder !== false,
-        isLogin: !!cfg.isLogin,
-        snackMode: !!cfg.snackMode,
-        enable: enabled,
-        onOrder: function(){ return setKakaoBasketAction().then(function(){ return createKakaoOrderSheet; }).catch(function(){ return; }); },
-        onPayOrder: function(){
-          return setKakaoBasketAction().then(function(){
-            if(typeof(basket_type)==='undefined') basket_type='A0000';
-            if(typeof(iProductNo)!=='undefined' && iProductNo>0){
-              var oTarget=CAPP_SHOP_FRONT_COMMON_UTIL.findTargetFrame();
-              oTarget.location.href='/order/orderform.html?basket_type='+basket_type+'&delvtype='+delvtype+'&paymethod=kakaopay&only_one_paymethod=T';
-            } else if(typeof Basket!=='undefined' && Basket.orderEasyKakaopay){
-              Basket.orderEasyKakaopay();
-            }
-          }).catch(function(){ return; });
-        },
-        onWish: function(err){}
-      });
-    }catch(e){ return false; }
-    return true;
-  }
-
-
-  function mrsScheduleKakaoButtonSync(){
-    var delays=[80,250,700,1500,3000];
-    for(var i=0;i<delays.length;i++){
-      (function(delay){
-        setTimeout(function(){ mrsSyncKakaoButton(); }, delay);
-      })(delays[i]);
-    }
-  }
-
   function mrsAnimatePrice(from,to,dur){
     var el=document.getElementById('mrsPriceNum'); if(!el)return;
     var start=null;
@@ -811,11 +733,9 @@
     setTimeout(mrsEnsureUI, 300);
     setTimeout(mrsEnsureUI, 1200);
     setTimeout(mrsEnsureUI, 2500);
-    setTimeout(mrsScheduleKakaoButtonSync, 600);
-    setTimeout(mrsScheduleKakaoButtonSync, 1800);
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mrsInit);
   else mrsInit();
-  window.addEventListener('load', function(){ mrsEnsureUI(); mrsScheduleKakaoButtonSync(); });
+  window.addEventListener('load', function(){ mrsEnsureUI(); });
 })();
