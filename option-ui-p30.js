@@ -686,7 +686,7 @@
     },200);
   }
   window.mrsDirectSubmit=mrsDirectSubmit;
-  window.mrsStickyBuy=function(){mrsDirectSubmit(1);};
+  window.mrsStickyBuy=function(){mrsDirectSubmit(2);};
 
   function mrsInstallCapture(){
     document.addEventListener('click',function(e){
@@ -950,7 +950,7 @@
     if(hasSelection&&_penAdded) setTimeout(mrsAddPenToBasket,1400);
   };
   window.mrsDirectSubmit=mrsDirectSubmit;
-  window.mrsStickyBuy=function(){mrsDirectSubmit(1);};
+  window.mrsStickyBuy=function(){mrsDirectSubmit(2);};
 
   var _mrsBaseEnsureUI=mrsEnsureUI;
   mrsEnsureUI=function(){
