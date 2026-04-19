@@ -633,7 +633,7 @@
     window._mrsOrigAlert=orig;
     window.alert=function(msg){
       var text=(msg||'')+'';
-      if(text.indexOf('이미 선택된 옵션')!==-1 || text.indexOf('아래 리스트에서')!==-1 || text.indexOf('삭제 후 다시 선택')!==-1){
+      if(text.indexOf('이미 선택한 옵션')!==-1 || text.indexOf('이미 선택된 옵션')!==-1 || text.indexOf('아래 리스트에서')!==-1 || text.indexOf('삭제 후 다시 선택')!==-1){
         return;
       }
       return window._mrsOrigAlert.apply(this, arguments);
@@ -875,6 +875,7 @@
     window.alert=function(msg){if(_mrsSubmitting&&(msg.indexOf('이미 선택')!==-1||msg.indexOf('삭제')!==-1||msg.indexOf('필수 옵션')!==-1))return;return _origAlert.apply(this,arguments);};
     var _origConfirm=window.confirm;
     window.confirm=function(msg){if(_mrsSubmitting&&msg.indexOf('함께 구매')!==-1)return true;return _origConfirm.apply(this,arguments);};
+    mrsSuppressNativeOptionAlerts(5000);
     var finalize=function(){
       mrsSyncPenAddonSelection(_penAdded,function(){
         mrsFinalizeSubmit(type,{alert:_origAlert,confirm:_origConfirm});
