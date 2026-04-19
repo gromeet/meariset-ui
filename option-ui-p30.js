@@ -747,6 +747,7 @@
     #mrsOptionWrap .addon-img img{width:100%;height:auto;display:block}\
     #mrsOptionWrap .addon-info{flex:1;min-width:0}\
     #mrsOptionWrap .addon-title{font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:4px;line-height:1.25}\
+    #mrsOptionWrap .addon-title-text{white-space:nowrap}\
     #mrsOptionWrap .addon-title .limit-tag{font-size:9px;font-weight:800;color:#7A5F28;border:1px solid #C9A96E;background:rgba(201,169,110,0.08);padding:2px 6px;border-radius:2px;letter-spacing:.8px;text-transform:uppercase;line-height:1.3;white-space:nowrap}\
     #mrsOptionWrap .addon-meta{font-size:11.5px;color:#5B5349;line-height:1.55;margin-bottom:9px;text-align:left}\
     #mrsOptionWrap .addon-meta .usp{display:block;position:relative;padding-left:11px;white-space:nowrap}\
@@ -773,6 +774,7 @@
     #mrsOptionWrap .upsell-hint b{color:#1C1A17;font-weight:700}\
     #mrsOptionWrap .upsell-hint .arrow{color:#C9A96E;font-weight:700;font-size:13px;transition:transform .15s ease}\
     #mrsOptionWrap .upsell-hint:hover .arrow{transform:translateX(2px)}\
+    @media(min-width:768px){#mrsOptionWrap .addon-title-text{font-size:13px;white-space:nowrap}}\
     @media(max-width:767px){#mrsOptionWrap .addon{padding:12px;gap:10px}#mrsOptionWrap .addon-img{width:74px}#mrsOptionWrap .addon-title{font-size:13px}#mrsOptionWrap .addon-meta{font-size:11px}#mrsOptionWrap .addon-price-line .now{font-size:17px}#mrsOptionWrap .addon-price-row2{gap:6px}}\
     ';
     document.head.appendChild(penCss);
@@ -792,7 +794,7 @@
         </div>\
         <div class="addon-info">\
           <div class="addon-title">\
-            한정판 메아리셋 전용 클립펜\
+            <span class="addon-title-text">한정판 메아리셋 전용 클립펜</span>\
             <span class="limit-tag">LIMITED EDITION</span>\
           </div>\
           <div class="addon-meta">\
