@@ -4,10 +4,10 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 127; /* 버전 번호 (12.7 = 127) — 27 카카오/네이버 클릭 흐름을 4/16 안정본으로 복구 */
+  var MRS_VERSION = 128; /* 버전 번호 (12.8 = 128) — product_no=30 분기 로더를 option-ui-p30.js로 교체 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
-  var MRS_TEST_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-test.js?v=135';
+  var MRS_P30_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-p30.js?v=160';
   var MRS_P49_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-p49.js?v=156';
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
@@ -38,7 +38,7 @@
   window._mrsOptionLoaded = true;
   window._mrsVersion = MRS_VERSION;
 
-  /* product_no=30은 별도 테스트 자산으로 분리 관리 */
+  /* product_no=30은 별도 업셀 자산으로 분리 관리 */
   var prdEl = document.querySelector('[data-prd-no]');
   var prdNo = prdEl ? prdEl.getAttribute('data-prd-no') : '';
   var urlHas30 = location.search.indexOf('product_no=30') !== -1 || location.href.indexOf('product_no=30') !== -1;
@@ -46,12 +46,12 @@
   var pathHas30 = !!(pathMatch30 && pathMatch30[1] === '30');
   if(urlHas30 || pathHas30 || prdNo === '30'){
     window._mrsOptionLoaded = false;
-    if(!document.querySelector('script[data-mrs-test-loader="1"]')){
-      var testScript = document.createElement('script');
-      testScript.src = MRS_TEST_SCRIPT_URL;
-      testScript.defer = true;
-      testScript.setAttribute('data-mrs-test-loader', '1');
-      (document.head || document.documentElement).appendChild(testScript);
+    if(!document.querySelector('script[data-mrs-p30-loader="1"]')){
+      var p30Script = document.createElement('script');
+      p30Script.src = MRS_P30_SCRIPT_URL;
+      p30Script.defer = true;
+      p30Script.setAttribute('data-mrs-p30-loader', '1');
+      (document.head || document.documentElement).appendChild(p30Script);
     }
     return;
   }
