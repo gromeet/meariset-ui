@@ -184,9 +184,10 @@
   .mrs-sticky-info{display:flex;flex-direction:column;gap:4px}\
   .mrs-sticky-label{font-size:12px;color:#999}\
   .mrs-sticky-price{font-size:18px;font-weight:800;color:#2D2D2D}\
-  .mrs-sticky-btn{background:#0A0A0A;color:#fff;border:none;border-radius:10px;padding:13px 24px;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .2s;font-family:Pretendard,sans-serif}\
+  .mrs-sticky-btn{background:#0A0A0A;color:#fff;border:none;border-radius:10px;padding:13px 24px;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .2s,opacity .2s,transform .2s;font-family:Pretendard,sans-serif}\
   .mrs-sticky-btn:hover{background:#2a2a2a}\
   .mrs-sticky-btn:active{transform:scale(.97)}\
+  .mrs-sticky-btn.is-loading{opacity:.78;pointer-events:none;cursor:wait}\
   a.btnSubmit.gFull{background-color:#0A0A0A!important;border-color:#0A0A0A!important;}\
   @media(min-width:768px){.mrs-sticky{display:none!important}}\
   @media(max-width:520px){.mrs-sticky{padding:14px 14px calc(18px + env(safe-area-inset-bottom,0px));gap:12px}.mrs-sticky-price{font-size:16px}.mrs-sticky-btn{padding:13px 18px;font-size:14px}}\
@@ -231,7 +232,6 @@
     </div>\
     <div class="mrs-grid">\
       <div class="mrs-card" data-season="1" onclick="mrsToggle(this)">\
-        <span class="mrs-start-badge">✦ 입문자 추천</span>\
         <span class="mrs-check">✓</span>\
         <img class="mrs-card-img" src="https://hyunvis.vercel.app/meariset/s1_banner.jpg" onerror="this.style.background=\'#1a1a2e\'" alt="Season 1">\
         <div class="mrs-card-label">Season 1</div>\
@@ -573,11 +573,11 @@
         }
         if(!rowCount&&tp.querySelector('.option_box')) rowCount=tp.querySelectorAll('.option_box').length||1;
       }
-      if(rowCount>=expectedCount || waitCount>=20){ done(rowCount>=expectedCount); return; }
+      if(rowCount>=expectedCount || waitCount>=12){ done(rowCount>=expectedCount); return; }
       waitCount++;
-      setTimeout(check,200);
+      setTimeout(check,80);
     };
-    setTimeout(check,220);
+    setTimeout(check,80);
   }
   function mrsBuildNativeOptionRows(optionValues, done){
     if(!optionValues||!optionValues.length){ done(false); return; }
@@ -589,10 +589,23 @@
       }
       if(!mrsSelectOption(optionValues[idx])){ done(false); return; }
       idx++;
-      setTimeout(addNext,320);
+      setTimeout(addNext,60);
     };
     addNext();
   }
+  function mrsSetStickyLoading(isLoading){
+    var btn=document.querySelector('#mrsStickyBar .mrs-sticky-btn');
+    if(!btn) return;
+    if(!btn.dataset.defaultLabel) btn.dataset.defaultLabel=btn.textContent;
+    if(isLoading){
+      btn.classList.add('is-loading');
+      btn.textContent='처리 중...';
+    }else{
+      btn.classList.remove('is-loading');
+      btn.textContent=btn.dataset.defaultLabel||'🛒 지금 구매하기';
+    }
+  }
+
   function mrsFinalizeSubmit(type, restoreFns){
     var _origCheck=window.checkOptionRequired;
     window.checkOptionRequired=function(){return true;};
@@ -606,11 +619,12 @@
     }
     setTimeout(function(){
       _mrsSubmitting=false;
+      mrsSetStickyLoading(false);
       window.alert=restoreFns.alert;
       window.confirm=restoreFns.confirm;
       if(_origCheck) window.checkOptionRequired=_origCheck;
       else delete window.checkOptionRequired;
-    },3000);
+    },1800);
   }
 
   function mrsDirectSubmit(type){
@@ -619,19 +633,18 @@
     var optionValues=mrsGetSelectedSeasonValues();
     if(!optionValues||!optionValues.length){alert('선택한 조합을 찾을 수 없습니다. 다시 시도해주세요.');return;}
     _mrsSubmitting=true;
+    if(type===1) mrsSetStickyLoading(true);
     var _origAlert=window.alert;
     window.alert=function(msg){if(_mrsSubmitting&&(msg.indexOf('이미 선택')!==-1||msg.indexOf('삭제')!==-1||msg.indexOf('필수 옵션')!==-1))return;return _origAlert.apply(this,arguments);};
     var _origConfirm=window.confirm;
     window.confirm=function(msg){if(_mrsSubmitting&&msg.indexOf('함께 구매')!==-1)return true;return _origConfirm.apply(this,arguments);};
     mrsClearOptions();
-    setTimeout(function(){
-      mrsBuildNativeOptionRows(optionValues,function(){
-        mrsSyncPenAddonSelection(_penAdded);
-        setTimeout(function(){
-          mrsFinalizeSubmit(type,{alert:_origAlert,confirm:_origConfirm});
-        },220);
-      });
-    },200);
+    mrsBuildNativeOptionRows(optionValues,function(){
+      mrsSyncPenAddonSelection(_penAdded);
+      setTimeout(function(){
+        mrsFinalizeSubmit(type,{alert:_origAlert,confirm:_origConfirm});
+      },60);
+    });
   }
   window.mrsDirectSubmit=mrsDirectSubmit;
   window.mrsStickyBuy=function(){mrsDirectSubmit(1);};
@@ -666,12 +679,10 @@
           var optionValues=mrsGetSelectedSeasonValues();
           if(!optionValues||!optionValues.length){alert('선택한 조합을 찾을 수 없습니다. 다시 시도해주세요.');return;}
           mrsClearOptions();
-          setTimeout(function(){
-            mrsBuildNativeOptionRows(optionValues,function(){
-              mrsSyncPenAddonSelection(_penAdded);
-              setTimeout(function(){_mrsPayBypass=true;clickTarget.click();},500);
-            });
-          },200);
+          mrsBuildNativeOptionRows(optionValues,function(){
+            mrsSyncPenAddonSelection(_penAdded);
+            setTimeout(function(){_mrsPayBypass=true;clickTarget.click();},120);
+          });
           return;
         }
         el=el.parentElement;depth++;
