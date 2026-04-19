@@ -9,7 +9,7 @@
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
   var MRS_TEST_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-test.js?v=135';
   var MRS_P30_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-p30.js?v=165';
-  var MRS_P49_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-p49.js?v=156';
+  var MRS_P49_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-p49.js?v=166';
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
