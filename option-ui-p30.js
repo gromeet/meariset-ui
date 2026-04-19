@@ -785,18 +785,18 @@
     guide.insertAdjacentHTML('afterend','\
     <div id="mrsPenAddonBlock">\
       <div class="addon-section-label">함께 구매하면 <span style="color:#D94A4A; margin-left:2px;">34% 할인</span></div>\
-      <div class="bundle-reason">노트와 펜을 따로 챙기지 않아도 되는 자유</div>\
+      <div class="bundle-reason">펜을 따로 챙기지 않아도 돼요</div>\
       <div class="addon" id="penAddon">\
         <div class="addon-img">\
           <img loading="lazy" decoding="async" src="'+MRS_PEN_IMAGE_DATA_URI+'" alt="메아리셋 클립펜 M13 Midnight Black" />\
         </div>\
         <div class="addon-info">\
           <div class="addon-title">\
-            한정판 메아리 전용 클립펜\
+            한정판 메아리셋 전용 클립펜\
             <span class="limit-tag">LIMITED EDITION</span>\
           </div>\
           <div class="addon-meta">\
-            <span class="usp">노트에 끼워 휴대하는 클립형</span>\
+            <span class="usp">노트에 끼워 휴대하는 펜</span>\
             <span class="usp">독일 0.7mm 펜촉</span>\
             <span class="usp">글로벌 3대 디자인 어워드</span>\
           </div>\
@@ -818,7 +818,7 @@
         </button>\
       </div>\
       <a class="upsell-hint" href="#mrsBenefitGuide">\
-        <span><b>4권 이상 구매 시</b> 볼펜 무료 증정</span>\
+        <span><b>4권 이상 구매 시</b> 한정판 클립펜 무료 증정</span>\
         <span class="arrow">→</span>\
       </a>\
     </div>');
