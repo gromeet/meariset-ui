@@ -802,7 +802,10 @@
   function mrsGetAddonSubmitCache(){
     var currentMain=mrsGetMainSelectedItem();
     var currentAddons=mrsGetAddonSelectedItems();
-    if(_mrsAddonSubmitCache && _mrsAddonSubmitCache.mainSelectedItem===currentMain && _mrsAddonSubmitCache.addonSelectedItems.join('||')===currentAddons.join('||')) return _mrsAddonSubmitCache;
+    if(_mrsAddonSubmitCache){
+      if(!currentMain) return _mrsAddonSubmitCache;
+      if(_mrsAddonSubmitCache.mainSelectedItem===currentMain && (!currentAddons.length || _mrsAddonSubmitCache.addonSelectedItems.join('||')===currentAddons.join('||'))) return _mrsAddonSubmitCache;
+    }
     _mrsAddonSubmitCache=mrsBuildAddonSubmitCache();
     return _mrsAddonSubmitCache;
   }
@@ -878,8 +881,8 @@
     var _origConfirm=window.confirm;
     window.confirm=function(msg){if(_mrsSubmitting&&msg.indexOf('함께 구매')!==-1)return true;return _origConfirm.apply(this,arguments);};
     var finalize=function(){
-      if(type===1&&_penAdded&&!_mrsPenSyncPending&&mrsHasNativePenSelected()){
-        var warmCache=mrsGetAddonSubmitCache();
+      if(type===1&&_penAdded&&!_mrsPenSyncPending){
+        var warmCache=_mrsAddonSubmitCache||mrsGetAddonSubmitCache();
         if(warmCache&&warmCache.mainSelectedItem&&warmCache.addonSelectedItems.length){
           console.info('[mrs-p30] direct submit using warm addon cache');
           mrsFinalizeSubmit(type,{alert:_origAlert,confirm:_origConfirm});
