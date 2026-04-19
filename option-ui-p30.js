@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 108; /* 버전 번호 (10.8 = 108) — salePrice 빈 노드 회피 + 추가상품 가격 인식 보정 */
+  var MRS_VERSION = 109; /* 버전 번호 (10.9 = 109) — p30 pen UI/price/basket sync fix */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -263,30 +263,30 @@
       <div class="mrs-benefit-list">\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(1)">\
           <span class="mrs-benefit-qty">1권</span>\
-          <span class="mrs-benefit-price">29,000원</span>\
-          <span class="mrs-benefit-unit">(29,000원/권)</span>\
-          <span class="mrs-benefit-discount">36%↓</span>\
+          <span class="mrs-benefit-price">20,300원</span>\
+          <span class="mrs-benefit-unit">(20,300원/권)</span>\
+          <span class="mrs-benefit-discount">30%↓</span>\
           <span class="mrs-benefit-badge popular">⭐ 가장 많이 선택</span>\
         </div>\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(2)">\
           <span class="mrs-benefit-qty">2권</span>\
-          <span class="mrs-benefit-price">49,000원</span>\
-          <span class="mrs-benefit-unit">(24,500원/권)</span>\
-          <span class="mrs-benefit-discount">46%↓</span>\
-          <span class="mrs-benefit-badge saving">💰 9,000원 절약</span>\
+          <span class="mrs-benefit-price">34,300원</span>\
+          <span class="mrs-benefit-unit">(17,150원/권)</span>\
+          <span class="mrs-benefit-discount">30%↓</span>\
+          <span class="mrs-benefit-badge saving">💰 6,300원 절약</span>\
         </div>\
         <div class="mrs-benefit-row" onclick="mrsBenefitSelect(3)">\
           <span class="mrs-benefit-qty">3권</span>\
-          <span class="mrs-benefit-price">69,000원</span>\
-          <span class="mrs-benefit-unit">(23,000원/권)</span>\
-          <span class="mrs-benefit-discount">49%↓</span>\
+          <span class="mrs-benefit-price">48,300원</span>\
+          <span class="mrs-benefit-unit">(16,100원/권)</span>\
+          <span class="mrs-benefit-discount">30%↓</span>\
           <span class="mrs-benefit-badge freeship">🚚 무료배송</span>\
         </div>\
         <div class="mrs-benefit-row best-deal" onclick="mrsBenefitSelect(4)">\
           <span class="mrs-benefit-qty">4권</span>\
-          <span class="mrs-benefit-price">89,000원</span>\
-          <span class="mrs-benefit-unit">(22,250원/권)</span>\
-          <span class="mrs-benefit-discount">51%↓</span>\
+          <span class="mrs-benefit-price">62,300원</span>\
+          <span class="mrs-benefit-unit">(15,575원/권)</span>\
+          <span class="mrs-benefit-discount">30%↓</span>\
           <span class="mrs-benefit-badge lowest">🏆 최저가+무배</span>\
         </div>\
       </div>\
@@ -325,12 +325,12 @@
     '1,2,3':'P00000BB000F','1,2,4':'P00000BB000P','1,3,4':'P00000BB000Q',
     '2,3,4':'P00000BB000R','1,2,3,4':'P00000BB000G'
   };
-  var PRICE_BY_COUNT={1:29000,2:49000,3:69000,4:89000};
+  var PRICE_BY_COUNT={1:20300,2:34300,3:48300,4:62300};
   var INFO_BY_COUNT={
-    1:'<span class="mrs-info-tag best">⭐ 가장 많이 선택</span><p class="mrs-info-price"><span id="mrsPriceNum">29,000</span>원 <span style="font-size:14px;font-weight:400;color:#e65100">+ 배송비 3,000원</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">💡 1권 더 담으면 9,000원 절약</p>',
-    2:'<span class="mrs-info-tag best">💰 9,000원 절약</span><p class="mrs-info-price"><span id="mrsPriceNum">49,000</span>원 <span style="font-size:14px;font-weight:400;color:#e65100">+ 배송비 3,000원</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">💡 1권만 더 담으면 배송비 무료</p>',
-    3:'<span class="mrs-info-tag best">🚚 배송비 무료</span><p class="mrs-info-price"><span id="mrsPriceNum">69,000</span>원 <span style="font-size:14px;font-weight:400;color:#777">(권당 23,000원)</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">🎁 1권만 더 담으면 최저가 + 한정판 사은품</p>',
-    4:'<span class="mrs-info-tag lowest">🏆 최저가 + 한정판 사은품</span><p class="mrs-info-price"><span id="mrsPriceNum">89,000</span>원 <span style="font-size:14px;font-weight:400;color:#777">(권당 22,250원)</span></p><p class="mrs-info-hint" style="cursor:default;animation:none">365일 메아리셋 완성 🎉</p>'
+    1:'<span class="mrs-info-tag best">⭐ 가장 많이 선택</span><p class="mrs-info-price"><span id="mrsPriceNum">20,300</span>원 <span style="font-size:14px;font-weight:400;color:#e65100">+ 배송비 3,000원</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">💡 1권 더 담으면 6,300원 절약</p>',
+    2:'<span class="mrs-info-tag best">💰 6,300원 절약</span><p class="mrs-info-price"><span id="mrsPriceNum">34,300</span>원 <span style="font-size:14px;font-weight:400;color:#e65100">+ 배송비 3,000원</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">💡 1권만 더 담으면 배송비 무료</p>',
+    3:'<span class="mrs-info-tag best">🚚 배송비 무료</span><p class="mrs-info-price"><span id="mrsPriceNum">48,300</span>원 <span style="font-size:14px;font-weight:400;color:#777">(권당 16,100원)</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">🎁 1권만 더 담으면 최저가 + 한정판 사은품</p>',
+    4:'<span class="mrs-info-tag lowest">🏆 최저가 + 한정판 사은품</span><p class="mrs-info-price"><span id="mrsPriceNum">62,300</span>원 <span style="font-size:14px;font-weight:400;color:#777">(권당 15,575원)</span></p><p class="mrs-info-hint" style="cursor:default;animation:none">365일 메아리셋 완성 🎉</p>'
   };
   var TAGLINE={1:'"작심삼일을 <em>끝내고 싶은 분</em>"',2:'"180일, <em>습관으로 만들고 싶은 분</em>"',3:'"9개월, <em>진짜 달라지고 싶은 분</em>"',4:'"한 해 전체를 <em>내 것으로 만들고 싶은 분</em>"'};
   var PRESET_BY_COUNT={1:'1',2:'1,2',3:'1,2,3',4:'1,2,3,4'};
@@ -343,6 +343,62 @@
   var _prevCount=0,_toastTimer=null,_mrsSubmitting=false,_mrsStickyTimer=null,_mrsNativeObserver=null;
 
   var _penAdded=false,_mrsPenBasketPending=false;
+
+  function mrsTriggerNativeChange(el){
+    if(!el) return;
+    if(window.jQuery){window.jQuery(el).trigger('change');}
+    else{el.dispatchEvent(new Event('change',{bubbles:true}));}
+  }
+  function mrsGetPenAddonData(){
+    var selectors=document.querySelectorAll('.xans-product-addproduct select,.addProduct select,select[id*="addproduct"],select[name*="addproduct"]');
+    var keywords=['클립펜','클립 펜','clip pen','clippen','clip_pen','clip-pen'];
+    for(var i=0;i<selectors.length;i++){
+      var sel=selectors[i];
+      if(!sel||!sel.options) continue;
+      for(var j=0;j<sel.options.length;j++){
+        var opt=sel.options[j];
+        var text=mrsGetText(opt);
+        for(var k=0;k<keywords.length;k++){
+          if(text.toLowerCase().indexOf(keywords[k].toLowerCase())!==-1){
+            return {select:sel, option:opt, value:opt.value, text:text, price:mrsParsePriceValue(text)||MRS_PEN_PRICE};
+          }
+        }
+      }
+    }
+    return null;
+  }
+  function mrsHasNativePenSelected(){
+    var data=mrsGetPenAddonData();
+    return !!(data&&data.select&&String(data.select.value||'').trim()===String(data.value||'').trim());
+  }
+  function mrsSyncPenAddonSelection(enable){
+    var data=mrsGetPenAddonData();
+    if(!data||!data.select) return false;
+    var select=data.select;
+    var before=String(select.value||'').trim();
+    var next=enable?String(data.value||'').trim():'*';
+    if(before===next) return true;
+    var prodOpt=document.querySelector('.productOption');
+    if(prodOpt)prodOpt.setAttribute('style','position:fixed!important;left:0!important;top:0!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0.01!important;z-index:-1!important;');
+    select.value=next;
+    mrsTriggerNativeChange(select);
+    setTimeout(function(){
+      if(prodOpt)prodOpt.setAttribute('style','position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;');
+      mrsSyncStickySoon();
+    },300);
+    console.info('[mrs-p30] pen addon sync', { enable: enable, value: next });
+    return true;
+  }
+  function mrsGetExpectedAddonPrice(){
+    var nativeAddonPrice=mrsGetNativeAddonSelectedPrice();
+    if(nativeAddonPrice>0) return nativeAddonPrice;
+    return _penAdded ? MRS_PEN_PRICE : 0;
+  }
+  function mrsRefreshMainPrice(count){
+    var priceEl=document.getElementById('mrsPriceNum');
+    if(!priceEl||!count||!PRICE_BY_COUNT[count]) return;
+    priceEl.textContent=(PRICE_BY_COUNT[count]+mrsGetExpectedAddonPrice()).toLocaleString('ko-KR');
+  }
 
   function mrsGetComboKey(){
     var cards=document.querySelectorAll('.mrs-card.selected'),seasons=[];
@@ -441,7 +497,7 @@
     if(!bar)return;
     if(count>0&&PRICE_BY_COUNT[count]){
       var basePrice=PRICE_BY_COUNT[count]||0;
-      var addonPrice=mrsGetNativeAddonSelectedPrice();
+      var addonPrice=mrsGetExpectedAddonPrice();
       var nativeTotalPrice=mrsGetNativeTotalPrice();
       var computedTotalPrice=basePrice+addonPrice;
       var totalPrice=nativeTotalPrice>=computedTotalPrice?nativeTotalPrice:computedTotalPrice;
@@ -468,7 +524,7 @@
     var count=document.querySelectorAll('.mrs-card.selected').length,prevPrice=PRICE_BY_COUNT[_prevCount]||0;
     var info=INFO_BY_COUNT[count];
     document.getElementById('mrsInfo').innerHTML=info?info:'<p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p><p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>';
-    if(info&&PRICE_BY_COUNT[count]) requestAnimationFrame(function(){mrsAnimatePrice(prevPrice,PRICE_BY_COUNT[count],350);});
+    if(info&&PRICE_BY_COUNT[count]) requestAnimationFrame(function(){mrsAnimatePrice(prevPrice,PRICE_BY_COUNT[count]+mrsGetExpectedAddonPrice(),350);});
     if(_prevCount<3&&count>=3&&count<4) setTimeout(function(){mrsShowToast('🎉 배송비 무료 달성!','green');},150);
     if(_prevCount<4&&count>=4) setTimeout(function(){mrsShowToast('🏆 최저가 달성!','red');},150);
     mrsUpdateTagline(count);mrsUpdateSticky(count);mrsUpdateBenefit();_prevCount=count;
@@ -504,7 +560,7 @@
     var info=INFO_BY_COUNT[count];
     var infoEl=document.getElementById('mrsInfo');
     if(infoEl) infoEl.innerHTML=info||'<p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p><p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>';
-    if(info&&PRICE_BY_COUNT[count]) requestAnimationFrame(function(){mrsAnimatePrice(prevPrice,PRICE_BY_COUNT[count],350);});
+    if(info&&PRICE_BY_COUNT[count]) requestAnimationFrame(function(){mrsAnimatePrice(prevPrice,PRICE_BY_COUNT[count]+mrsGetExpectedAddonPrice(),350);});
     mrsUpdateTagline(count);mrsUpdateSticky(count);mrsUpdateBenefit();_prevCount=count;
   };
 
@@ -558,7 +614,7 @@
         var tp=document.getElementById('totalProducts'),hasItem=tp&&tp.querySelector('tbody tr, .option_box');
         if(!hasItem&&waitCount<15){waitCount++;setTimeout(waitForOption,200);return;}
         var _origCheck=window.checkOptionRequired;window.checkOptionRequired=function(){return true;};
-        try{if(typeof product_submit!=='undefined'){var btnEl=type===2?document.querySelector('button.actionCart'):document.querySelector('a.btnSubmit.gFull');product_submit(type,'/exec/front/order/basket/',btnEl||null);}}catch(e){}
+        try{if(typeof product_submit!=='undefined'){var btnEl=type===2?document.querySelector('a.btnSubmit.gFull'):document.querySelector('button.actionCart');product_submit(type,'/exec/front/order/basket/',btnEl||null);}}catch(e){console.warn('[mrs-p30] product_submit failed', e);}
         setTimeout(function(){_mrsSubmitting=false;window.alert=_origAlert;window.confirm=_origConfirm;if(_origCheck)window.checkOptionRequired=_origCheck;else delete window.checkOptionRequired;},3000);
       };
       setTimeout(waitForOption,600);
@@ -667,28 +723,29 @@
     var penCss=document.createElement('style');
     penCss.id='mrsPenAddonStyles';
     penCss.textContent='\
-    #mrsOptionWrap .addon-section-label{font-size:13px;color:#1C1A17;font-weight:800;letter-spacing:.1px;margin:14px 0 10px;padding-left:2px;display:flex;align-items:center;gap:6px}\
+    #mrsOptionWrap #mrsPenAddonBlock{margin-top:16px}\
+    #mrsOptionWrap .addon-section-label{font-size:13px;color:#1C1A17;font-weight:800;letter-spacing:.1px;margin:0 0 10px;padding-left:2px;display:flex;align-items:center;gap:6px}\
     #mrsOptionWrap .addon-section-label::before{content:"✦";color:#D94A4A;font-size:12px}\
     #mrsOptionWrap .bundle-reason{font-size:12px;color:#8A8173;line-height:1.45;margin:-4px 0 10px 2px;letter-spacing:-.1px}\
-    #mrsOptionWrap .addon{background:#FBF6ED;border:1px solid #E8DFD0;border-radius:12px;padding:14px;margin-bottom:20px;transition:border-color .18s ease,background .18s ease,transform .22s cubic-bezier(0.34,1.56,0.64,1);display:flex;align-items:center;gap:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}\
+    #mrsOptionWrap .addon{background:#fff;border:1px solid #E8DFD0;border-radius:12px;padding:14px;margin-bottom:12px;transition:border-color .18s ease,background .18s ease,transform .22s cubic-bezier(0.34,1.56,0.64,1);display:flex;align-items:center;gap:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;box-shadow:0 2px 10px rgba(28,26,23,.06)}\
     #mrsOptionWrap .addon:hover{border-color:#D9CDB8}\
-    #mrsOptionWrap .addon.selected{border-color:#1C1A17;background:#F6F1E7}\
+    #mrsOptionWrap .addon.selected{border-color:#1C1A17;background:#FBF6ED}\
     #mrsOptionWrap .addon.bounce{animation:cardBounce .32s cubic-bezier(0.34,1.56,0.64,1)}\
     @keyframes cardBounce{0%{transform:scale(1)}40%{transform:scale(.975)}100%{transform:scale(1)}}\
-    #mrsOptionWrap .addon-img{width:90px;flex-shrink:0;display:flex;align-items:center;justify-content:center}\
+    #mrsOptionWrap .addon-img{width:84px;flex-shrink:0;display:flex;align-items:center;justify-content:center}\
     #mrsOptionWrap .addon-img img{width:100%;height:auto;display:block}\
     #mrsOptionWrap .addon-info{flex:1;min-width:0}\
-    #mrsOptionWrap .addon-title{font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:3px;line-height:1.25}\
+    #mrsOptionWrap .addon-title{font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:4px;line-height:1.25}\
     #mrsOptionWrap .addon-title .limit-tag{font-size:9px;font-weight:800;color:#7A5F28;border:1px solid #C9A96E;background:rgba(201,169,110,0.08);padding:2px 6px;border-radius:2px;letter-spacing:.8px;text-transform:uppercase;line-height:1.3;white-space:nowrap}\
-    #mrsOptionWrap .addon-meta{font-size:11.5px;color:#5B5349;line-height:1.55;margin-bottom:8px}\
+    #mrsOptionWrap .addon-meta{font-size:11.5px;color:#5B5349;line-height:1.55;margin-bottom:9px;text-align:left}\
     #mrsOptionWrap .addon-meta .usp{display:block;position:relative;padding-left:11px}\
     #mrsOptionWrap .addon-meta .usp::before{content:"";position:absolute;left:0;top:7px;width:4px;height:4px;border-radius:50%;background:#C9A96E}\
     #mrsOptionWrap .addon-price-line{display:flex;align-items:baseline;gap:6px;font-size:13px}\
-    #mrsOptionWrap .addon-price-line .strike{color:#8A8173;text-decoration:line-through;font-size:11px;font-weight:500}\
-    #mrsOptionWrap .addon-price-line .now{font-weight:800;color:#1C1A17}\
+    #mrsOptionWrap .addon-price-line .strike{color:#8A8173;text-decoration:line-through;font-size:11px;font-weight:500;order:1}\
+    #mrsOptionWrap .addon-price-line .now{font-weight:800;color:#1C1A17;font-size:16px;order:2}\
     #mrsOptionWrap .addon-price-line .save{font-size:10.5px;color:#D94A4A;font-weight:700}\
     #mrsOptionWrap .addon-toggle{background:#fff;color:#1C1A17;border:1.5px solid #1C1A17;border-radius:999px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;transition:background .15s ease,color .15s ease,border-color .15s ease;display:flex;align-items:center;gap:4px;min-height:40px;-webkit-tap-highlight-color:transparent}\
-    #mrsOptionWrap .addon-toggle:hover{background:#F6F1E7}\
+    #mrsOptionWrap .addon-toggle:hover{background:#FBF6ED}\
     #mrsOptionWrap .addon-toggle .ico{font-size:14px;line-height:1;font-weight:400;display:inline-block;transition:transform .25s cubic-bezier(0.34,1.56,0.64,1)}\
     #mrsOptionWrap .addon.selected .addon-toggle .ico{animation:checkPop .32s cubic-bezier(0.34,1.56,0.64,1)}\
     @keyframes checkPop{0%{transform:scale(.4) rotate(-12deg)}60%{transform:scale(1.25) rotate(4deg)}100%{transform:scale(1) rotate(0)}}\
@@ -697,7 +754,12 @@
     #mrsOptionWrap .addon-toggle .ico::before{content:"+"}\
     #mrsOptionWrap .addon.selected .addon-toggle .txt::before{content:"추가됨"}\
     #mrsOptionWrap .addon-toggle .txt::before{content:"담기"}\
-    @media(max-width:767px){#mrsOptionWrap .addon{padding:12px;gap:10px}#mrsOptionWrap .addon-img{width:78px}#mrsOptionWrap .addon-title{font-size:13px}#mrsOptionWrap .addon-meta{font-size:11px}}\
+    #mrsOptionWrap .upsell-hint{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:#5B5349;text-align:center;margin:-2px 0 0;padding:10px 14px;background:#FBF6ED;border-radius:8px;text-decoration:none;transition:background .15s ease;letter-spacing:-.1px}\
+    #mrsOptionWrap .upsell-hint:hover{background:#F4EAD3}\
+    #mrsOptionWrap .upsell-hint b{color:#1C1A17;font-weight:700}\
+    #mrsOptionWrap .upsell-hint .arrow{color:#C9A96E;font-weight:700;font-size:13px;transition:transform .15s ease}\
+    #mrsOptionWrap .upsell-hint:hover .arrow{transform:translateX(2px)}\
+    @media(max-width:767px){#mrsOptionWrap .addon{padding:12px;gap:10px}#mrsOptionWrap .addon-img{width:74px}#mrsOptionWrap .addon-title{font-size:13px}#mrsOptionWrap .addon-meta{font-size:11px}#mrsOptionWrap .addon-price-line .now{font-size:15px}}\
     ';
     document.head.appendChild(penCss);
   }
@@ -735,6 +797,10 @@
           <span class="txt"></span>\
         </button>\
       </div>\
+      <a class="upsell-hint" href="#mrsBenefitGuide">\
+        <span><b>4권 이상 구매 시</b> 볼펜 무료 증정</span>\
+        <span class="arrow">→</span>\
+      </a>\
     </div>');
     var penCard=document.getElementById('penAddon');
     var penToggle=document.getElementById('penToggle');
@@ -747,7 +813,11 @@
       void penCard.offsetWidth;
       penCard.classList.add('bounce');
       var count=document.querySelectorAll('.mrs-card.selected').length;
-      if(count>0) mrsUpdateSticky(count);
+      mrsSyncPenAddonSelection(_penAdded);
+      if(count>0){
+        mrsRefreshMainPrice(count);
+        mrsUpdateSticky(count);
+      }
     }
     penCard.addEventListener('click',togglePen);
     penToggle.addEventListener('click',function(e){
@@ -759,21 +829,29 @@
   function mrsAddPenToBasket(){
     if(!_penAdded||_mrsPenBasketPending) return Promise.resolve(false);
     _mrsPenBasketPending=true;
+    var nativeSelected=mrsHasNativePenSelected();
+    if(nativeSelected){
+      console.info('[mrs-p30] pen addon will ride native addproduct flow');
+      _mrsPenBasketPending=false;
+      return Promise.resolve(true);
+    }
     var params=new URLSearchParams();
-    params.append('product_no[]',MRS_PEN_PRODUCT_NO);
-    params.append('item_code[]',MRS_PEN_ITEM_CODE);
-    params.append('quantity[]','1');
     params.append('product_no',MRS_PEN_PRODUCT_NO);
     params.append('item_code',MRS_PEN_ITEM_CODE);
     params.append('quantity','1');
     params.append('main_cate_no','1');
     params.append('display_group','2');
+    params.append('basket_type','A0000');
     return fetch('/exec/front/order/basket/',{
       method:'POST',
       credentials:'include',
       headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},
       body:params.toString()
-    }).catch(function(){
+    }).then(function(res){
+      console.info('[mrs-p30] pen basket fallback response', { status: res && res.status });
+      return !!(res&&res.ok);
+    }).catch(function(err){
+      console.warn('[mrs-p30] pen basket fallback failed', err);
       return false;
     }).finally(function(){
       setTimeout(function(){_mrsPenBasketPending=false;},1200);
@@ -783,19 +861,19 @@
   var _mrsBaseUpdateSticky=mrsUpdateSticky;
   mrsUpdateSticky=function(count){
     _mrsBaseUpdateSticky(count);
-    if(!(count>0&&PRICE_BY_COUNT[count]&&_penAdded)) return;
+    if(!(count>0&&PRICE_BY_COUNT[count])) return;
     var pr=document.getElementById('mrsStickyPrice');
     var label=document.getElementById('mrsStickyLabel');
     if(!pr||!label) return;
-    var current=mrsParsePriceValue(mrsGetText(pr));
-    var total=current+MRS_PEN_PRICE;
+    var total=PRICE_BY_COUNT[count]+mrsGetExpectedAddonPrice();
     pr.textContent=total.toLocaleString('ko-KR')+'원';
-    label.textContent=count+'권 선택됨 · 추가상품 포함';
+    label.textContent=count+'권 선택됨'+(mrsGetExpectedAddonPrice()>0?' · 추가상품 포함':'');
   };
 
   var _mrsBaseDirectSubmit=mrsDirectSubmit;
   mrsDirectSubmit=function(type){
     var hasSelection=document.querySelectorAll('.mrs-card.selected').length>0;
+    if(hasSelection&&_penAdded) mrsSyncPenAddonSelection(true);
     _mrsBaseDirectSubmit(type);
     if(hasSelection&&_penAdded) setTimeout(mrsAddPenToBasket,1400);
   };
