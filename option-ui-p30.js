@@ -751,10 +751,13 @@
     #mrsOptionWrap .addon-meta{font-size:11.5px;color:#5B5349;line-height:1.55;margin-bottom:9px;text-align:left}\
     #mrsOptionWrap .addon-meta .usp{display:block;position:relative;padding-left:11px;white-space:nowrap}\
     #mrsOptionWrap .addon-meta .usp::before{content:"";position:absolute;left:0;top:7px;width:4px;height:4px;border-radius:50%;background:#C9A96E}\
-    #mrsOptionWrap .addon-price-line{display:flex;align-items:baseline;gap:6px;font-size:13px}\
-    #mrsOptionWrap .addon-price-line .strike{color:#8A8173;text-decoration:line-through;font-size:11px;font-weight:500;order:1}\
-    #mrsOptionWrap .addon-price-line .now{font-weight:800;color:#1C1A17;font-size:16px;order:2}\
-    #mrsOptionWrap .addon-price-line .save{font-size:10.5px;color:#D94A4A;font-weight:700}\
+    #mrsOptionWrap .addon-price-line{display:flex;flex-direction:column;align-items:flex-start;gap:4px}\
+    #mrsOptionWrap .addon-price-row1{display:flex;align-items:center;gap:6px;flex-wrap:nowrap}\
+    #mrsOptionWrap .addon-price-row2{display:flex;align-items:center;flex-wrap:nowrap;gap:6px}\
+    #mrsOptionWrap .addon-price-label{font-size:11px;color:#8A8173;font-weight:500;white-space:nowrap}\
+    #mrsOptionWrap .addon-price-line .strike{color:#8A8173;text-decoration:line-through;font-size:11px;font-weight:500;white-space:nowrap}\
+    #mrsOptionWrap .addon-price-line .now{font-weight:800;color:#1C1A17;font-size:17px;white-space:nowrap}\
+    #mrsOptionWrap .addon-price-line .save{font-size:12px;font-weight:800;color:#fff;background:#D94A4A;padding:3px 8px;border-radius:12px;white-space:nowrap;margin-left:2px}\
     #mrsOptionWrap .addon-toggle{background:#fff;color:#1C1A17;border:1.5px solid #1C1A17;border-radius:999px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;transition:background .15s ease,color .15s ease,border-color .15s ease;display:flex;align-items:center;gap:4px;min-height:40px;-webkit-tap-highlight-color:transparent}\
     #mrsOptionWrap .addon-toggle:hover{background:#FBF6ED}\
     #mrsOptionWrap .addon-toggle .ico{font-size:14px;line-height:1;font-weight:400;display:inline-block;transition:transform .25s cubic-bezier(0.34,1.56,0.64,1)}\
@@ -770,7 +773,7 @@
     #mrsOptionWrap .upsell-hint b{color:#1C1A17;font-weight:700}\
     #mrsOptionWrap .upsell-hint .arrow{color:#C9A96E;font-weight:700;font-size:13px;transition:transform .15s ease}\
     #mrsOptionWrap .upsell-hint:hover .arrow{transform:translateX(2px)}\
-    @media(max-width:767px){#mrsOptionWrap .addon{padding:12px;gap:10px}#mrsOptionWrap .addon-img{width:74px}#mrsOptionWrap .addon-title{font-size:13px}#mrsOptionWrap .addon-meta{font-size:11px}#mrsOptionWrap .addon-price-line .now{font-size:15px}}\
+    @media(max-width:767px){#mrsOptionWrap .addon{padding:12px;gap:10px}#mrsOptionWrap .addon-img{width:74px}#mrsOptionWrap .addon-title{font-size:13px}#mrsOptionWrap .addon-meta{font-size:11px}#mrsOptionWrap .addon-price-line .now{font-size:17px}#mrsOptionWrap .addon-price-row2{gap:6px}}\
     ';
     document.head.appendChild(penCss);
   }
@@ -798,9 +801,15 @@
             <span class="usp">글로벌 3대 디자인 어워드</span>\
           </div>\
           <div class="addon-price-line">\
-            <span class="strike">15,000원</span>\
-            <span class="now">9,900원</span>\
-            <span class="save">-34%</span>\
+            <div class="addon-price-row1">\
+              <span class="addon-price-label">정상가</span>\
+              <span class="strike">15,000원</span>\
+            </div>\
+            <div class="addon-price-row2">\
+              <span class="addon-price-label">같이 구매 시</span>\
+              <span class="now">9,900원</span>\
+              <span class="save">-34% 할인</span>\
+            </div>\
           </div>\
         </div>\
         <button class="addon-toggle" id="penToggle" type="button">\
@@ -818,15 +827,18 @@
     if(!penCard||!penToggle) return;
     function togglePen(e){
       if(e) e.stopPropagation();
+      var count=document.querySelectorAll('.mrs-card.selected').length;
+      var prevAdded=_penAdded;
+      var prevTotal=(count>0&&PRICE_BY_COUNT[count])?(PRICE_BY_COUNT[count]+(prevAdded?MRS_PEN_PRICE:0)):0;
       _penAdded=!_penAdded;
+      var nextTotal=(count>0&&PRICE_BY_COUNT[count])?(PRICE_BY_COUNT[count]+(_penAdded?MRS_PEN_PRICE:0)):0;
       penCard.classList.toggle('selected',_penAdded);
       penCard.classList.remove('bounce');
       void penCard.offsetWidth;
       penCard.classList.add('bounce');
-      var count=document.querySelectorAll('.mrs-card.selected').length;
       mrsSyncPenAddonSelection(_penAdded);
       if(count>0){
-        mrsRefreshMainPrice(count);
+        mrsAnimatePrice(prevTotal,nextTotal,350);
         mrsUpdateSticky(count);
       }
     }
