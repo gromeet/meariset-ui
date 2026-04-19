@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 112; /* 버전 번호 (11.2 = 112) — p30 one-book benefit copy polish */
+  var MRS_VERSION = 113; /* 버전 번호 (11.3 = 113) — p30 one-book benefit copy tone polish */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -228,7 +228,7 @@
   var html = '\
   <div class="mrs-option-wrap" id="mrsOptionWrap">\
     <div class="mrs-cafe-banner">\
-      <span class="mrs-cafe-text">☕ 6주 인증 혜택은 <span class="mrs-cafe-free">시즌 1권만 선택할 수 있어요</span></span>\
+      <span class="mrs-cafe-text">☕ 6주 인증 혜택은 <span class="mrs-cafe-free">시즌 1권에만 적용돼요</span></span>\
     </div>\
     <div class="mrs-grid">\
       <div class="mrs-card" data-season="1" onclick="mrsToggle(this)">\
@@ -294,7 +294,7 @@
   };
   var PRICE_BY_COUNT={1:20300};
   var INFO_BY_COUNT={
-    1:'<span class="mrs-info-tag best">6주 챌린지 인증 고객 전용</span><p class="mrs-info-price"><span id="mrsPriceNum">20,300</span>원 <span style="font-size:14px;font-weight:400;color:#e65100">+ 배송비 3,000원</span></p><p class="mrs-info-hint" style="cursor:default;animation:none">6주 인증 혜택은 시즌 1권만 적용돼요</p>'
+    1:'<span class="mrs-info-tag best">6주 챌린지 인증 고객 전용</span><p class="mrs-info-price"><span id="mrsPriceNum">20,300</span>원 <span style="font-size:14px;font-weight:400;color:#e65100">+ 배송비 3,000원</span></p><p class="mrs-info-hint" style="cursor:default;animation:none">6주 인증 혜택은 시즌 1권에만 적용돼요</p>'
   };
   var TAGLINE={1:'"시즌 1로 <em>다시 시작하고 싶은 분</em>"',2:'"시즌 2를 <em>이어가고 싶은 분</em>"',3:'"시즌 3를 <em>집중해서 완주하고 싶은 분</em>"',4:'"시즌 4로 <em>마무리하고 싶은 분</em>"'};
 
