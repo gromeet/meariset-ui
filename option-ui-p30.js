@@ -856,6 +856,155 @@
     });
   }
 
+  function mrsPostBasketForm(params){
+    return fetch('/exec/front/order/basket/',{
+      method:'POST',
+      credentials:'include',
+      headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},
+      body:new URLSearchParams(params).toString()
+    }).then(function(res){
+      return res.text().then(function(txt){
+        try{return { ok:res.ok, status:res.status, json:JSON.parse(txt) };}
+        catch(_){ return { ok:res.ok, status:res.status, text:txt }; }
+      });
+    });
+  }
+
+  function mrsBuildNoteBasketParams(optionValue){
+    var titleEl=document.querySelector('.headingArea h2');
+    var productName=titleEl?mrsGetText(titleEl):'[6주 인증 30% 할인] 메아리셋 90일 목표달성 다이어리 - 뇌과학 기반 9단계 습관 시스템';
+    return {
+      'selected_item[]':'1||'+optionValue,
+      relation_product:'yes',
+      is_individual:'F',
+      product_no:'30',
+      product_name:productName,
+      main_cate_no:'59',
+      display_group:'0',
+      option_type:'T',
+      product_min:'1',
+      command:'add',
+      has_option:'T',
+      product_price:String(PRICE_BY_COUNT[1]||20300),
+      multi_option_schema:'',
+      multi_option_data:'',
+      delvType:'A',
+      redirect:'2',
+      product_max_type:'F',
+      product_max:'-1',
+      basket_type:'A0000',
+      ch_ref:'',
+      prd_detail_ship_type:'',
+      quantity:'1',
+      is_direct_buy:'F',
+      'optionids[]':'option1',
+      'needed[]':'option1',
+      option1:optionValue,
+      is_cultural_tax:'F'
+    };
+  }
+
+  function mrsBuildPenBasketParams(){
+    return {
+      'selected_item[]':'1||'+MRS_PEN_ITEM_CODE,
+      relation_product:'yes',
+      is_individual:'F',
+      product_no:String(MRS_PEN_PRODUCT_NO),
+      product_name:'[메아리셋 전용] 한정판 클립펜',
+      main_cate_no:'43',
+      display_group:'1',
+      option_type:'T',
+      product_min:'1',
+      command:'add',
+      has_option:'F',
+      product_price:String(MRS_PEN_PRICE),
+      multi_option_schema:'',
+      multi_option_data:'',
+      delvType:'A',
+      redirect:'2',
+      product_max_type:'F',
+      product_max:'-1',
+      basket_type:'A0000',
+      ch_ref:'',
+      prd_detail_ship_type:'',
+      quantity:'1',
+      is_direct_buy:'F',
+      is_cultural_tax:'F'
+    };
+  }
+
+  function mrsFetchBasketProductMeta(){
+    return fetch('/order/basket.html',{credentials:'include'}).then(function(res){return res.text();}).then(function(html){
+      var matches=[...html.matchAll(/aBasketProductData\[(\d+)\]\s*=\s*(\{[\s\S]*?\});/g)];
+      var list=[];
+      for(var i=0;i<matches.length;i++){
+        try{
+          var obj=JSON.parse(matches[i][2]);
+          list.push({
+            seq:matches[i][1],
+            product_no:String(obj.product_no),
+            opt_id:String(obj.opt_id||''),
+            basket_prd_no:String(obj.basket_prd_no),
+            custom_data_idx:obj.custom_data_idx==null?'null':String(obj.custom_data_idx),
+            delvtype:String(obj.delvtype||'A')
+          });
+        }catch(e){}
+      }
+      return list;
+    });
+  }
+
+  function mrsBuildCheckedProduct(list, optionValue, includePen){
+    var targets=[{product_no:'30', opt_id:String(optionValue).replace(/^P00000BE/,'')}];
+    if(includePen) targets.unshift({product_no:String(MRS_PEN_PRODUCT_NO), opt_id:String(MRS_PEN_ITEM_CODE).replace(/^P00000BW/,'')});
+    var out=[];
+    for(var i=0;i<targets.length;i++){
+      var target=targets[i];
+      var matches=list.filter(function(item){return item.product_no===target.product_no && item.opt_id===target.opt_id;});
+      matches.sort(function(a,b){return Number(b.basket_prd_no||0)-Number(a.basket_prd_no||0);});
+      if(!matches.length) return '';
+      var item=matches[0];
+      out.push([item.product_no,item.opt_id,'F',item.basket_prd_no,item.custom_data_idx,item.delvtype].join(':'));
+    }
+    return out.join(',');
+  }
+
+  function mrsGoOrderform(checkedProduct){
+    var base='/order/orderform.html?basket_type=all_buy&delvtype=A';
+    var isGuest=!!document.querySelector('a[href*="/member/login.html"], .xans-layout-statelogoff');
+    if(isGuest){
+      location.href='/member/login.html?noMember=1&returnUrl='+encodeURIComponent(base)+'&checked_product='+encodeURIComponent(checkedProduct);
+      return;
+    }
+    location.href=base+'&checked_product='+encodeURIComponent(checkedProduct);
+  }
+
+  function mrsCheckoutSelectedItems(){
+    var optionValues=mrsGetSelectedSeasonValues();
+    if(!optionValues||!optionValues.length){alert('선택한 조합을 찾을 수 없습니다. 다시 시도해주세요.');return;}
+    var optionValue=optionValues[0];
+    _mrsPenBasketPending=true;
+    mrsPostBasketForm(mrsBuildNoteBasketParams(optionValue)).then(function(noteRes){
+      console.info('[mrs-p30] note basket add', noteRes);
+      if(_penAdded) return mrsPostBasketForm(mrsBuildPenBasketParams()).then(function(penRes){ console.info('[mrs-p30] pen basket add', penRes); return true; });
+      return true;
+    }).then(function(){
+      return mrsFetchBasketProductMeta();
+    }).then(function(list){
+      var checkedProduct=mrsBuildCheckedProduct(list, optionValue, _penAdded);
+      if(!checkedProduct){
+        alert('함께 구매 상품을 결제 목록에 담지 못했습니다. 다시 시도해주세요.');
+        return;
+      }
+      mrsGoOrderform(checkedProduct);
+    }).catch(function(err){
+      console.warn('[mrs-p30] checkout flow failed', err);
+      alert('결제 준비 중 문제가 발생했습니다. 다시 시도해주세요.');
+    }).finally(function(){
+      _mrsPenBasketPending=false;
+    });
+  }
+
   function mrsAddPenToBasket(){
     if(!_penAdded||_mrsPenBasketPending) return Promise.resolve(false);
     _mrsPenBasketPending=true;
@@ -865,21 +1014,9 @@
       _mrsPenBasketPending=false;
       return Promise.resolve(true);
     }
-    var params=new URLSearchParams();
-    params.append('product_no',MRS_PEN_PRODUCT_NO);
-    params.append('item_code',MRS_PEN_ITEM_CODE);
-    params.append('quantity','1');
-    params.append('main_cate_no','1');
-    params.append('display_group','2');
-    params.append('basket_type','A0000');
-    return fetch('/exec/front/order/basket/',{
-      method:'POST',
-      credentials:'include',
-      headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},
-      body:params.toString()
-    }).then(function(res){
-      console.info('[mrs-p30] pen basket fallback response', { status: res && res.status });
-      return !!(res&&res.ok);
+    return mrsPostBasketForm(mrsBuildPenBasketParams()).then(function(res){
+      console.info('[mrs-p30] pen basket fallback response', res);
+      return !!(res&&((res.json&&Number(res.json.result)===0)||res.ok));
     }).catch(function(err){
       console.warn('[mrs-p30] pen basket fallback failed', err);
       return false;
@@ -903,12 +1040,17 @@
   var _mrsBaseDirectSubmit=mrsDirectSubmit;
   mrsDirectSubmit=function(type){
     var hasSelection=document.querySelectorAll('.mrs-card.selected').length>0;
+    if(type===1){
+      if(!hasSelection){alert('시즌을 먼저 선택해 주세요 😊');return;}
+      mrsCheckoutSelectedItems();
+      return;
+    }
     if(hasSelection&&_penAdded) mrsSyncPenAddonSelection(true);
     _mrsBaseDirectSubmit(type);
     if(hasSelection&&_penAdded) setTimeout(mrsAddPenToBasket,3500);
   };
   window.mrsDirectSubmit=mrsDirectSubmit;
-  window.mrsStickyBuy=function(){mrsDirectSubmit(2);};
+  window.mrsStickyBuy=function(){mrsDirectSubmit(1);};
 
   var _mrsBaseEnsureUI=mrsEnsureUI;
   mrsEnsureUI=function(){
