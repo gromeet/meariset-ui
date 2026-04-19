@@ -259,39 +259,6 @@
       <p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p>\
       <p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>\
     </div>\
-    <div class="mrs-benefit-guide" id="mrsBenefitGuide">\
-      <div class="mrs-benefit-list">\
-        <div class="mrs-benefit-row" onclick="mrsBenefitSelect(1)">\
-          <span class="mrs-benefit-qty">1권</span>\
-          <span class="mrs-benefit-price">20,300원</span>\
-          <span class="mrs-benefit-unit">(20,300원/권)</span>\
-          <span class="mrs-benefit-discount">30%↓</span>\
-          <span class="mrs-benefit-badge popular">⭐ 가장 많이 선택</span>\
-        </div>\
-        <div class="mrs-benefit-row" onclick="mrsBenefitSelect(2)">\
-          <span class="mrs-benefit-qty">2권</span>\
-          <span class="mrs-benefit-price">34,300원</span>\
-          <span class="mrs-benefit-unit">(17,150원/권)</span>\
-          <span class="mrs-benefit-discount">30%↓</span>\
-          <span class="mrs-benefit-badge saving">💰 6,300원 절약</span>\
-        </div>\
-        <div class="mrs-benefit-row" onclick="mrsBenefitSelect(3)">\
-          <span class="mrs-benefit-qty">3권</span>\
-          <span class="mrs-benefit-price">48,300원</span>\
-          <span class="mrs-benefit-unit">(16,100원/권)</span>\
-          <span class="mrs-benefit-discount">30%↓</span>\
-          <span class="mrs-benefit-badge freeship">🚚 무료배송</span>\
-        </div>\
-        <div class="mrs-benefit-row best-deal" onclick="mrsBenefitSelect(4)">\
-          <span class="mrs-benefit-qty">4권</span>\
-          <span class="mrs-benefit-price">62,300원</span>\
-          <span class="mrs-benefit-unit">(15,575원/권)</span>\
-          <span class="mrs-benefit-discount">30%↓</span>\
-          <span class="mrs-benefit-badge lowest">🏆 최저가+무배</span>\
-        </div>\
-      </div>\
-      <p class="mrs-benefit-coupon">💳 회원가입 시 <span class="mrs-coupon-amount">3,000원 웰컴쿠폰</span> 지급!</p>\
-    </div>\
   </div>\
   <div class="mrs-toast" id="mrsToast"></div>\
   <div class="mrs-sticky" id="mrsStickyBar">\
@@ -324,15 +291,11 @@
     '3':'P00000BE000U',
     '4':'P00000BE000V'
   };
-  var PRICE_BY_COUNT={1:20300,2:34300,3:48300,4:62300};
+  var PRICE_BY_COUNT={1:20300};
   var INFO_BY_COUNT={
-    1:'<span class="mrs-info-tag best">⭐ 가장 많이 선택</span><p class="mrs-info-price"><span id="mrsPriceNum">20,300</span>원 <span style="font-size:14px;font-weight:400;color:#e65100">+ 배송비 3,000원</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">💡 1권 더 담으면 6,300원 절약</p>',
-    2:'<span class="mrs-info-tag best">💰 6,300원 절약</span><p class="mrs-info-price"><span id="mrsPriceNum">34,300</span>원 <span style="font-size:14px;font-weight:400;color:#e65100">+ 배송비 3,000원</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">💡 1권만 더 담으면 배송비 무료</p>',
-    3:'<span class="mrs-info-tag best">🚚 배송비 무료</span><p class="mrs-info-price"><span id="mrsPriceNum">48,300</span>원 <span style="font-size:14px;font-weight:400;color:#777">(권당 16,100원)</span></p><p class="mrs-info-hint" onclick="mrsHintAdd()">🎁 1권만 더 담으면 최저가 + 한정판 사은품</p>',
-    4:'<span class="mrs-info-tag lowest">🏆 최저가 + 한정판 사은품</span><p class="mrs-info-price"><span id="mrsPriceNum">62,300</span>원 <span style="font-size:14px;font-weight:400;color:#777">(권당 15,575원)</span></p><p class="mrs-info-hint" style="cursor:default;animation:none">365일 메아리셋 완성 🎉</p>'
+    1:'<span class="mrs-info-tag best">6주 챌린지 인증 고객 전용</span><p class="mrs-info-price"><span id="mrsPriceNum">20,300</span>원 <span style="font-size:14px;font-weight:400;color:#e65100">+ 배송비 3,000원</span></p><p class="mrs-info-hint" style="cursor:default;animation:none">원하는 시즌 1권만 선택 가능</p>'
   };
-  var TAGLINE={1:'"작심삼일을 <em>끝내고 싶은 분</em>"',2:'"180일, <em>습관으로 만들고 싶은 분</em>"',3:'"9개월, <em>진짜 달라지고 싶은 분</em>"',4:'"한 해 전체를 <em>내 것으로 만들고 싶은 분</em>"'};
-  var PRESET_BY_COUNT={1:'1',2:'1,2',3:'1,2,3',4:'1,2,3,4'};
+  var TAGLINE={1:'"시즌 1로 <em>다시 시작하고 싶은 분</em>"',2:'"시즌 2를 <em>이어가고 싶은 분</em>"',3:'"시즌 3를 <em>집중해서 완주하고 싶은 분</em>"',4:'"시즌 4로 <em>마무리하고 싶은 분</em>"'};
 
   var MRS_PEN_PRICE=9900;
   var MRS_PEN_PRODUCT_NO='48';
@@ -519,49 +482,25 @@
   }
 
   window.mrsToggle=function(card){
-    card.classList.toggle('selected');
-    var count=document.querySelectorAll('.mrs-card.selected').length,prevPrice=PRICE_BY_COUNT[_prevCount]||0;
-    var info=INFO_BY_COUNT[count];
-    document.getElementById('mrsInfo').innerHTML=info?info:'<p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p><p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>';
-    if(info&&PRICE_BY_COUNT[count]) requestAnimationFrame(function(){mrsAnimatePrice(prevPrice,PRICE_BY_COUNT[count]+mrsGetExpectedAddonPrice(),350);});
-    if(_prevCount<3&&count>=3&&count<4) setTimeout(function(){mrsShowToast('🎉 배송비 무료 달성!','green');},150);
-    if(_prevCount<4&&count>=4) setTimeout(function(){mrsShowToast('🏆 최저가 달성!','red');},150);
-    mrsUpdateTagline(count);mrsUpdateSticky(count);mrsUpdateBenefit();_prevCount=count;
-  };
-  window.mrsHintAdd=function(){var cards=document.querySelectorAll('.mrs-card:not(.selected)');if(cards.length)cards[0].click();};
-
-  function mrsUpdateBenefit(){
-    var rows=document.querySelectorAll('.mrs-benefit-row');
-    var count=document.querySelectorAll('.mrs-card.selected').length;
-    for(var i=0;i<rows.length;i++) rows[i].classList.remove('active');
-    if(count >= 1 && count <= 4){
-      var target=rows[count-1];
-      if(target) target.classList.add('active');
-    }
-  }
-
-  window.mrsBenefitSelect=function(count){
-    var currentKey=mrsGetComboKey();
-    var targetKey=PRESET_BY_COUNT[count];
+    var wasSelected=card.classList.contains('selected');
     var allCards=document.querySelectorAll('.mrs-card');
     for(var i=0;i<allCards.length;i++) allCards[i].classList.remove('selected');
-    if(currentKey===targetKey){
-      var emptyInfo=document.getElementById('mrsInfo');
-      if(emptyInfo) emptyInfo.innerHTML='<p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p><p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>';
-      mrsUpdateTagline(0);mrsUpdateSticky(0);mrsUpdateBenefit();_prevCount=0;
-      return;
+    var selectedSeason=0;
+    if(!wasSelected){
+      card.classList.add('selected');
+      selectedSeason=parseInt(card.getAttribute('data-season'),10)||0;
     }
-    for(var s=1;s<=count;s++){
-      var card=document.querySelector('.mrs-card[data-season="'+s+'"]');
-      if(card) card.classList.add('selected');
-    }
-    var prevPrice=PRICE_BY_COUNT[_prevCount]||0;
-    var info=INFO_BY_COUNT[count];
     var infoEl=document.getElementById('mrsInfo');
-    if(infoEl) infoEl.innerHTML=info||'<p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p><p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>';
-    if(info&&PRICE_BY_COUNT[count]) requestAnimationFrame(function(){mrsAnimatePrice(prevPrice,PRICE_BY_COUNT[count]+mrsGetExpectedAddonPrice(),350);});
-    mrsUpdateTagline(count);mrsUpdateSticky(count);mrsUpdateBenefit();_prevCount=count;
+    if(infoEl) infoEl.innerHTML=selectedSeason?INFO_BY_COUNT[1]:'<p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p><p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>';
+    if(selectedSeason&&PRICE_BY_COUNT[1]) requestAnimationFrame(function(){mrsAnimatePrice(PRICE_BY_COUNT[_prevCount]||0,PRICE_BY_COUNT[1]+mrsGetExpectedAddonPrice(),350);});
+    mrsUpdateTagline(selectedSeason);mrsUpdateSticky(selectedSeason?1:0);mrsUpdateBenefit();_prevCount=selectedSeason?1:0;
+    mrsSyncNativeSelection(true);
+    setTimeout(mrsSyncStickySoon,120);
   };
+
+  function mrsUpdateBenefit(){}
+
+  window.mrsBenefitSelect=function(){};
 
   function mrsClearOptions(){
     var dels=document.querySelectorAll('#totalProducts .option_box_del, #totalProducts img[alt="삭제"]');
@@ -799,7 +738,7 @@
     #mrsOptionWrap .addon-section-label{font-size:13px;color:#1C1A17;font-weight:800;letter-spacing:.1px;margin:0 0 10px;padding-left:2px;display:flex;align-items:center;gap:6px}\
     #mrsOptionWrap .addon-section-label::before{content:"✦";color:#D94A4A;font-size:12px}\
     #mrsOptionWrap .bundle-reason{font-size:12px;color:#8A8173;line-height:1.45;margin:-4px 0 10px 2px;letter-spacing:-.1px}\
-    #mrsOptionWrap .addon{background:#fff;border:1px solid #E8DFD0;border-radius:12px;padding:14px;margin-bottom:12px;transition:border-color .18s ease,background .18s ease,transform .22s cubic-bezier(0.34,1.56,0.64,1);display:flex;align-items:center;gap:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;box-shadow:0 2px 10px rgba(28,26,23,.06)}\
+    #mrsOptionWrap .addon{background:#fff;border:1px solid #E8DFD0;border-radius:12px;padding:14px;margin-bottom:12px;transition:border-color .18s ease,background .18s ease,transform .22s cubic-bezier(0.34,1.56,0.64,1);display:flex;align-items:center;gap:12px;flex-wrap:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;box-shadow:0 2px 10px rgba(28,26,23,.06)}\
     #mrsOptionWrap .addon:hover{border-color:#D9CDB8}\
     #mrsOptionWrap .addon.selected{border-color:#1C1A17;background:#FBF6ED}\
     #mrsOptionWrap .addon.bounce{animation:cardBounce .32s cubic-bezier(0.34,1.56,0.64,1)}\
@@ -810,7 +749,7 @@
     #mrsOptionWrap .addon-title{font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:4px;line-height:1.25}\
     #mrsOptionWrap .addon-title .limit-tag{font-size:9px;font-weight:800;color:#7A5F28;border:1px solid #C9A96E;background:rgba(201,169,110,0.08);padding:2px 6px;border-radius:2px;letter-spacing:.8px;text-transform:uppercase;line-height:1.3;white-space:nowrap}\
     #mrsOptionWrap .addon-meta{font-size:11.5px;color:#5B5349;line-height:1.55;margin-bottom:9px;text-align:left}\
-    #mrsOptionWrap .addon-meta .usp{display:block;position:relative;padding-left:11px}\
+    #mrsOptionWrap .addon-meta .usp{display:block;position:relative;padding-left:11px;white-space:nowrap}\
     #mrsOptionWrap .addon-meta .usp::before{content:"";position:absolute;left:0;top:7px;width:4px;height:4px;border-radius:50%;background:#C9A96E}\
     #mrsOptionWrap .addon-price-line{display:flex;align-items:baseline;gap:6px;font-size:13px}\
     #mrsOptionWrap .addon-price-line .strike{color:#8A8173;text-decoration:line-through;font-size:11px;font-weight:500;order:1}\
@@ -838,7 +777,7 @@
 
   function mrsEnsurePenAddon(){
     var wrap=document.getElementById('mrsOptionWrap');
-    var guide=document.getElementById('mrsBenefitGuide');
+    var guide=document.getElementById('mrsBenefitGuide')||document.getElementById('mrsInfo');
     if(!wrap||!guide||document.getElementById('mrsPenAddonBlock')) return;
     guide.insertAdjacentHTML('afterend','\
     <div id="mrsPenAddonBlock">\
