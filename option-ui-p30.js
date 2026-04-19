@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 109; /* 버전 번호 (10.9 = 109) — p30 pen UI/price/basket sync fix */
+  var MRS_VERSION = 110; /* 버전 번호 (11.0 = 110) — p30 native multi-season submit restore */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -319,11 +319,10 @@
 
   /* ── 로직 (동일) ── */
   var COMBO_MAP = {
-    '1':'P00000BB000D','2':'P00000BB000H','3':'P00000BB000I','4':'P00000BB000J',
-    '1,2':'P00000BB000E','1,3':'P00000BB000K','1,4':'P00000BB000L',
-    '2,3':'P00000BB000M','2,4':'P00000BB000N','3,4':'P00000BB000O',
-    '1,2,3':'P00000BB000F','1,2,4':'P00000BB000P','1,3,4':'P00000BB000Q',
-    '2,3,4':'P00000BB000R','1,2,3,4':'P00000BB000G'
+    '1':'P00000BE000L',
+    '2':'P00000BE000T',
+    '3':'P00000BE000U',
+    '4':'P00000BE000V'
   };
   var PRICE_BY_COUNT={1:20300,2:34300,3:48300,4:62300};
   var INFO_BY_COUNT={
@@ -586,6 +585,23 @@
     }
     var sel=document.getElementById('product_option_id1');if(sel)sel.value='*';
   }
+  function mrsGetSelectedSeasonValues(){
+    var cards=document.querySelectorAll('.mrs-card.selected');
+    var seasons=[];
+    for(var i=0;i<cards.length;i++){
+      var season=cards[i].getAttribute('data-season');
+      if(!season) continue;
+      seasons.push(season);
+    }
+    seasons.sort(function(a,b){ return parseInt(a,10)-parseInt(b,10); });
+    var values=[];
+    for(var j=0;j<seasons.length;j++){
+      var value=COMBO_MAP[seasons[j]];
+      if(!value) return null;
+      values.push(value);
+    }
+    return values;
+  }
   function mrsSelectOption(optionValue){
     var sel=document.getElementById('product_option_id1');if(!sel)return false;
     var prodOpt=document.querySelector('.productOption');
@@ -595,12 +611,68 @@
     setTimeout(function(){if(prodOpt)prodOpt.setAttribute('style','position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;');},300);
     return true;
   }
+  function mrsWaitForNativeOptionRows(expectedCount, done){
+    var waitCount=0;
+    var check=function(){
+      var tp=document.getElementById('totalProducts');
+      var rowCount=0;
+      if(tp){
+        var tbody=tp.querySelector('tbody');
+        if(tbody){
+          var rows=tbody.querySelectorAll('tr');
+          for(var i=0;i<rows.length;i++){
+            if(rows[i].classList.contains('add_product')) continue;
+            if(rows[i].querySelector('th')) continue;
+            rowCount++;
+          }
+        }
+        if(!rowCount&&tp.querySelector('.option_box')) rowCount=tp.querySelectorAll('.option_box').length||1;
+      }
+      if(rowCount>=expectedCount || waitCount>=20){ done(rowCount>=expectedCount); return; }
+      waitCount++;
+      setTimeout(check,200);
+    };
+    setTimeout(check,220);
+  }
+  function mrsBuildNativeOptionRows(optionValues, done){
+    if(!optionValues||!optionValues.length){ done(false); return; }
+    var idx=0;
+    var addNext=function(){
+      if(idx>=optionValues.length){
+        mrsWaitForNativeOptionRows(optionValues.length, done);
+        return;
+      }
+      if(!mrsSelectOption(optionValues[idx])){ done(false); return; }
+      idx++;
+      setTimeout(addNext,320);
+    };
+    addNext();
+  }
+  function mrsFinalizeSubmit(type, restoreFns){
+    var _origCheck=window.checkOptionRequired;
+    window.checkOptionRequired=function(){return true;};
+    try{
+      if(typeof product_submit!=='undefined'){
+        var btnEl=type===2?document.querySelector('button.actionCart'):document.querySelector('a.btnSubmit.gFull');
+        product_submit(type,'/exec/front/order/basket/',btnEl||null);
+      }
+    }catch(e){
+      console.warn('[mrs-p30] product_submit failed', e);
+    }
+    setTimeout(function(){
+      _mrsSubmitting=false;
+      window.alert=restoreFns.alert;
+      window.confirm=restoreFns.confirm;
+      if(_origCheck) window.checkOptionRequired=_origCheck;
+      else delete window.checkOptionRequired;
+    },3000);
+  }
 
   function mrsDirectSubmit(type){
     var count=document.querySelectorAll('.mrs-card.selected').length;
     if(!count){alert('시즌을 먼저 선택해 주세요 😊');return;}
-    var key=mrsGetComboKey(),optVal=COMBO_MAP[key];
-    if(!optVal){alert('선택한 조합을 찾을 수 없습니다. 다시 시도해주세요.');return;}
+    var optionValues=mrsGetSelectedSeasonValues();
+    if(!optionValues||!optionValues.length){alert('선택한 조합을 찾을 수 없습니다. 다시 시도해주세요.');return;}
     _mrsSubmitting=true;
     var _origAlert=window.alert;
     window.alert=function(msg){if(_mrsSubmitting&&(msg.indexOf('이미 선택')!==-1||msg.indexOf('삭제')!==-1||msg.indexOf('필수 옵션')!==-1))return;return _origAlert.apply(this,arguments);};
@@ -608,16 +680,9 @@
     window.confirm=function(msg){if(_mrsSubmitting&&msg.indexOf('함께 구매')!==-1)return true;return _origConfirm.apply(this,arguments);};
     mrsClearOptions();
     setTimeout(function(){
-      mrsSelectOption(optVal);
-      var waitCount=0;
-      var waitForOption=function(){
-        var tp=document.getElementById('totalProducts'),hasItem=tp&&tp.querySelector('tbody tr, .option_box');
-        if(!hasItem&&waitCount<15){waitCount++;setTimeout(waitForOption,200);return;}
-        var _origCheck=window.checkOptionRequired;window.checkOptionRequired=function(){return true;};
-        try{if(typeof product_submit!=='undefined'){var btnEl=type===2?document.querySelector('a.btnSubmit.gFull'):document.querySelector('button.actionCart');product_submit(type,'/exec/front/order/basket/',btnEl||null);}}catch(e){console.warn('[mrs-p30] product_submit failed', e);}
-        setTimeout(function(){_mrsSubmitting=false;window.alert=_origAlert;window.confirm=_origConfirm;if(_origCheck)window.checkOptionRequired=_origCheck;else delete window.checkOptionRequired;},3000);
-      };
-      setTimeout(waitForOption,600);
+      mrsBuildNativeOptionRows(optionValues,function(){
+        mrsFinalizeSubmit(type,{alert:_origAlert,confirm:_origConfirm});
+      });
     },200);
   }
   window.mrsDirectSubmit=mrsDirectSubmit;
@@ -649,8 +714,15 @@
           var count=document.querySelectorAll('.mrs-card.selected').length;
           if(!count){e.preventDefault();e.stopImmediatePropagation();alert('시즌을 먼저 선택해 주세요 😊');return;}
           e.preventDefault();e.stopImmediatePropagation();
-          var clickTarget=el;mrsClearOptions();
-          setTimeout(function(){mrsSelectOption(COMBO_MAP[mrsGetComboKey()]);setTimeout(function(){_mrsPayBypass=true;clickTarget.click();},800);},200);
+          var clickTarget=el;
+          var optionValues=mrsGetSelectedSeasonValues();
+          if(!optionValues||!optionValues.length){alert('선택한 조합을 찾을 수 없습니다. 다시 시도해주세요.');return;}
+          mrsClearOptions();
+          setTimeout(function(){
+            mrsBuildNativeOptionRows(optionValues,function(){
+              setTimeout(function(){_mrsPayBypass=true;clickTarget.click();},500);
+            });
+          },200);
           return;
         }
         el=el.parentElement;depth++;
