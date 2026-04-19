@@ -305,7 +305,7 @@
 
   var _prevCount=0,_toastTimer=null,_mrsSubmitting=false,_mrsStickyTimer=null,_mrsNativeObserver=null;
 
-  var _penAdded=false,_mrsPenBasketPending=false;
+  var _penAdded=false,_mrsPenBasketPending=false,_mrsPenSyncPending=false,_mrsPenSyncTimer=null,_mrsPenSyncToken=0,_mrsPenSyncStartedAt=0;
 
   function mrsTriggerNativeChange(el){
     if(!el) return;
@@ -334,22 +334,89 @@
     var data=mrsGetPenAddonData();
     return !!(data&&data.select&&String(data.select.value||'').trim()===String(data.value||'').trim());
   }
-  function mrsSyncPenAddonSelection(enable){
+  function mrsIsPenAddonSyncReady(enable, data){
+    var current=data&&data.select?data:mrsGetPenAddonData();
+    if(!current||!current.select) return false;
+    var currentValue=String(current.select.value||'').trim();
+    var targetValue=String(current.value||'').trim();
+    if(enable) return currentValue===targetValue;
+    return currentValue==='*' || !mrsHasNativePenSelected();
+  }
+  function mrsStartPenAddonSyncMonitor(enable){
+    var syncToken=++_mrsPenSyncToken;
+    var startedAt=Date.now();
+    var readyAfter=startedAt+320;
+    var deadline=startedAt+1400;
+    _mrsPenSyncPending=true;
+    _mrsPenSyncStartedAt=startedAt;
+    var check=function(){
+      if(syncToken!==_mrsPenSyncToken) return;
+      var now=Date.now();
+      var ready=now>=readyAfter && mrsIsPenAddonSyncReady(enable);
+      if(ready || now>=deadline){
+        _mrsPenSyncPending=false;
+        console[ready?'info':'warn']('[mrs-p30] pen addon sync settled', {
+          enable: enable,
+          ready: ready,
+          selectValue: (mrsGetPenAddonData()||{}).select ? String(mrsGetPenAddonData().select.value||'').trim() : '',
+          pendingMs: now-startedAt
+        });
+        return;
+      }
+      setTimeout(check,60);
+    };
+    setTimeout(check,60);
+  }
+  function mrsWaitForPenAddonSync(enable, done, reason){
+    if(typeof done!=='function') return;
+    var deadline=Date.now()+1600;
+    var check=function(){
+      var ready=mrsIsPenAddonSyncReady(enable);
+      if((!_mrsPenSyncPending && ready) || Date.now()>=deadline){
+        console[ready?'info':'warn']('[mrs-p30] pen addon sync wait complete', {
+          enable: enable,
+          ready: ready,
+          reason: reason||'',
+          pending: _mrsPenSyncPending,
+          selectValue: (mrsGetPenAddonData()||{}).select ? String(mrsGetPenAddonData().select.value||'').trim() : ''
+        });
+        done(ready);
+        return;
+      }
+      setTimeout(check,50);
+    };
+    setTimeout(check,10);
+  }
+  function mrsSyncPenAddonSelection(enable, done, reason){
     var data=mrsGetPenAddonData();
-    if(!data||!data.select) return false;
+    if(!data||!data.select){
+      console.warn('[mrs-p30] pen addon sync skipped: native addon select not found', { enable: enable, reason: reason||'' });
+      if(typeof done==='function') done(false);
+      return false;
+    }
     var select=data.select;
     var before=String(select.value||'').trim();
     var next=enable?String(data.value||'').trim():'*';
-    if(before===next) return true;
+    if(before===next){
+      console.info('[mrs-p30] pen addon sync skipped: already matched', { enable: enable, value: next, reason: reason||'', pending: _mrsPenSyncPending });
+      if(typeof done==='function'){
+        if(_mrsPenSyncPending) mrsWaitForPenAddonSync(enable, done, reason||'join-pending');
+        else done(mrsIsPenAddonSyncReady(enable, data));
+      }
+      return true;
+    }
     var prodOpt=document.querySelector('.productOption');
     if(prodOpt)prodOpt.setAttribute('style','position:fixed!important;left:0!important;top:0!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0.01!important;z-index:-1!important;');
     select.value=next;
     mrsTriggerNativeChange(select);
-    setTimeout(function(){
+    if(_mrsPenSyncTimer) clearTimeout(_mrsPenSyncTimer);
+    _mrsPenSyncTimer=setTimeout(function(){
       if(prodOpt)prodOpt.setAttribute('style','position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;');
       mrsSyncStickySoon();
     },300);
-    console.info('[mrs-p30] pen addon sync', { enable: enable, value: next });
+    mrsStartPenAddonSyncMonitor(enable);
+    console.info('[mrs-p30] pen addon sync', { enable: enable, value: next, reason: reason||'' });
+    if(typeof done==='function') mrsWaitForPenAddonSync(enable, done, reason||'after-change');
     return true;
   }
   function mrsGetExpectedAddonPrice(){
@@ -682,10 +749,10 @@
     var _origConfirm=window.confirm;
     window.confirm=function(msg){if(_mrsSubmitting&&msg.indexOf('함께 구매')!==-1)return true;return _origConfirm.apply(this,arguments);};
     var finalize=function(){
-      mrsSyncPenAddonSelection(_penAdded);
-      setTimeout(function(){
+      mrsSyncPenAddonSelection(_penAdded,function(syncReady){
+        if(!syncReady) console.warn('[mrs-p30] submit continuing after pen addon sync timeout', { enable: _penAdded, type: type });
         mrsFinalizeSubmit(type,{alert:_origAlert,confirm:_origConfirm});
-      },10);
+      },'direct-submit');
     };
     if(mrsCountPreparedNativeRows()>=optionValues.length){
       finalize();
@@ -727,8 +794,11 @@
           var optionValues=mrsGetSelectedSeasonValues();
           if(!optionValues||!optionValues.length){alert('선택한 조합을 찾을 수 없습니다. 다시 시도해주세요.');return;}
           var fastClick=function(){
-            mrsSyncPenAddonSelection(_penAdded);
-            setTimeout(function(){_mrsPayBypass=true;clickTarget.click();},10);
+            mrsSyncPenAddonSelection(_penAdded,function(syncReady){
+              if(!syncReady) console.warn('[mrs-p30] pay click continuing after pen addon sync timeout', { enable: _penAdded });
+              _mrsPayBypass=true;
+              clickTarget.click();
+            },'pay-bypass');
           };
           if(mrsCountPreparedNativeRows()>=optionValues.length){
             fastClick();
