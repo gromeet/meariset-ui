@@ -486,13 +486,18 @@
     var allCards=document.querySelectorAll('.mrs-card');
     for(var i=0;i<allCards.length;i++) allCards[i].classList.remove('selected');
     var selectedSeason=0;
+    var prevTotal=PRICE_BY_COUNT[_prevCount]?PRICE_BY_COUNT[_prevCount]+mrsGetExpectedAddonPrice():0;
     if(!wasSelected){
       card.classList.add('selected');
       selectedSeason=parseInt(card.getAttribute('data-season'),10)||0;
     }
     var infoEl=document.getElementById('mrsInfo');
     if(infoEl) infoEl.innerHTML=selectedSeason?INFO_BY_COUNT[1]:'<p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p><p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>';
-    if(selectedSeason&&PRICE_BY_COUNT[1]) requestAnimationFrame(function(){mrsAnimatePrice(PRICE_BY_COUNT[_prevCount]||0,PRICE_BY_COUNT[1]+mrsGetExpectedAddonPrice(),350);});
+    if(selectedSeason&&PRICE_BY_COUNT[1]){
+      var priceEl=document.getElementById('mrsPriceNum');
+      if(priceEl) priceEl.textContent=prevTotal.toLocaleString('ko-KR');
+      requestAnimationFrame(function(){mrsAnimatePrice(prevTotal,PRICE_BY_COUNT[1]+mrsGetExpectedAddonPrice(),350);});
+    }
     mrsUpdateTagline(selectedSeason);mrsUpdateSticky(selectedSeason?1:0);mrsUpdateBenefit();_prevCount=selectedSeason?1:0;
     mrsSyncNativeSelection(true);
     setTimeout(mrsSyncStickySoon,120);
@@ -774,7 +779,7 @@
     #mrsOptionWrap .upsell-hint b{color:#1C1A17;font-weight:700}\
     #mrsOptionWrap .upsell-hint .arrow{color:#C9A96E;font-weight:700;font-size:13px;transition:transform .15s ease}\
     #mrsOptionWrap .upsell-hint:hover .arrow{transform:translateX(2px)}\
-    @media(min-width:768px){#mrsOptionWrap .addon-title-text{font-size:13px;white-space:nowrap}}\
+    @media(min-width:768px){#mrsOptionWrap .addon{gap:10px;padding:14px 16px 12px 14px}#mrsOptionWrap .addon-img{width:76px}#mrsOptionWrap .addon-info{margin-left:-6px}#mrsOptionWrap .addon-title-text{font-size:13px;white-space:nowrap}}\
     @media(max-width:767px){#mrsOptionWrap .addon{padding:12px;gap:10px}#mrsOptionWrap .addon-img{width:74px}#mrsOptionWrap .addon-title{font-size:13px}#mrsOptionWrap .addon-meta{font-size:11px}#mrsOptionWrap .addon-price-line .now{font-size:17px}#mrsOptionWrap .addon-price-row2{gap:6px}}\
     ';
     document.head.appendChild(penCss);
