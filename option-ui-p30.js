@@ -947,7 +947,7 @@
     var hasSelection=document.querySelectorAll('.mrs-card.selected').length>0;
     if(hasSelection&&_penAdded) mrsSyncPenAddonSelection(true);
     _mrsBaseDirectSubmit(type);
-    if(hasSelection&&_penAdded) setTimeout(mrsAddPenToBasket,1400);
+    if(hasSelection&&_penAdded) setTimeout(mrsAddPenToBasket,3500);
   };
   window.mrsDirectSubmit=mrsDirectSubmit;
   window.mrsStickyBuy=function(){mrsDirectSubmit(2);};
