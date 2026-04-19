@@ -737,7 +737,7 @@
     #mrsOptionWrap #mrsPenAddonBlock{margin-top:16px}\
     #mrsOptionWrap .addon-section-label{font-size:13px;color:#1C1A17;font-weight:800;letter-spacing:.1px;margin:0 0 10px;padding-left:2px;display:flex;align-items:center;gap:6px}\
     #mrsOptionWrap .addon-section-label::before{content:"✦";color:#D94A4A;font-size:12px}\
-    #mrsOptionWrap .bundle-reason{font-size:12px;color:#8A8173;line-height:1.45;margin:-4px 0 10px 2px;letter-spacing:-.1px}\
+    #mrsOptionWrap .bundle-reason{font-size:12px;color:#8A8173;line-height:1.45;margin:-4px 0 10px 2px;letter-spacing:-.1px;text-align:left;display:block;width:100%}\
     #mrsOptionWrap .addon{background:#fff;border:1px solid #E8DFD0;border-radius:12px;padding:14px;margin-bottom:12px;transition:border-color .18s ease,background .18s ease,transform .22s cubic-bezier(0.34,1.56,0.64,1);display:flex;align-items:center;gap:12px;flex-wrap:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;box-shadow:0 2px 10px rgba(28,26,23,.06)}\
     #mrsOptionWrap .addon:hover{border-color:#D9CDB8}\
     #mrsOptionWrap .addon.selected{border-color:#1C1A17;background:#FBF6ED}\
