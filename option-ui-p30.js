@@ -500,8 +500,8 @@
       requestAnimationFrame(function(){mrsAnimatePrice(prevTotal,PRICE_BY_COUNT[1]+mrsGetExpectedAddonPrice(),350);});
     }
     mrsUpdateTagline(selectedSeason);mrsUpdateSticky(selectedSeason?1:0);mrsUpdateBenefit();_prevCount=selectedSeason?1:0;
-    mrsSyncNativeSelection(true);
-    setTimeout(mrsSyncStickySoon,120);
+    mrsSyncNativeSelection();
+    setTimeout(mrsSyncStickySoon,40);
   };
 
   function mrsUpdateBenefit(){}
@@ -530,6 +530,49 @@
     }
     var sel=document.getElementById('product_option_id1');if(sel)sel.value='*';
   }
+
+  function mrsCountPreparedNativeRows(){
+    var tp=document.getElementById('totalProducts');
+    var rowCount=0;
+    if(tp){
+      var tbody=tp.querySelector('tbody');
+      if(tbody){
+        var rows=tbody.querySelectorAll('tr');
+        for(var i=0;i<rows.length;i++){
+          if(rows[i].classList.contains('add_product')) continue;
+          if(rows[i].querySelector('th')) continue;
+          rowCount++;
+        }
+      }
+      if(!rowCount&&tp.querySelector('.option_box')) rowCount=tp.querySelectorAll('.option_box').length||0;
+    }
+    return rowCount;
+  }
+
+  function mrsSyncNativeSelection(){
+    var optionValues=mrsGetSelectedSeasonValues();
+    if(!optionValues||!optionValues.length){
+      mrsClearOptions();
+      mrsSyncPenAddonSelection(false);
+      return;
+    }
+    var currentValues=[];
+    var mainSelect=document.getElementById('product_option_id1');
+    if(mainSelect && mainSelect.value && mainSelect.value!=='*') currentValues.push(mainSelect.value);
+    var preparedCount=mrsCountPreparedNativeRows();
+    if(preparedCount>=optionValues.length && currentValues[0]===optionValues[0]){
+      mrsSyncPenAddonSelection(_penAdded);
+      return;
+    }
+    mrsClearOptions();
+    setTimeout(function(){
+      mrsBuildNativeOptionRows(optionValues,function(){
+        mrsSyncPenAddonSelection(_penAdded);
+        setTimeout(mrsSyncStickySoon,40);
+      });
+    },0);
+  }
+
   function mrsGetSelectedSeasonValues(){
     var cards=document.querySelectorAll('.mrs-card.selected');
     var seasons=[];
@@ -638,13 +681,18 @@
     window.alert=function(msg){if(_mrsSubmitting&&(msg.indexOf('이미 선택')!==-1||msg.indexOf('삭제')!==-1||msg.indexOf('필수 옵션')!==-1))return;return _origAlert.apply(this,arguments);};
     var _origConfirm=window.confirm;
     window.confirm=function(msg){if(_mrsSubmitting&&msg.indexOf('함께 구매')!==-1)return true;return _origConfirm.apply(this,arguments);};
-    mrsClearOptions();
-    mrsBuildNativeOptionRows(optionValues,function(){
+    var finalize=function(){
       mrsSyncPenAddonSelection(_penAdded);
       setTimeout(function(){
         mrsFinalizeSubmit(type,{alert:_origAlert,confirm:_origConfirm});
-      },60);
-    });
+      },10);
+    };
+    if(mrsCountPreparedNativeRows()>=optionValues.length){
+      finalize();
+      return;
+    }
+    mrsSyncNativeSelection();
+    setTimeout(finalize,120);
   }
   window.mrsDirectSubmit=mrsDirectSubmit;
   window.mrsStickyBuy=function(){mrsDirectSubmit(1);};
@@ -678,11 +726,16 @@
           var clickTarget=el;
           var optionValues=mrsGetSelectedSeasonValues();
           if(!optionValues||!optionValues.length){alert('선택한 조합을 찾을 수 없습니다. 다시 시도해주세요.');return;}
-          mrsClearOptions();
-          mrsBuildNativeOptionRows(optionValues,function(){
+          var fastClick=function(){
             mrsSyncPenAddonSelection(_penAdded);
-            setTimeout(function(){_mrsPayBypass=true;clickTarget.click();},120);
-          });
+            setTimeout(function(){_mrsPayBypass=true;clickTarget.click();},10);
+          };
+          if(mrsCountPreparedNativeRows()>=optionValues.length){
+            fastClick();
+          }else{
+            mrsSyncNativeSelection();
+            setTimeout(fastClick,120);
+          }
           return;
         }
         el=el.parentElement;depth++;
