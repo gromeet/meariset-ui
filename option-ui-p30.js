@@ -716,9 +716,108 @@
     }
   }
 
+  function mrsFinishSubmitFlow(restoreFns, _origCheck){
+    _mrsSubmitting=false;
+    mrsSetStickyLoading(false);
+    window.alert=restoreFns.alert;
+    window.confirm=restoreFns.confirm;
+    if(_origCheck) window.checkOptionRequired=_origCheck;
+    else delete window.checkOptionRequired;
+  }
+
+  function mrsGetMainSelectedItem(){
+    var input=document.querySelector('#totalProducts input[name="item_code[]"]');
+    if(!input||!input.value) return '';
+    return '1||'+String(input.value||'').trim();
+  }
+
+  function mrsGetAddonSelectedItems(){
+    var inputs=document.querySelectorAll('#totalProducts input[name="basket_add_product[]"]');
+    var values=[];
+    for(var i=0;i<inputs.length;i++){
+      var val=String(inputs[i].value||'').trim();
+      if(val) values.push('1||'+val);
+    }
+    return values;
+  }
+
+  function mrsSubmitWithAddon(type, restoreFns, _origCheck){
+    var mainSelectedItem=mrsGetMainSelectedItem();
+    var addonSelectedItems=mrsGetAddonSelectedItems();
+    if(!mainSelectedItem){
+      console.warn('[mrs-p30] addon submit fallback: missing selected_item');
+      mrsFinishSubmitFlow(restoreFns, _origCheck);
+      restoreFns.alert('선택한 옵션 정보를 다시 불러오지 못했습니다. 다시 시도해주세요.');
+      return;
+    }
+    var params=new URLSearchParams();
+    params.append('selected_item[]',mainSelectedItem);
+    for(var i=0;i<addonSelectedItems.length;i++) params.append('selected_add_item[]',addonSelectedItems[i]);
+    params.append('relation_product','yes');
+    params.append('is_individual','F');
+    params.append('product_no','30');
+    params.append('product_name','[6주 인증 30% 할인] 메아리셋 90일 목표달성 다이어리 - 뇌과학 기반 9단계 습관 시스템');
+    params.append('main_cate_no','1');
+    params.append('display_group','2');
+    params.append('option_type','T');
+    params.append('product_min','1');
+    params.append('command','add');
+    params.append('has_option','T');
+    params.append('product_price','20300');
+    params.append('multi_option_schema','');
+    params.append('multi_option_data','');
+    params.append('delvType','A');
+    params.append('redirect','1');
+    params.append('product_max_type','F');
+    params.append('product_max','-1');
+    params.append('basket_type','A0000');
+    params.append('ch_ref','');
+    params.append('prd_detail_ship_type','');
+    params.append('quantity','1');
+    params.append('is_direct_buy','F');
+    params.append('optionids[]','option1');
+    params.append('needed[]','option1');
+    params.append('option1',String((document.querySelector('#totalProducts input[name="item_code[]"]')||{}).value||''));
+    params.append('quantity_override_flag','F');
+    params.append('is_cultural_tax','F');
+    console.info('[mrs-p30] addon manual submit', { type: type, mainSelectedItem: mainSelectedItem, addonCount: addonSelectedItems.length });
+    fetch('/exec/front/order/basket/',{
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'},
+      body:params.toString(),
+      credentials:'include'
+    }).then(function(res){
+      return res.text().then(function(text){ return { status: res.status, text: text, url: res.url }; });
+    }).then(function(payload){
+      var result=null;
+      try{ result=payload.text?JSON.parse(payload.text):null; }catch(e){}
+      console.info('[mrs-p30] addon manual submit result', { status: payload.status, result: result });
+      if(result&&result.result===0){
+        mrsFinishSubmitFlow(restoreFns, _origCheck);
+        if(type===1){
+          if(result.isLogin==='T') location.href='/order/orderform.html?basket_type=A0000&delvtype=A';
+          else location.href='/member/login.html?noMember=1&returnUrl=%2Forder%2Forderform.html%3Fbasket_type%3DA0000%26delvtype%3DA&delvtype=A';
+          return;
+        }
+        location.href='/order/basket.html';
+        return;
+      }
+      mrsFinishSubmitFlow(restoreFns, _origCheck);
+      restoreFns.alert(result&&result.alertMSG?result.alertMSG:'입력하신 정보가 올바르지 않습니다.');
+    }).catch(function(err){
+      console.warn('[mrs-p30] addon manual submit failed', err);
+      mrsFinishSubmitFlow(restoreFns, _origCheck);
+      restoreFns.alert('구매 정보를 전송하지 못했습니다. 다시 시도해주세요.');
+    });
+  }
+
   function mrsFinalizeSubmit(type, restoreFns){
     var _origCheck=window.checkOptionRequired;
     window.checkOptionRequired=function(){return true;};
+    if(_penAdded&&type===1){
+      mrsSubmitWithAddon(type, restoreFns, _origCheck);
+      return;
+    }
     try{
       if(typeof product_submit!=='undefined'){
         var btnEl=type===2?document.querySelector('button.actionCart'):document.querySelector('a.btnSubmit.gFull');
@@ -728,12 +827,7 @@
       console.warn('[mrs-p30] product_submit failed', e);
     }
     setTimeout(function(){
-      _mrsSubmitting=false;
-      mrsSetStickyLoading(false);
-      window.alert=restoreFns.alert;
-      window.confirm=restoreFns.confirm;
-      if(_origCheck) window.checkOptionRequired=_origCheck;
-      else delete window.checkOptionRequired;
+      mrsFinishSubmitFlow(restoreFns, _origCheck);
     },1800);
   }
 
