@@ -228,7 +228,7 @@
   var html = '\
   <div class="mrs-option-wrap" id="mrsOptionWrap">\
     <div class="mrs-cafe-banner">\
-      <span class="mrs-cafe-text">☕ 네이버카페 12주 인증 완료 시 <span class="mrs-cafe-free">다음 시즌 무료!</span></span>\
+      <span class="mrs-cafe-text">☕ 6주 인증 혜택은 <span class="mrs-cafe-free">시즌 1권만 선택할 수 있어요</span></span>\
     </div>\
     <div class="mrs-grid">\
       <div class="mrs-card" data-season="1" onclick="mrsToggle(this)">\
