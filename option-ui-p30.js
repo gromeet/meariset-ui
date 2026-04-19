@@ -755,9 +755,9 @@
     @keyframes cardBounce{0%{transform:scale(1)}40%{transform:scale(.975)}100%{transform:scale(1)}}\
     #mrsOptionWrap .addon-img{width:84px;flex-shrink:0;display:flex;align-items:center;justify-content:center}\
     #mrsOptionWrap .addon-img img{width:100%;height:auto;display:block}\
-    #mrsOptionWrap .addon-info{flex:1;min-width:0}\
+    #mrsOptionWrap .addon-info{flex:1;min-width:0;text-align:left}\
     #mrsOptionWrap .addon-head{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:4px}\
-    #mrsOptionWrap .addon-title{font-size:13.5px;font-weight:700;display:block;line-height:1.25;width:100%}\
+    #mrsOptionWrap .addon-title{font-size:13.5px;font-weight:700;display:block;line-height:1.25;width:100%;text-align:left}\
     #mrsOptionWrap .addon-title-text{white-space:nowrap;display:block}\
     #mrsOptionWrap .limit-tag{font-size:9px;font-weight:800;color:#7A5F28;border:1px solid #C9A96E;background:rgba(201,169,110,0.08);padding:2px 6px;border-radius:2px;letter-spacing:.8px;text-transform:uppercase;line-height:1.3;white-space:nowrap}\
     #mrsOptionWrap .addon-meta{font-size:11.5px;color:#5B5349;line-height:1.55;margin-bottom:9px;text-align:left}\
