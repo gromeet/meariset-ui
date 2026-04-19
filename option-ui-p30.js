@@ -756,9 +756,10 @@
     #mrsOptionWrap .addon-img{width:84px;flex-shrink:0;display:flex;align-items:center;justify-content:center}\
     #mrsOptionWrap .addon-img img{width:100%;height:auto;display:block}\
     #mrsOptionWrap .addon-info{flex:1;min-width:0}\
-    #mrsOptionWrap .addon-title{font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:4px;line-height:1.25}\
-    #mrsOptionWrap .addon-title-text{white-space:nowrap}\
-    #mrsOptionWrap .addon-title .limit-tag{font-size:9px;font-weight:800;color:#7A5F28;border:1px solid #C9A96E;background:rgba(201,169,110,0.08);padding:2px 6px;border-radius:2px;letter-spacing:.8px;text-transform:uppercase;line-height:1.3;white-space:nowrap}\
+    #mrsOptionWrap .addon-head{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:4px}\
+    #mrsOptionWrap .addon-title{font-size:13.5px;font-weight:700;display:block;line-height:1.25;width:100%}\
+    #mrsOptionWrap .addon-title-text{white-space:nowrap;display:block}\
+    #mrsOptionWrap .limit-tag{font-size:9px;font-weight:800;color:#7A5F28;border:1px solid #C9A96E;background:rgba(201,169,110,0.08);padding:2px 6px;border-radius:2px;letter-spacing:.8px;text-transform:uppercase;line-height:1.3;white-space:nowrap}\
     #mrsOptionWrap .addon-meta{font-size:11.5px;color:#5B5349;line-height:1.55;margin-bottom:9px;text-align:left}\
     #mrsOptionWrap .addon-meta .usp{display:block;position:relative;padding-left:11px;white-space:nowrap}\
     #mrsOptionWrap .addon-meta .usp::before{content:"";position:absolute;left:0;top:7px;width:4px;height:4px;border-radius:50%;background:#C9A96E}\
@@ -785,7 +786,7 @@
     #mrsOptionWrap .upsell-hint .arrow{color:#C9A96E;font-weight:700;font-size:13px;transition:transform .15s ease}\
     #mrsOptionWrap .upsell-hint:hover .arrow{transform:translateX(2px)}\
     @media(min-width:768px){#mrsOptionWrap .addon{gap:10px;padding:14px 16px 12px 14px}#mrsOptionWrap .addon-img{width:76px}#mrsOptionWrap .addon-info{margin-left:-6px}#mrsOptionWrap .addon-title-text{font-size:13px;white-space:nowrap}}\
-    @media(max-width:767px){#mrsOptionWrap .addon{padding:12px;gap:10px}#mrsOptionWrap .addon-img{width:74px}#mrsOptionWrap .addon-title{font-size:13px}#mrsOptionWrap .addon-meta{font-size:11px}#mrsOptionWrap .addon-price-line .now{font-size:17px}#mrsOptionWrap .addon-price-row2{gap:6px}}\
+    @media(max-width:767px){#mrsOptionWrap .addon{padding:12px;gap:10px}#mrsOptionWrap .addon-img{width:74px}#mrsOptionWrap .addon-head{gap:5px}#mrsOptionWrap .addon-title{font-size:13px}#mrsOptionWrap .addon-meta{font-size:11px}#mrsOptionWrap .addon-price-line .now{font-size:17px}#mrsOptionWrap .addon-price-row2{gap:6px}}\
     ';
     document.head.appendChild(penCss);
   }
@@ -797,15 +798,17 @@
     guide.insertAdjacentHTML('afterend','\
     <div id="mrsPenAddonBlock">\
       <div class="addon-section-label">함께 구매하면 <span style="color:#D94A4A; margin-left:2px;">34% 할인</span></div>\
-      <div class="bundle-reason">펜을 따로 챙기지 않아도 돼요</div>\
+      <div class="bundle-reason">✍️ 펜을 따로 챙기지 않아도 돼요</div>\
       <div class="addon" id="penAddon">\
         <div class="addon-img">\
           <img loading="lazy" decoding="async" src="'+MRS_PEN_IMAGE_DATA_URI+'" alt="메아리셋 클립펜 M13 Midnight Black" />\
         </div>\
         <div class="addon-info">\
-          <div class="addon-title">\
-            <span class="addon-title-text">한정판 메아리셋 전용 클립펜</span>\
+          <div class="addon-head">\
             <span class="limit-tag">LIMITED EDITION</span>\
+            <div class="addon-title">\
+              <span class="addon-title-text">[메아리셋 전용] 한정판 클립펜</span>\
+            </div>\
           </div>\
           <div class="addon-meta">\
             <span class="usp">노트에 끼워 휴대하는 펜</span>\
