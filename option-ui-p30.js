@@ -306,6 +306,7 @@
   var _prevCount=0,_toastTimer=null,_mrsSubmitting=false,_mrsStickyTimer=null,_mrsNativeObserver=null;
 
   var _penAdded=false,_mrsPenBasketPending=false,_mrsPenSyncPending=false,_mrsPenSyncTimer=null,_mrsPenSyncToken=0,_mrsPenSyncStartedAt=0;
+  var _mrsAddonSubmitCache=null,_mrsAddonPrimeTimer=null;
 
   function mrsTriggerNativeChange(el){
     if(!el) return;
@@ -399,6 +400,7 @@
     var next=enable?String(data.value||'').trim():'*';
     if(before===next){
       console.info('[mrs-p30] pen addon sync skipped: already matched', { enable: enable, value: next, reason: reason||'', pending: _mrsPenSyncPending });
+      if(enable) mrsPrimeAddonSubmitCache('pen-already-matched');
       if(typeof done==='function'){
         if(_mrsPenSyncPending) mrsWaitForPenAddonSync(enable, done, reason||'join-pending');
         else done(mrsIsPenAddonSyncReady(enable, data));
@@ -413,6 +415,7 @@
     _mrsPenSyncTimer=setTimeout(function(){
       if(prodOpt)prodOpt.setAttribute('style','position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;');
       mrsSyncStickySoon();
+      if(enable) mrsPrimeAddonSubmitCache('pen-sync');
     },300);
     mrsStartPenAddonSyncMonitor(enable);
     console.info('[mrs-p30] pen addon sync', { enable: enable, value: next, reason: reason||'' });
@@ -596,6 +599,7 @@
       }
     }
     var sel=document.getElementById('product_option_id1');if(sel)sel.value='*';
+    _mrsAddonSubmitCache=null;
   }
 
   function mrsCountPreparedNativeRows(){
@@ -621,6 +625,7 @@
     if(!optionValues||!optionValues.length){
       mrsClearOptions();
       mrsSyncPenAddonSelection(false);
+      _mrsAddonSubmitCache=null;
       return;
     }
     var currentValues=[];
@@ -629,12 +634,14 @@
     var preparedCount=mrsCountPreparedNativeRows();
     if(preparedCount>=optionValues.length && currentValues[0]===optionValues[0]){
       mrsSyncPenAddonSelection(_penAdded);
+      if(_penAdded) mrsPrimeAddonSubmitCache('native-selection-ready');
       return;
     }
     mrsClearOptions();
     setTimeout(function(){
       mrsBuildNativeOptionRows(optionValues,function(){
         mrsSyncPenAddonSelection(_penAdded);
+        if(_penAdded) mrsPrimeAddonSubmitCache('native-selection-built');
         setTimeout(mrsSyncStickySoon,40);
       });
     },0);
@@ -703,13 +710,13 @@
     };
     addNext();
   }
-  function mrsSetStickyLoading(isLoading){
+  function mrsSetStickyLoading(isLoading, label){
     var btn=document.querySelector('#mrsStickyBar .mrs-sticky-btn');
     if(!btn) return;
     if(!btn.dataset.defaultLabel) btn.dataset.defaultLabel=btn.textContent;
     if(isLoading){
       btn.classList.add('is-loading');
-      btn.textContent='처리 중...';
+      btn.textContent=label||'처리 중...';
     }else{
       btn.classList.remove('is-loading');
       btn.textContent=btn.dataset.defaultLabel||'🛒 지금 구매하기';
@@ -741,15 +748,11 @@
     return values;
   }
 
-  function mrsSubmitWithAddon(type, restoreFns, _origCheck){
+  function mrsBuildAddonSubmitCache(){
     var mainSelectedItem=mrsGetMainSelectedItem();
     var addonSelectedItems=mrsGetAddonSelectedItems();
-    if(!mainSelectedItem){
-      console.warn('[mrs-p30] addon submit fallback: missing selected_item');
-      mrsFinishSubmitFlow(restoreFns, _origCheck);
-      restoreFns.alert('선택한 옵션 정보를 다시 불러오지 못했습니다. 다시 시도해주세요.');
-      return;
-    }
+    var option1=String((document.querySelector('#totalProducts input[name="item_code[]"]')||{}).value||'');
+    if(!mainSelectedItem||!option1||!addonSelectedItems.length) return null;
     var params=new URLSearchParams();
     params.append('selected_item[]',mainSelectedItem);
     for(var i=0;i<addonSelectedItems.length;i++) params.append('selected_add_item[]',addonSelectedItems[i]);
@@ -777,14 +780,46 @@
     params.append('is_direct_buy','F');
     params.append('optionids[]','option1');
     params.append('needed[]','option1');
-    params.append('option1',String((document.querySelector('#totalProducts input[name="item_code[]"]')||{}).value||''));
+    params.append('option1',option1);
     params.append('quantity_override_flag','F');
     params.append('is_cultural_tax','F');
-    console.info('[mrs-p30] addon manual submit', { type: type, mainSelectedItem: mainSelectedItem, addonCount: addonSelectedItems.length });
+    return {
+      mainSelectedItem: mainSelectedItem,
+      addonSelectedItems: addonSelectedItems,
+      option1: option1,
+      body: params.toString()
+    };
+  }
+
+  function mrsPrimeAddonSubmitCache(reason){
+    if(_mrsAddonPrimeTimer) clearTimeout(_mrsAddonPrimeTimer);
+    _mrsAddonPrimeTimer=setTimeout(function(){
+      _mrsAddonSubmitCache=mrsBuildAddonSubmitCache();
+      if(_mrsAddonSubmitCache) console.info('[mrs-p30] addon submit cache primed', { reason: reason||'', addonCount: _mrsAddonSubmitCache.addonSelectedItems.length, option1: _mrsAddonSubmitCache.option1 });
+    },0);
+  }
+
+  function mrsGetAddonSubmitCache(){
+    var currentMain=mrsGetMainSelectedItem();
+    var currentAddons=mrsGetAddonSelectedItems();
+    if(_mrsAddonSubmitCache && _mrsAddonSubmitCache.mainSelectedItem===currentMain && _mrsAddonSubmitCache.addonSelectedItems.join('||')===currentAddons.join('||')) return _mrsAddonSubmitCache;
+    _mrsAddonSubmitCache=mrsBuildAddonSubmitCache();
+    return _mrsAddonSubmitCache;
+  }
+
+  function mrsSubmitWithAddon(type, restoreFns, _origCheck){
+    var cache=mrsGetAddonSubmitCache();
+    if(!cache||!cache.mainSelectedItem){
+      console.warn('[mrs-p30] addon submit fallback: missing selected_item');
+      mrsFinishSubmitFlow(restoreFns, _origCheck);
+      restoreFns.alert('선택한 옵션 정보를 다시 불러오지 못했습니다. 다시 시도해주세요.');
+      return;
+    }
+    console.info('[mrs-p30] addon manual submit', { type: type, mainSelectedItem: cache.mainSelectedItem, addonCount: cache.addonSelectedItems.length, warmed: !!_mrsAddonSubmitCache });
     fetch('/exec/front/order/basket/',{
       method:'POST',
       headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'},
-      body:params.toString(),
+      body:cache.body,
       credentials:'include'
     }).then(function(res){
       return res.text().then(function(text){ return { status: res.status, text: text, url: res.url }; });
@@ -837,12 +872,20 @@
     var optionValues=mrsGetSelectedSeasonValues();
     if(!optionValues||!optionValues.length){alert('선택한 조합을 찾을 수 없습니다. 다시 시도해주세요.');return;}
     _mrsSubmitting=true;
-    if(type===1) mrsSetStickyLoading(true);
+    if(type===1) mrsSetStickyLoading(true,_penAdded?'주문 페이지로 이동 중...':'처리 중...');
     var _origAlert=window.alert;
     window.alert=function(msg){if(_mrsSubmitting&&(msg.indexOf('이미 선택')!==-1||msg.indexOf('삭제')!==-1||msg.indexOf('필수 옵션')!==-1))return;return _origAlert.apply(this,arguments);};
     var _origConfirm=window.confirm;
     window.confirm=function(msg){if(_mrsSubmitting&&msg.indexOf('함께 구매')!==-1)return true;return _origConfirm.apply(this,arguments);};
     var finalize=function(){
+      if(type===1&&_penAdded&&!_mrsPenSyncPending&&mrsHasNativePenSelected()){
+        var warmCache=mrsGetAddonSubmitCache();
+        if(warmCache&&warmCache.mainSelectedItem&&warmCache.addonSelectedItems.length){
+          console.info('[mrs-p30] direct submit using warm addon cache');
+          mrsFinalizeSubmit(type,{alert:_origAlert,confirm:_origConfirm});
+          return;
+        }
+      }
       mrsSyncPenAddonSelection(_penAdded,function(syncReady){
         if(!syncReady) console.warn('[mrs-p30] submit continuing after pen addon sync timeout', { enable: _penAdded, type: type });
         mrsFinalizeSubmit(type,{alert:_origAlert,confirm:_origConfirm});
