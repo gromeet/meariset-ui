@@ -4,12 +4,12 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 135; /* 버전 번호 (13.5 = 135) — p27 brand color + font alignment */
+  var MRS_VERSION = 136; /* 버전 번호 (13.6 = 136) — keep brand tone, restore discount red */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
   var MRS_TEST_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-test.js?v=135';
   var MRS_P30_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-p30.js?v=173';
-  var MRS_P49_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-p49.js?v=174';
+  var MRS_P49_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-p49-live-v174.js';
   var MRS_PEN_PRICE = 9900;
   var MRS_PEN_PRODUCT_NO = '48';
   var MRS_PEN_ITEM_CODE = 'P00000BW000A';
@@ -497,7 +497,7 @@
   #mrsOptionWrap .addon-price-label{font-size:11px;color:#666666;font-weight:500;white-space:nowrap}\
   #mrsOptionWrap .addon-price-line .strike{color:#777777;text-decoration:line-through;font-size:11px;font-weight:500;white-space:nowrap}\
   #mrsOptionWrap .addon-price-line .now{font-weight:800;color:#0A0A0A;font-size:17px;white-space:nowrap}\
-  #mrsOptionWrap .addon-price-line .save{font-size:12px;font-weight:800;color:#0A0A0A;background:#D4A853;padding:3px 8px;border-radius:12px;white-space:nowrap;margin-left:2px}\
+  #mrsOptionWrap .addon-price-line .save{font-size:12px;font-weight:800;color:#fff;background:#D94A4A;padding:3px 8px;border-radius:12px;white-space:nowrap;margin-left:2px}\
   #mrsOptionWrap .addon-toggle{background:#fff;color:#0A0A0A;border:1.5px solid #0A0A0A;border-radius:999px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;transition:background .15s ease,color .15s ease,border-color .15s ease;display:flex;align-items:center;gap:4px;min-height:40px;-webkit-tap-highlight-color:transparent}\
   #mrsOptionWrap .addon-toggle:hover{background:#FFF8E7}\
   #mrsOptionWrap .addon-toggle .ico{font-size:14px;line-height:1;font-weight:400;display:inline-block;transition:transform .25s cubic-bezier(0.34,1.56,0.64,1)}\
@@ -1169,7 +1169,7 @@
     if(!guide||document.getElementById('mrsPenAddonBlock')) return;
     guide.insertAdjacentHTML('afterend','\
     <div id="mrsPenAddonBlock">\
-      <div class="addon-section-label">함께 구매하면 <span style="color:#D4A853; margin-left:2px;">34% 할인</span></div>\
+      <div class="addon-section-label">함께 구매하면 <span style="color:#D94A4A; margin-left:2px;">34% 할인</span></div>\
       <div class="bundle-reason">✍️ 펜을 따로 챙기지 않아도 돼요</div>\
       <div class="addon" id="penAddon">\
         <div class="addon-img"><img loading="lazy" decoding="async" src="'+MRS_PEN_IMAGE_URL+'" alt="메아리셋 클립펜" /></div>\
