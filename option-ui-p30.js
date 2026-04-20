@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 114; /* 버전 번호 (11.4 = 114) — p30 one-book benefit short label */
+  var MRS_VERSION = 117; /* 버전 번호 (11.7 = 117) — latest p30 submit fast path redeploy */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -696,6 +696,33 @@
     };
     setTimeout(check,80);
   }
+  function mrsWaitForNativeSelection(optionValues, done, reason){
+    if(typeof done!=='function') return;
+    var expectedCount=(optionValues&&optionValues.length)||0;
+    var expectedMain=expectedCount?String(optionValues[0]||'').trim():'';
+    var deadline=Date.now()+1800;
+    var check=function(){
+      var mainSelect=document.getElementById('product_option_id1');
+      var mainValue=mainSelect?String(mainSelect.value||'').trim():'';
+      var rowsReady=expectedCount ? mrsCountPreparedNativeRows()>=expectedCount : true;
+      var mainReady=!expectedMain || mainValue===expectedMain;
+      var ready=rowsReady && mainReady;
+      if(ready || Date.now()>=deadline){
+        console[ready?'info':'warn']('[mrs-p30] native selection wait complete', {
+          reason: reason||'',
+          ready: ready,
+          expectedCount: expectedCount,
+          preparedCount: mrsCountPreparedNativeRows(),
+          expectedMain: expectedMain,
+          mainValue: mainValue
+        });
+        done(ready);
+        return;
+      }
+      setTimeout(check,50);
+    };
+    setTimeout(check,10);
+  }
   function mrsBuildNativeOptionRows(optionValues, done){
     if(!optionValues||!optionValues.length){ done(false); return; }
     var idx=0;
@@ -798,6 +825,26 @@
       if(_mrsAddonSubmitCache) console.info('[mrs-p30] addon submit cache primed', { reason: reason||'', addonCount: _mrsAddonSubmitCache.addonSelectedItems.length, option1: _mrsAddonSubmitCache.option1 });
     },0);
   }
+  function mrsWaitForAddonSubmitCache(done, reason){
+    if(typeof done!=='function') return;
+    var deadline=Date.now()+900;
+    var check=function(){
+      var cache=mrsGetAddonSubmitCache();
+      var ready=!!(cache&&cache.mainSelectedItem&&cache.addonSelectedItems&&cache.addonSelectedItems.length);
+      if(ready || Date.now()>=deadline){
+        console[ready?'info':'warn']('[mrs-p30] addon submit cache wait complete', {
+          reason: reason||'',
+          ready: ready,
+          mainSelectedItem: cache&&cache.mainSelectedItem ? cache.mainSelectedItem : '',
+          addonCount: cache&&cache.addonSelectedItems ? cache.addonSelectedItems.length : 0
+        });
+        done(ready);
+        return;
+      }
+      setTimeout(check,40);
+    };
+    setTimeout(check,0);
+  }
 
   function mrsGetAddonSubmitCache(){
     var currentMain=mrsGetMainSelectedItem();
@@ -868,6 +915,47 @@
       mrsFinishSubmitFlow(restoreFns, _origCheck);
     },1800);
   }
+  function mrsEnsureDirectSubmitReady(type, optionValues, done, reason){
+    if(typeof done!=='function') return;
+    var tag=reason||'submit';
+    var proceedAfterNative=function(nativeReady){
+      if(!nativeReady) console.warn('[mrs-p30] proceeding after native selection wait timeout', { type: type, reason: tag });
+      mrsSyncPenAddonSelection(_penAdded,function(syncReady){
+        if(!syncReady) console.warn('[mrs-p30] proceeding after pen addon sync timeout', { enable: _penAdded, type: type, reason: tag });
+        if(!(type===1&&_penAdded)){
+          done({ nativeReady:nativeReady, syncReady:syncReady, cacheReady:true });
+          return;
+        }
+        mrsPrimeAddonSubmitCache(tag+'-prime');
+        mrsWaitForAddonSubmitCache(function(cacheReady){
+          if(!cacheReady) console.warn('[mrs-p30] proceeding after addon cache wait timeout', { type: type, reason: tag });
+          done({ nativeReady:nativeReady, syncReady:syncReady, cacheReady:cacheReady });
+        },tag);
+      },tag);
+    };
+    var preparedCount=mrsCountPreparedNativeRows();
+    var currentMain=String(((document.getElementById('product_option_id1')||{}).value)||'').trim();
+    var expectedMain=optionValues&&optionValues.length?String(optionValues[0]||'').trim():'';
+    var alreadyReady=preparedCount>=(optionValues?optionValues.length:0) && (!expectedMain || currentMain===expectedMain);
+    if(alreadyReady){
+      proceedAfterNative(true);
+      return;
+    }
+    mrsWaitForNativeSelection(optionValues, function(nativeReady){
+      if(nativeReady){
+        proceedAfterNative(true);
+        return;
+      }
+      console.warn('[mrs-p30] selection-time prep not ready by submit, running fallback sync', {
+        type: type,
+        reason: tag,
+        expectedMain: expectedMain,
+        preparedCount: mrsCountPreparedNativeRows()
+      });
+      mrsSyncNativeSelection();
+      mrsWaitForNativeSelection(optionValues, proceedAfterNative, tag+'-fallback');
+    }, tag);
+  }
 
   function mrsDirectSubmit(type){
     var count=document.querySelectorAll('.mrs-card.selected').length;
@@ -880,26 +968,9 @@
     window.alert=function(msg){if(_mrsSubmitting&&(msg.indexOf('이미 선택')!==-1||msg.indexOf('삭제')!==-1||msg.indexOf('필수 옵션')!==-1))return;return _origAlert.apply(this,arguments);};
     var _origConfirm=window.confirm;
     window.confirm=function(msg){if(_mrsSubmitting&&msg.indexOf('함께 구매')!==-1)return true;return _origConfirm.apply(this,arguments);};
-    var finalize=function(){
-      if(type===1&&_penAdded&&!_mrsPenSyncPending){
-        var warmCache=_mrsAddonSubmitCache||mrsGetAddonSubmitCache();
-        if(warmCache&&warmCache.mainSelectedItem&&warmCache.addonSelectedItems.length){
-          console.info('[mrs-p30] direct submit using warm addon cache');
-          mrsFinalizeSubmit(type,{alert:_origAlert,confirm:_origConfirm});
-          return;
-        }
-      }
-      mrsSyncPenAddonSelection(_penAdded,function(syncReady){
-        if(!syncReady) console.warn('[mrs-p30] submit continuing after pen addon sync timeout', { enable: _penAdded, type: type });
-        mrsFinalizeSubmit(type,{alert:_origAlert,confirm:_origConfirm});
-      },'direct-submit');
-    };
-    if(mrsCountPreparedNativeRows()>=optionValues.length){
-      finalize();
-      return;
-    }
-    mrsSyncNativeSelection();
-    setTimeout(finalize,120);
+    mrsEnsureDirectSubmitReady(type, optionValues, function(){
+      mrsFinalizeSubmit(type,{alert:_origAlert,confirm:_origConfirm});
+    },'direct-submit');
   }
   window.mrsDirectSubmit=mrsDirectSubmit;
   window.mrsStickyBuy=function(){mrsDirectSubmit(1);};
@@ -934,18 +1005,13 @@
           var optionValues=mrsGetSelectedSeasonValues();
           if(!optionValues||!optionValues.length){alert('선택한 조합을 찾을 수 없습니다. 다시 시도해주세요.');return;}
           var fastClick=function(){
-            mrsSyncPenAddonSelection(_penAdded,function(syncReady){
-              if(!syncReady) console.warn('[mrs-p30] pay click continuing after pen addon sync timeout', { enable: _penAdded });
+            mrsEnsureDirectSubmitReady(1, optionValues, function(state){
+              if(!state.syncReady) console.warn('[mrs-p30] pay click continuing after readiness wait timeout', state);
               _mrsPayBypass=true;
               clickTarget.click();
             },'pay-bypass');
           };
-          if(mrsCountPreparedNativeRows()>=optionValues.length){
-            fastClick();
-          }else{
-            mrsSyncNativeSelection();
-            setTimeout(fastClick,120);
-          }
+          fastClick();
           return;
         }
         el=el.parentElement;depth++;
