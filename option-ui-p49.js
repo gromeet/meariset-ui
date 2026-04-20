@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 175; /* 버전 번호 (17.5 = 175) — exact p30 stable base on served p49 path */
+  var MRS_VERSION = 176; /* 버전 번호 (17.6 = 176) — suppress duplicate pen alert on toggle off */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/detail.html?product_no=49&cate_no=1&display_group=2';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -427,6 +427,23 @@
     };
     setTimeout(check,10);
   }
+  function mrsHasPenAddonRow(){
+    var inputs=document.querySelectorAll('#totalProducts input[name="basket_add_product[]"]');
+    for(var i=0;i<inputs.length;i++){
+      if(String(inputs[i].value||'').trim()===String(MRS_PEN_ITEM_CODE)) return true;
+    }
+    return false;
+  }
+  function mrsRemovePenAddonRows(){
+    var inputs=document.querySelectorAll('#totalProducts input[name="basket_add_product[]"]');
+    for(var i=inputs.length-1;i>=0;i--){
+      if(String(inputs[i].value||'').trim()!==String(MRS_PEN_ITEM_CODE)) continue;
+      var row=inputs[i].closest('tr') || inputs[i].closest('.option_product');
+      var del=row && (row.querySelector('.option_box_del') || row.querySelector('img[alt="삭제"]') || row.querySelector('a'));
+      if(del){ try{ (del.closest && del.closest('a') ? del.closest('a') : del).click(); }catch(e){} }
+      else if(row && row.remove) row.remove();
+    }
+  }
   function mrsSyncPenAddonSelection(enable, done, reason){
     var data=mrsGetPenAddonData();
     if(!data||!data.select){
@@ -436,24 +453,37 @@
     }
     var select=data.select;
     mrsMakeAddonOptional();
-    var before=String(select.value||'').trim();
     var next=enable?String(data.value||'').trim():'*';
-    if(before===next){
+    if(enable && (mrsHasPenAddonRow() || String(select.value||'').trim()===next)){
       console.info('[mrs-p30] pen addon sync skipped: already matched', { enable: enable, value: next, reason: reason||'', pending: _mrsPenSyncPending });
       if(enable) mrsPrimeAddonSubmitCache('pen-already-matched');
       if(typeof done==='function'){
         if(_mrsPenSyncPending) mrsWaitForPenAddonSync(enable, done, reason||'join-pending');
         else done(mrsIsPenAddonSyncReady(enable, data));
       }
+      mrsSyncStickySoon();
       return true;
     }
-    var prodOpt=document.querySelector('.productOption');
-    if(prodOpt)prodOpt.setAttribute('style','position:fixed!important;left:0!important;top:0!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0.01!important;z-index:-1!important;');
+    if(!enable){
+      mrsRemovePenAddonRows();
+      if(String(select.value||'').trim()==='*'){
+        if(typeof done==='function') done(true);
+        mrsSyncStickySoon();
+        return true;
+      }
+    }
+    mrsSetProductOptionVisible(true);
+    var _origAlert=window.alert;
+    window.alert=function(msg){
+      if(typeof msg==='string' && msg.indexOf('해당옵션이 이미 추가되었습니다')!==-1) return;
+      return _origAlert.apply(this, arguments);
+    };
     select.value=next;
     mrsTriggerNativeChange(select);
     if(_mrsPenSyncTimer) clearTimeout(_mrsPenSyncTimer);
     _mrsPenSyncTimer=setTimeout(function(){
-      if(prodOpt)prodOpt.setAttribute('style','display:none!important;position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;');
+      window.alert=_origAlert;
+      mrsSetProductOptionVisible(false);
       mrsSyncStickySoon();
       if(enable) mrsPrimeAddonSubmitCache('pen-sync');
     },300);
