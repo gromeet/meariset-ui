@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 128; /* 버전 번호 (12.8 = 128) — 데스크톱 헤더 로고 hidden 복구 포함 */
+  var MRS_VERSION = 129; /* 버전 번호 (12.9 = 129) — 27 로고 보정을 데스크톱/모바일 분리 + 이미지 fallback 안전화 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
   var MRS_TEST_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-test.js?v=135';
@@ -138,6 +138,7 @@
   }
 
   function _dedupeTopLogo(){
+    if(window.innerWidth <= 1024) return;
     var logos = document.querySelectorAll('header.header .top-logo[df-banner-code="logo"]');
     for(var i=0;i<logos.length;i++){
       var logo = logos[i];
@@ -250,9 +251,7 @@
   .ssp.df-bannermanager,.df-bannermanager{pointer-events:none!important}\
   .top-banner,.top-banner *,[df-banner-code="top-banner"],[df-banner-code="top-banner"] *{pointer-events:auto!important}\
   .top-banner{position:relative;z-index:30}\
-  header.header .top-logo[df-banner-code="logo"]{display:flex!important;align-items:center!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:61!important}\
-  header.header .top-logo[df-banner-code="logo"] .top-logo__item{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:auto!important;min-width:135px!important;height:auto!important;flex:0 0 auto!important;visibility:visible!important;opacity:1!important}\
-  header.header .top-logo[df-banner-code="logo"] .top-logo__item img{display:block!important;max-width:135px!important;height:auto!important;pointer-events:auto!important}\
+  @media(min-width:1025px){header.header .top-logo[df-banner-code="logo"]{display:flex!important;align-items:center!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:61!important}header.header .top-logo[df-banner-code="logo"] .top-logo__item{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:auto!important;min-width:135px!important;height:auto!important;flex:0 0 auto!important;visibility:visible!important;opacity:1!important}header.header .top-logo[df-banner-code="logo"] .top-logo__item img{display:block!important;max-width:135px!important;height:auto!important;pointer-events:auto!important}}\
   .ssp,.ssp__container,.ssp__list,.ssp__item--naver,.ssp__item--kakao{visibility:visible!important}\
   .ssp__item--naver a,.ssp__item--naver button,.ssp__item--naver [onclick],.ssp__item--kakao a,.ssp__item--kakao button,.ssp__item--kakao [onclick]{pointer-events:auto!important}\
   .mrs-option-wrap{max-width:600px;margin:4px auto;font-family:Pretendard,sans-serif;color:#2D2D2D;background:#fff;border-radius:12px;padding:12px 8px;text-align:center;overflow:visible}\
@@ -788,8 +787,9 @@
       var item=items[i];
       var img=item.querySelector('img');
       var txt=mrsNormalizeLogoText(item.textContent);
-      var usableImg=!!(img && img.getAttribute('src') && img.getAttribute('src').trim() && img.naturalWidth>0);
-      if((mrsHasUsableLogoHref(item) || usableImg) && (usableImg || txt)){ chosen=item; break; }
+      var hasImgTag=!!(img && img.getAttribute('src') && img.getAttribute('src').trim());
+      var usableImg=!!(hasImgTag && img.naturalWidth>0);
+      if((mrsHasUsableLogoHref(item) || hasImgTag) && (hasImgTag || txt || usableImg)){ chosen=item; break; }
     }
     if(!chosen){
       for(var j=0;j<items.length;j++){
@@ -820,13 +820,25 @@
     }
 
     var chosenImg=chosen.querySelector('img');
-    var hasUsableImg=!!(chosenImg && chosenImg.getAttribute('src') && chosenImg.getAttribute('src').trim() && chosenImg.naturalWidth>0);
-    if(hasUsableImg){
+    var hasImgTag=!!(chosenImg && chosenImg.getAttribute('src') && chosenImg.getAttribute('src').trim());
+    var hasUsableImg=!!(hasImgTag && chosenImg.naturalWidth>0);
+    if(hasImgTag){
       chosen.style.removeProperty('font-size');
       chosen.style.removeProperty('white-space');
+      var oldFallback=chosen.querySelector('.mrs-logo-fallback');
+      if(oldFallback) oldFallback.remove();
       chosenImg.style.removeProperty('max-width');
       chosenImg.style.removeProperty('height');
       chosenImg.style.setProperty('display','block','important');
+      chosenImg.style.setProperty('pointer-events','auto','important');
+      if(!hasUsableImg){
+        if(!chosenImg.__mrsRetryBound){
+          chosenImg.__mrsRetryBound=true;
+          chosenImg.addEventListener('load', function(){ setTimeout(mrsFixMobileHeaderLogo, 0); }, { once:true });
+          chosenImg.addEventListener('error', function(){ setTimeout(mrsFixMobileHeaderLogo, 0); }, { once:true });
+        }
+        setTimeout(mrsFixMobileHeaderLogo, 1200);
+      }
       return;
     }
 
