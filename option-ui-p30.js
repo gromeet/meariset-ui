@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 122; /* 버전 번호 (12.2 = 122) — use native /exec/front/order/order/ selection flow */
+  var MRS_VERSION = 123; /* 버전 번호 (12.3 = 123) — optional addon sync + Kakao easy-pay native state fix */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -310,8 +310,41 @@
 
   function mrsTriggerNativeChange(el){
     if(!el) return;
-    if(window.jQuery){window.jQuery(el).trigger('change');}
-    else{el.dispatchEvent(new Event('change',{bubbles:true}));}
+    if(window.jQuery){
+      window.jQuery(el).trigger('input');
+      window.jQuery(el).trigger('change');
+    }else{
+      try{ el.dispatchEvent(new Event('input',{bubbles:true})); }catch(e){}
+      el.dispatchEvent(new Event('change',{bubbles:true}));
+    }
+  }
+  function mrsMakeAddonOptional(){
+    var data=mrsGetPenAddonData();
+    if(!data||!data.select) return false;
+    var sel=data.select;
+    try{ sel.required=false; }catch(e){}
+    sel.removeAttribute('required');
+    sel.setAttribute('data-mrs-optional','true');
+    if(sel.options&&sel.options.length){
+      var first=sel.options[0];
+      if(first&&String(first.value||'').trim()==='*'){
+        var firstText=mrsGetText(first);
+        if(!/선택/.test(firstText) || /필수/.test(firstText)) first.text='상품 선택 (선택)';
+      }
+    }
+    var row=(sel.closest&& (sel.closest('.xans-product-addproduct .product > li')||sel.closest('.product > li')||sel.closest('li'))) || null;
+    if(row){
+      var nameNode=row.querySelector('.name');
+      if(nameNode){
+        var txt=mrsGetText(nameNode);
+        if(txt){
+          nameNode.setAttribute('data-mrs-original-label', nameNode.getAttribute('data-mrs-original-label')||nameNode.innerHTML);
+          nameNode.innerHTML=nameNode.innerHTML.replace(/\s*\[필수\]\s*/g,' ').replace(/\s*\(필수\)\s*/g,' (선택) ');
+          if(!/선택/.test(mrsGetText(nameNode))) nameNode.innerHTML=nameNode.innerHTML+' <span class="ec-base-label" style="font-weight:400;color:#8A8173">(선택)</span>';
+        }
+      }
+    }
+    return true;
   }
   function mrsGetPenAddonData(){
     var selectors=document.querySelectorAll('.xans-product-addproduct select,.addProduct select,select[id*="addproduct"],select[name*="addproduct"]');
@@ -396,6 +429,7 @@
       return false;
     }
     var select=data.select;
+    mrsMakeAddonOptional();
     var before=String(select.value||'').trim();
     var next=enable?String(data.value||'').trim():'*';
     if(before===next){
@@ -413,7 +447,7 @@
     mrsTriggerNativeChange(select);
     if(_mrsPenSyncTimer) clearTimeout(_mrsPenSyncTimer);
     _mrsPenSyncTimer=setTimeout(function(){
-      if(prodOpt)prodOpt.setAttribute('style','position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;');
+      if(prodOpt)prodOpt.setAttribute('style','display:none!important;position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;');
       mrsSyncStickySoon();
       if(enable) mrsPrimeAddonSubmitCache('pen-sync');
     },300);
@@ -621,6 +655,7 @@
   }
 
   function mrsSyncNativeSelection(){
+    mrsMakeAddonOptional();
     var optionValues=mrsGetSelectedSeasonValues();
     if(!optionValues||!optionValues.length){
       mrsClearOptions();
@@ -666,11 +701,12 @@
   }
   function mrsSelectOption(optionValue){
     var sel=document.getElementById('product_option_id1');if(!sel)return false;
+    mrsMakeAddonOptional();
     var prodOpt=document.querySelector('.productOption');
-    if(prodOpt)prodOpt.setAttribute('style','position:fixed!important;left:0!important;top:0!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0.01!important;z-index:-1!important;');
+    if(prodOpt)prodOpt.setAttribute('style','display:block!important;position:fixed!important;left:0!important;top:0!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0.01!important;z-index:-1!important;');
     sel.value=optionValue;
-    if(window.jQuery){window.jQuery(sel).trigger('change');}else{sel.dispatchEvent(new Event('change',{bubbles:true}));}
-    setTimeout(function(){if(prodOpt)prodOpt.setAttribute('style','position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;');},300);
+    mrsTriggerNativeChange(sel);
+    setTimeout(function(){if(prodOpt)prodOpt.setAttribute('style','display:none!important;position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;');},300);
     return true;
   }
   function mrsWaitForNativeOptionRows(expectedCount, done){
@@ -1149,10 +1185,13 @@
   }
   function mrsEnsureDirectSubmitReady(type, optionValues, done, reason){
     if(typeof done!=='function') return;
+    mrsMakeAddonOptional();
     var tag=reason||'submit';
     var proceedAfterNative=function(nativeReady){
       if(!nativeReady) console.warn('[mrs-p30] proceeding after native selection wait timeout', { type: type, reason: tag });
+      mrsMakeAddonOptional();
       mrsSyncPenAddonSelection(_penAdded,function(syncReady){
+
         if(!syncReady) console.warn('[mrs-p30] proceeding after pen addon sync timeout', { enable: _penAdded, type: type, reason: tag });
         if(!(type===1&&_penAdded)){
           done({ nativeReady:nativeReady, syncReady:syncReady, cacheReady:true });
@@ -1238,8 +1277,10 @@
           var optionValues=mrsGetSelectedSeasonValues();
           if(!optionValues||!optionValues.length){alert('선택한 조합을 찾을 수 없습니다. 다시 시도해주세요.');return;}
           var fastClick=function(){
+            mrsMakeAddonOptional();
             mrsEnsureDirectSubmitReady(1, optionValues, function(state){
               if(!state.syncReady) console.warn('[mrs-p30] pay click continuing after readiness wait timeout', state);
+              mrsMakeAddonOptional();
               _mrsPayBypass=true;
               clickTarget.click();
             },'pay-bypass');
@@ -1255,6 +1296,7 @@
       var el=e.target;if(!el)return;
       var id=(el.id||'').toLowerCase(),name=(el.name||'').toLowerCase(),cls=(el.className||'').toString().toLowerCase();
       if(id.indexOf('addproduct')!==-1||name.indexOf('addproduct')!==-1||cls.indexOf('addproduct')!==-1||id.indexOf('option')!==-1){
+        mrsMakeAddonOptional();
         mrsSyncStickySoon();
       }
     },true);
@@ -1449,8 +1491,12 @@
     _mrsBaseInit();
     mrsInjectPenAddonStyles();
     mrsEnsurePenAddon();
+    mrsMakeAddonOptional();
     setTimeout(mrsEnsurePenAddon,400);
     setTimeout(mrsEnsurePenAddon,1200);
+    setTimeout(mrsMakeAddonOptional,50);
+    setTimeout(mrsMakeAddonOptional,400);
+    setTimeout(mrsMakeAddonOptional,1200);
   };
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mrsInit);
