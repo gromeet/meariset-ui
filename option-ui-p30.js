@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 117; /* 버전 번호 (11.7 = 117) — latest p30 submit fast path redeploy */
+  var MRS_VERSION = 118; /* 버전 번호 (11.8 = 118) — p30 buy-now direct submit without pre-wait */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -857,6 +857,76 @@
     return _mrsAddonSubmitCache;
   }
 
+  function mrsBuildQuickBuySubmitBody(optionValue, includePen){
+    var option1=String(optionValue||'').trim();
+    if(!option1) return '';
+    var params=new URLSearchParams();
+    params.append('selected_item[]','1||'+option1);
+    if(includePen) params.append('selected_add_item[]','1||'+MRS_PEN_ITEM_CODE);
+    params.append('relation_product','yes');
+    params.append('is_individual','F');
+    params.append('product_no','30');
+    params.append('product_name','[6주 인증 30% 할인] 메아리셋 90일 목표달성 다이어리 - 뇌과학 기반 9단계 습관 시스템');
+    params.append('main_cate_no','1');
+    params.append('display_group','2');
+    params.append('option_type','T');
+    params.append('product_min','1');
+    params.append('command','add');
+    params.append('has_option','T');
+    params.append('product_price','20300');
+    params.append('multi_option_schema','');
+    params.append('multi_option_data','');
+    params.append('delvType','A');
+    params.append('redirect','1');
+    params.append('product_max_type','F');
+    params.append('product_max','-1');
+    params.append('basket_type','A0000');
+    params.append('ch_ref','');
+    params.append('prd_detail_ship_type','');
+    params.append('quantity','1');
+    params.append('is_direct_buy','F');
+    params.append('optionids[]','option1');
+    params.append('needed[]','option1');
+    params.append('option1',option1);
+    params.append('quantity_override_flag','F');
+    params.append('is_cultural_tax','F');
+    return params.toString();
+  }
+
+  function mrsSubmitQuickBuy(optionValues, includePen, restoreFns){
+    var option1=optionValues&&optionValues.length?String(optionValues[0]||'').trim():'';
+    var body=mrsBuildQuickBuySubmitBody(option1, includePen);
+    if(!body) return false;
+    var _origCheck=window.checkOptionRequired;
+    window.checkOptionRequired=function(){return true;};
+    console.info('[mrs-p30] quick buy submit', { option1: option1, includePen: !!includePen });
+    fetch('/exec/front/order/basket/',{
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'},
+      body:body,
+      credentials:'include'
+    }).then(function(res){
+      return res.text().then(function(text){ return { status: res.status, text: text, url: res.url }; });
+    }).then(function(payload){
+      var result=null;
+      try{ result=payload.text?JSON.parse(payload.text):null; }catch(e){}
+      console.info('[mrs-p30] quick buy submit result', { status: payload.status, result: result, includePen: !!includePen });
+      if(result&&result.result===0){
+        mrsFinishSubmitFlow(restoreFns, _origCheck);
+        if(result.isLogin==='T') location.href='/order/orderform.html?basket_type=A0000&delvtype=A';
+        else location.href='/member/login.html?noMember=1&returnUrl=%2Forder%2Forderform.html%3Fbasket_type%3DA0000%26delvtype%3DA&delvtype=A';
+        return;
+      }
+      mrsFinishSubmitFlow(restoreFns, _origCheck);
+      restoreFns.alert(result&&result.alertMSG?result.alertMSG:'구매 정보를 바로 전송하지 못했습니다. 다시 시도해주세요.');
+    }).catch(function(err){
+      console.warn('[mrs-p30] quick buy submit failed', err);
+      mrsFinishSubmitFlow(restoreFns, _origCheck);
+      restoreFns.alert('구매 정보를 전송하지 못했습니다. 다시 시도해주세요.');
+    });
+    return true;
+  }
+
   function mrsSubmitWithAddon(type, restoreFns, _origCheck){
     var cache=mrsGetAddonSubmitCache();
     if(!cache||!cache.mainSelectedItem){
@@ -968,6 +1038,7 @@
     window.alert=function(msg){if(_mrsSubmitting&&(msg.indexOf('이미 선택')!==-1||msg.indexOf('삭제')!==-1||msg.indexOf('필수 옵션')!==-1))return;return _origAlert.apply(this,arguments);};
     var _origConfirm=window.confirm;
     window.confirm=function(msg){if(_mrsSubmitting&&msg.indexOf('함께 구매')!==-1)return true;return _origConfirm.apply(this,arguments);};
+    if(type===1 && mrsSubmitQuickBuy(optionValues,_penAdded,{alert:_origAlert,confirm:_origConfirm})) return;
     mrsEnsureDirectSubmitReady(type, optionValues, function(){
       mrsFinalizeSubmit(type,{alert:_origAlert,confirm:_origConfirm});
     },'direct-submit');
