@@ -4,12 +4,12 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 131; /* 버전 번호 (13.1 = 131) — p30 early shell preload + faster initial custom UI visibility */
+  var MRS_VERSION = 132; /* 버전 번호 (13.2 = 132) — p30/p49 early shell preload + stable p49 loader handoff */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
   var MRS_TEST_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-test.js?v=135';
   var MRS_P30_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-p30.js?v=173';
-  var MRS_P49_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-p49.js?v=169';
+  var MRS_P49_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-p49.js?v=171';
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -132,6 +132,76 @@
   var pathMatch49 = location.pathname.match(/\/product\/[^/]*\/(\d+)\//);
   var pathHas49 = !!(pathMatch49 && pathMatch49[1] === '49');
   if(urlHas49 || pathHas49 || prdNo === '49'){
+    function ensureP49EarlyShellStyles(){
+      if(document.getElementById('mrsP49EarlyShellStyles')) return;
+      var style = document.createElement('style');
+      style.id = 'mrsP49EarlyShellStyles';
+      style.textContent = '\
+      #mrsOptionWrap[data-mrs-shell="p49-early"]{display:block!important}\
+      #mrsOptionWrap[data-mrs-shell="p49-early"].mrs-option-wrap{max-width:600px;margin:4px auto;background:#fff;border-radius:12px;padding:12px 8px;text-align:center;overflow:visible;color:#2d2d2d}\
+      #mrsOptionWrap[data-mrs-shell="p49-early"] *{box-sizing:border-box}\
+      #mrsOptionWrap[data-mrs-shell="p49-early"] .mrs-shell-banner{display:flex;align-items:center;justify-content:center;gap:8px;background:#f5f3ef;border-left:3px solid #2d4a3e;padding:11px 14px;border-radius:0 10px 10px 0;margin-bottom:12px;text-align:left;font-size:13px;font-weight:600;color:#2d2d2d}\
+      #mrsOptionWrap[data-mrs-shell="p49-early"] .mrs-shell-banner b{color:#2d4a3e;font-weight:800}\
+      #mrsOptionWrap[data-mrs-shell="p49-early"] .mrs-shell-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}\
+      #mrsOptionWrap[data-mrs-shell="p49-early"] .mrs-shell-card{border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 0 0 1.5px #ddd}\
+      #mrsOptionWrap[data-mrs-shell="p49-early"] .mrs-shell-thumb{display:block;width:100%;aspect-ratio:1/1;background:linear-gradient(135deg,#f4f1ea,#e9e3d7)}\
+      #mrsOptionWrap[data-mrs-shell="p49-early"] .mrs-shell-line{display:block;height:10px;border-radius:999px;background:#eee7db;margin:8px auto 0}\
+      #mrsOptionWrap[data-mrs-shell="p49-early"] .mrs-shell-line.title{width:72%}\
+      #mrsOptionWrap[data-mrs-shell="p49-early"] .mrs-shell-line.meta{width:48%;margin-bottom:8px}\
+      #mrsOptionWrap[data-mrs-shell="p49-early"] .mrs-shell-info{background:#fafaf8;border:1px solid #eee;border-radius:10px;padding:14px 16px;min-height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}\
+      #mrsOptionWrap[data-mrs-shell="p49-early"] .mrs-shell-copy{width:58%;height:12px;border-radius:999px;background:#ece5d7}\
+      #mrsOptionWrap[data-mrs-shell="p49-early"] .mrs-shell-sub{width:42%;height:10px;border-radius:999px;background:#f1ebdf}\
+      @media(min-width:768px){#mrsOptionWrap[data-mrs-shell="p49-early"].mrs-option-wrap{max-width:100%;padding:8px 6px 0;margin:4px auto;border-radius:0;background:transparent}#mrsOptionWrap[data-mrs-shell="p49-early"] .mrs-shell-grid{padding:4px 6px 6px}#mrsOptionWrap[data-mrs-shell="p49-early"] .mrs-shell-thumb{aspect-ratio:3/4!important}}\
+      @media(max-width:767px){#mrsOptionWrap[data-mrs-shell="p49-early"].mrs-option-wrap{padding:8px 4px}#mrsOptionWrap[data-mrs-shell="p49-early"] .mrs-shell-thumb{aspect-ratio:3/4!important}}\
+      ';
+      (document.head || document.documentElement).appendChild(style);
+    }
+
+    function ensureP49EarlyShell(){
+      ensureP49EarlyShellStyles();
+      var existing = document.getElementById('mrsOptionWrap');
+      if(existing && existing.getAttribute('data-mrs-shell') !== 'p49-early') return true;
+      if(existing && existing.getAttribute('data-mrs-shell') === 'p49-early') return true;
+      var optArea = document.querySelector('.productOption');
+      if(!optArea || !optArea.parentNode) return false;
+      var shell = document.createElement('div');
+      shell.id = 'mrsOptionWrap';
+      shell.className = 'mrs-option-wrap';
+      shell.setAttribute('data-mrs-shell', 'p49-early');
+      shell.setAttribute('aria-hidden', 'true');
+      shell.innerHTML = '\
+        <div class="mrs-shell-banner"><span>☕</span><span><b>재구매 고객 전용 15% 혜택가</b></span></div>\
+        <div class="mrs-shell-grid">\
+          <div class="mrs-shell-card"><span class="mrs-shell-thumb"></span><span class="mrs-shell-line title"></span><span class="mrs-shell-line meta"></span></div>\
+          <div class="mrs-shell-card"><span class="mrs-shell-thumb"></span><span class="mrs-shell-line title"></span><span class="mrs-shell-line meta"></span></div>\
+          <div class="mrs-shell-card"><span class="mrs-shell-thumb"></span><span class="mrs-shell-line title"></span><span class="mrs-shell-line meta"></span></div>\
+          <div class="mrs-shell-card"><span class="mrs-shell-thumb"></span><span class="mrs-shell-line title"></span><span class="mrs-shell-line meta"></span></div>\
+        </div>\
+        <div class="mrs-shell-info"><span class="mrs-shell-copy"></span><span class="mrs-shell-sub"></span></div>';
+      optArea.parentNode.insertBefore(shell, optArea);
+      return true;
+    }
+
+    function ensureP49ScriptPreload(){
+      if(document.querySelector('link[data-mrs-p49-preload="1"]')) return;
+      var preload = document.createElement('link');
+      preload.rel = 'preload';
+      preload.as = 'script';
+      preload.href = MRS_P49_SCRIPT_URL;
+      preload.setAttribute('data-mrs-p49-preload', '1');
+      (document.head || document.documentElement).appendChild(preload);
+    }
+
+    ensureP49EarlyShell();
+    ensureP49ScriptPreload();
+    setTimeout(ensureP49EarlyShell, 80);
+    setTimeout(ensureP49EarlyShell, 240);
+    setTimeout(ensureP49EarlyShell, 700);
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', ensureP49EarlyShell, { once:true });
+    } else {
+      setTimeout(ensureP49EarlyShell, 0);
+    }
     window._mrsOptionLoaded = false;
     if(!document.querySelector('script[data-mrs-p49-loader="1"]')){
       var p49Script = document.createElement('script');
