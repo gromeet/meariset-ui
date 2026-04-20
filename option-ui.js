@@ -4,12 +4,12 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 127; /* 버전 번호 (12.7 = 127) — 27 카카오/네이버 클릭 흐름을 4/16 안정본으로 복구 */
+  var MRS_VERSION = 128; /* 버전 번호 (12.8 = 128) — 데스크톱 헤더 로고 hidden 복구 포함 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
   var MRS_TEST_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-test.js?v=135';
   var MRS_P30_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-p30.js?v=165';
-  var MRS_P49_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-p49.js?v=167';
+  var MRS_P49_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-p49.js?v=169';
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -141,6 +141,15 @@
     var logos = document.querySelectorAll('header.header .top-logo[df-banner-code="logo"]');
     for(var i=0;i<logos.length;i++){
       var logo = logos[i];
+      logo.hidden = false;
+      logo.removeAttribute('hidden');
+      logo.removeAttribute('aria-hidden');
+      logo.style.setProperty('display','flex','important');
+      logo.style.setProperty('align-items','center','important');
+      logo.style.setProperty('visibility','visible','important');
+      logo.style.setProperty('opacity','1','important');
+      logo.style.setProperty('position','relative','important');
+      logo.style.setProperty('z-index','61','important');
       logo.style.setProperty('pointer-events','auto','important');
       var items = Array.prototype.slice.call(logo.querySelectorAll('.top-logo__item'));
       if(!items.length) continue;
@@ -174,14 +183,33 @@
       if(!chosen) chosen = items[0];
 
       for(var m=0;m<items.length;m++){
-        items[m].style.setProperty('pointer-events','auto','important');
-        items[m].style.setProperty('cursor','pointer','important');
-        if(items[m] === chosen){
-          var chosenHref = (items[m].getAttribute('href') || '').trim();
+        var currentItem = items[m];
+        currentItem.style.setProperty('pointer-events','auto','important');
+        currentItem.style.setProperty('cursor','pointer','important');
+        if(currentItem === chosen){
+          var chosenHref = (currentItem.getAttribute('href') || '').trim();
           if(!chosenHref || chosenHref.indexOf('{#') !== -1 || chosenHref.indexOf('%7B#') !== -1 || /^javascript:/i.test(chosenHref)){
-            items[m].setAttribute('href','/');
+            currentItem.setAttribute('href','/');
           }
-          items[m].setAttribute('target','_self');
+          currentItem.setAttribute('target','_self');
+          currentItem.style.setProperty('display','inline-flex','important');
+          currentItem.style.setProperty('align-items','center','important');
+          currentItem.style.setProperty('justify-content','center','important');
+          currentItem.style.setProperty('width','auto','important');
+          currentItem.style.setProperty('min-width','135px','important');
+          currentItem.style.setProperty('height','auto','important');
+          currentItem.style.setProperty('flex','0 0 auto','important');
+          currentItem.style.setProperty('visibility','visible','important');
+          currentItem.style.setProperty('opacity','1','important');
+          var chosenImg = currentItem.querySelector('img');
+          if(chosenImg){
+            chosenImg.style.setProperty('display','block','important');
+            chosenImg.style.setProperty('max-width','135px','important');
+            chosenImg.style.setProperty('height','auto','important');
+            chosenImg.style.setProperty('pointer-events','auto','important');
+          }
+        } else {
+          currentItem.style.setProperty('display','none','important');
         }
       }
     }
@@ -222,6 +250,9 @@
   .ssp.df-bannermanager,.df-bannermanager{pointer-events:none!important}\
   .top-banner,.top-banner *,[df-banner-code="top-banner"],[df-banner-code="top-banner"] *{pointer-events:auto!important}\
   .top-banner{position:relative;z-index:30}\
+  header.header .top-logo[df-banner-code="logo"]{display:flex!important;align-items:center!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:61!important}\
+  header.header .top-logo[df-banner-code="logo"] .top-logo__item{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:auto!important;min-width:135px!important;height:auto!important;flex:0 0 auto!important;visibility:visible!important;opacity:1!important}\
+  header.header .top-logo[df-banner-code="logo"] .top-logo__item img{display:block!important;max-width:135px!important;height:auto!important;pointer-events:auto!important}\
   .ssp,.ssp__container,.ssp__list,.ssp__item--naver,.ssp__item--kakao{visibility:visible!important}\
   .ssp__item--naver a,.ssp__item--naver button,.ssp__item--naver [onclick],.ssp__item--kakao a,.ssp__item--kakao button,.ssp__item--kakao [onclick]{pointer-events:auto!important}\
   .mrs-option-wrap{max-width:600px;margin:4px auto;font-family:Pretendard,sans-serif;color:#2D2D2D;background:#fff;border-radius:12px;padding:12px 8px;text-align:center;overflow:visible}\
