@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 129; /* 버전 번호 (12.9 = 129) — 27 로고 보정을 데스크톱/모바일 분리 + 이미지 fallback 안전화 */
+  var MRS_VERSION = 130; /* 버전 번호 (13.0 = 130) — 모바일 로고 보정 1회 안정화 + 재실행 흔들림 제거 */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
   var MRS_TEST_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-test.js?v=135';
@@ -749,8 +749,9 @@
     return true;
   }
 
-  function mrsFixMobileHeaderLogo(){
+  function mrsFixMobileHeaderLogo(force){
     if(window.innerWidth>1024) return;
+    if(window.__mrsMobileLogoStable && !force) return;
     var header=document.querySelector('header.header');
     if(!header) return;
 
@@ -831,13 +832,21 @@
       chosenImg.style.removeProperty('height');
       chosenImg.style.setProperty('display','block','important');
       chosenImg.style.setProperty('pointer-events','auto','important');
-      if(!hasUsableImg){
-        if(!chosenImg.__mrsRetryBound){
-          chosenImg.__mrsRetryBound=true;
-          chosenImg.addEventListener('load', function(){ setTimeout(mrsFixMobileHeaderLogo, 0); }, { once:true });
-          chosenImg.addEventListener('error', function(){ setTimeout(mrsFixMobileHeaderLogo, 0); }, { once:true });
-        }
-        setTimeout(mrsFixMobileHeaderLogo, 1200);
+      if(hasUsableImg){
+        window.__mrsMobileLogoStable = true;
+        return;
+      }
+      if(!chosenImg.__mrsRetryBound){
+        chosenImg.__mrsRetryBound=true;
+        chosenImg.addEventListener('load', function(){ setTimeout(function(){ mrsFixMobileHeaderLogo(true); }, 0); }, { once:true });
+        chosenImg.addEventListener('error', function(){ setTimeout(function(){ mrsFixMobileHeaderLogo(true); }, 0); }, { once:true });
+      }
+      if(!window.__mrsMobileLogoRetryScheduled){
+        window.__mrsMobileLogoRetryScheduled = true;
+        setTimeout(function(){
+          window.__mrsMobileLogoRetryScheduled = false;
+          mrsFixMobileHeaderLogo(true);
+        }, 600);
       }
       return;
     }
@@ -858,6 +867,7 @@
     fallback.style.setProperty('white-space','nowrap','important');
     fallback.style.setProperty('color','#111','important');
     chosen.appendChild(fallback);
+    window.__mrsMobileLogoStable = true;
   }
 
   /* ── 초기화 ── */
@@ -874,13 +884,10 @@
     setTimeout(mrsEnsureUI, 300);
     setTimeout(mrsEnsureUI, 1200);
     setTimeout(mrsEnsureUI, 2500);
-    setTimeout(mrsFixMobileHeaderLogo, 250);
-    setTimeout(mrsFixMobileHeaderLogo, 900);
-    setTimeout(mrsFixMobileHeaderLogo, 2000);
-    setTimeout(mrsFixMobileHeaderLogo, 4000);
+    setTimeout(mrsFixMobileHeaderLogo, 120);
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mrsInit);
   else mrsInit();
-  window.addEventListener('load', function(){ mrsEnsureUI(); mrsFixMobileHeaderLogo(); });
+  window.addEventListener('load', function(){ mrsEnsureUI(); mrsFixMobileHeaderLogo(true); });
 })();
