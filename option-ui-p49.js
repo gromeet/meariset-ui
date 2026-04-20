@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 173; /* 버전 번호 (17.3 = 173) — exact p30 stable base with 49 pricing/text only */
+  var MRS_VERSION = 174; /* 버전 번호 (17.4 = 174) — exact p30 stable base with cache-bust */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/detail.html?product_no=49&cate_no=1&display_group=2';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
