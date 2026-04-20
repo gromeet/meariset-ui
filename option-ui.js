@@ -4,12 +4,15 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 133; /* 버전 번호 (13.3 = 133) — p49 loader handoff + prehide parity fix */
+  var MRS_VERSION = 134; /* 버전 번호 (13.4 = 134) — p49 exact p30-base restore */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
   var MRS_TEST_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-test.js?v=135';
   var MRS_P30_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-p30.js?v=173';
-  var MRS_P49_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-p49.js?v=172';
+  var MRS_P49_SCRIPT_URL = 'https://hyunvis.vercel.app/meariset/option-ui-p49.js?v=173';
+  var MRS_PEN_PRICE = 9900;
+  var MRS_PEN_PRODUCT_NO = '48';
+  var MRS_PEN_ITEM_CODE = 'P00000BW000A';
 
   /* 구버전이 먼저 로드된 경우 → 강제 교체 */
   if(window._mrsOptionLoaded && window._mrsVersion && window._mrsVersion >= MRS_VERSION) return;
@@ -170,7 +173,7 @@
       shell.setAttribute('data-mrs-shell', 'p49-early');
       shell.setAttribute('aria-hidden', 'true');
       shell.innerHTML = '\
-        <div class="mrs-shell-banner"><span>☕</span><span><b>재구매 고객 전용 15% 혜택가</b></span></div>\
+        <div class="mrs-shell-banner"><span>☕</span><span><b>재구매 인증 혜택 · 1권 제한</b></span></div>\
         <div class="mrs-shell-grid">\
           <div class="mrs-shell-card"><span class="mrs-shell-thumb"></span><span class="mrs-shell-line title"></span><span class="mrs-shell-line meta"></span></div>\
           <div class="mrs-shell-card"><span class="mrs-shell-thumb"></span><span class="mrs-shell-line title"></span><span class="mrs-shell-line meta"></span></div>\
@@ -467,6 +470,49 @@
   .mrs-cafe-banner{display:flex;align-items:center;gap:10px;background:#F5F3EF;border-left:3px solid #2D4A3E;padding:11px 14px;border-radius:0 10px 10px 0;margin-bottom:12px;text-align:left}\
   .mrs-cafe-text{font-size:13px;font-weight:600;color:#2D2D2D;line-height:1.4}\
   .mrs-cafe-free{font-weight:800;color:#2D4A3E}\
+  #mrsOptionWrap #mrsPenAddonBlock{margin-top:16px}\
+  #mrsOptionWrap .addon-section-label{font-size:13px;color:#1C1A17;font-weight:800;letter-spacing:.1px;margin:0 0 10px;padding-left:2px;display:flex;align-items:center;gap:6px}\
+  #mrsOptionWrap .addon-section-label::before{content:"✦";color:#D94A4A;font-size:12px}\
+  #mrsOptionWrap .bundle-reason{font-size:12px;color:#8A8173;line-height:1.45;margin:-4px 0 10px 2px;letter-spacing:-.1px;text-align:left;display:block;width:100%}\
+  #mrsOptionWrap .addon{background:#fff;border:1px solid #E8DFD0;border-radius:12px;padding:14px;margin-bottom:12px;transition:border-color .18s ease,background .18s ease,transform .22s cubic-bezier(0.34,1.56,0.64,1);display:flex;align-items:center;gap:12px;flex-wrap:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;box-shadow:0 2px 10px rgba(28,26,23,.06)}\
+  #mrsOptionWrap .addon:hover{border-color:#D9CDB8}\
+  #mrsOptionWrap .addon.selected{border-color:#1C1A17;background:#FBF6ED}\
+  #mrsOptionWrap .addon.bounce{animation:cardBounce .32s cubic-bezier(0.34,1.56,0.64,1)}\
+  @keyframes cardBounce{0%{transform:scale(1)}40%{transform:scale(.975)}100%{transform:scale(1)}}\
+  #mrsOptionWrap .addon-img{width:84px;flex-shrink:0;display:flex;align-items:center;justify-content:center}\
+  #mrsOptionWrap .addon-chip{width:84px;height:84px;border-radius:18px;background:linear-gradient(135deg,#1c1a17,#4b443a);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;letter-spacing:.6px;text-align:center;line-height:1.35;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}\
+  #mrsOptionWrap .addon-info{flex:1;min-width:0;text-align:left}\
+  #mrsOptionWrap .addon-head{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:4px}\
+  #mrsOptionWrap .addon-title{font-size:13.5px;font-weight:700;display:block;line-height:1.25;width:100%;text-align:left}\
+  #mrsOptionWrap .addon-title-text{white-space:nowrap;display:block}\
+  #mrsOptionWrap .limit-tag{font-size:9px;font-weight:800;color:#7A5F28;border:1px solid #C9A96E;background:rgba(201,169,110,0.08);padding:2px 6px;border-radius:2px;letter-spacing:.8px;text-transform:uppercase;line-height:1.3;white-space:nowrap}\
+  #mrsOptionWrap .addon-meta{font-size:11.5px;color:#5B5349;line-height:1.55;margin-bottom:9px;text-align:left}\
+  #mrsOptionWrap .addon-meta .usp{display:block;position:relative;padding-left:11px;white-space:nowrap}\
+  #mrsOptionWrap .addon-meta .usp::before{content:"";position:absolute;left:0;top:7px;width:4px;height:4px;border-radius:50%;background:#C9A96E}\
+  #mrsOptionWrap .addon-price-line{display:flex;flex-direction:column;align-items:flex-start;gap:4px}\
+  #mrsOptionWrap .addon-price-row1{display:flex;align-items:center;gap:6px;flex-wrap:nowrap}\
+  #mrsOptionWrap .addon-price-row2{display:flex;align-items:center;flex-wrap:nowrap;gap:6px}\
+  #mrsOptionWrap .addon-price-label{font-size:11px;color:#8A8173;font-weight:500;white-space:nowrap}\
+  #mrsOptionWrap .addon-price-line .strike{color:#8A8173;text-decoration:line-through;font-size:11px;font-weight:500;white-space:nowrap}\
+  #mrsOptionWrap .addon-price-line .now{font-weight:800;color:#1C1A17;font-size:17px;white-space:nowrap}\
+  #mrsOptionWrap .addon-price-line .save{font-size:12px;font-weight:800;color:#fff;background:#D94A4A;padding:3px 8px;border-radius:12px;white-space:nowrap;margin-left:2px}\
+  #mrsOptionWrap .addon-toggle{background:#fff;color:#1C1A17;border:1.5px solid #1C1A17;border-radius:999px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;transition:background .15s ease,color .15s ease,border-color .15s ease;display:flex;align-items:center;gap:4px;min-height:40px;-webkit-tap-highlight-color:transparent}\
+  #mrsOptionWrap .addon-toggle:hover{background:#FBF6ED}\
+  #mrsOptionWrap .addon-toggle .ico{font-size:14px;line-height:1;font-weight:400;display:inline-block;transition:transform .25s cubic-bezier(0.34,1.56,0.64,1)}\
+  #mrsOptionWrap .addon.selected .addon-toggle .ico{animation:checkPop .32s cubic-bezier(0.34,1.56,0.64,1)}\
+  @keyframes checkPop{0%{transform:scale(.4) rotate(-12deg)}60%{transform:scale(1.25) rotate(4deg)}100%{transform:scale(1) rotate(0)}}\
+  #mrsOptionWrap .addon.selected .addon-toggle{background:#1C1A17;color:#fff;border-color:#1C1A17}\
+  #mrsOptionWrap .addon.selected .addon-toggle .ico::before{content:"✓"}\
+  #mrsOptionWrap .addon-toggle .ico::before{content:"+"}\
+  #mrsOptionWrap .addon.selected .addon-toggle .txt::before{content:"추가됨"}\
+  #mrsOptionWrap .addon-toggle .txt::before{content:"담기"}\
+  #mrsOptionWrap .upsell-hint{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:#5B5349;text-align:center;margin:-2px 0 0;padding:10px 14px;background:#FBF6ED;border-radius:8px;text-decoration:none;transition:background .15s ease;letter-spacing:-.1px}\
+  #mrsOptionWrap .upsell-hint:hover{background:#F4EAD3}\
+  #mrsOptionWrap .upsell-hint b{color:#1C1A17;font-weight:700}\
+  #mrsOptionWrap .upsell-hint .arrow{color:#C9A96E;font-weight:700;font-size:13px;transition:transform .15s ease}\
+  #mrsOptionWrap .upsell-hint:hover .arrow{transform:translateX(2px)}\
+  @media(min-width:768px){#mrsOptionWrap .addon{gap:10px;padding:14px 16px 12px 14px}#mrsOptionWrap .addon-img{width:76px}#mrsOptionWrap .addon-chip{width:76px;height:76px}#mrsOptionWrap .addon-info{margin-left:-6px}#mrsOptionWrap .addon-title-text{font-size:13px;white-space:nowrap}}\
+  @media(max-width:767px){#mrsOptionWrap .addon{padding:12px;gap:10px}#mrsOptionWrap .addon-img{width:74px}#mrsOptionWrap .addon-chip{width:74px;height:74px}#mrsOptionWrap .addon-head{gap:5px}#mrsOptionWrap .addon-title{font-size:13px}#mrsOptionWrap .addon-meta{font-size:11px}#mrsOptionWrap .addon-price-line .now{font-size:17px}#mrsOptionWrap .addon-price-row2{gap:6px}}\
   @media(min-width:768px){.mrs-benefit-guide{padding:8px 8px 0}.mrs-benefit-row{padding:6px 8px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:11px;min-width:28px;height:28px}.mrs-benefit-price{font-size:13px}.mrs-benefit-discount{font-size:10px}.mrs-benefit-unit{display:inline;font-size:10px}.mrs-benefit-badge{font-size:10px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px}}\
   @media(max-width:767px){.mrs-benefit-guide{padding:8px 8px 10px;margin-top:6px}.mrs-benefit-row{padding:8px 10px;gap:4px;flex-wrap:nowrap}.mrs-benefit-qty{font-size:11px;min-width:28px;height:28px}.mrs-benefit-price{font-size:13px}.mrs-benefit-discount{font-size:10px}.mrs-benefit-unit{display:inline;font-size:9px}.mrs-benefit-badge{font-size:10px;padding:2px 6px;white-space:nowrap}.mrs-benefit-coupon{font-size:13px;padding:11px 14px}}\
   ';
@@ -592,6 +638,27 @@
   var PRESET_BY_COUNT={1:'1',2:'1,2',3:'1,2,3',4:'1,2,3,4'};
 
   var _prevCount=0,_toastTimer=null,_mrsSubmitting=false,_mrsStickyTimer=null,_mrsNativeObserver=null;
+  var _penAdded=false,_mrsPenSyncTimer=null,_mrsAddonSubmitCache=null;
+
+  function mrsSetProductOptionVisible(isVisible){
+    var prodOpt=document.querySelector('.productOption');
+    if(!prodOpt) return;
+    if(isVisible){
+      prodOpt.setAttribute('style','position:fixed!important;left:0!important;top:0!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0.01!important;z-index:-1!important;');
+      return;
+    }
+    prodOpt.setAttribute('style','position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;');
+  }
+  function mrsTriggerNativeChange(el){
+    if(!el) return;
+    if(window.jQuery){
+      window.jQuery(el).trigger('input');
+      window.jQuery(el).trigger('change');
+    }else{
+      try{ el.dispatchEvent(new Event('input',{bubbles:true})); }catch(e){}
+      el.dispatchEvent(new Event('change',{bubbles:true}));
+    }
+  }
 
   function mrsGetComboKey(){
     var cards=document.querySelectorAll('.mrs-card.selected'),seasons=[];
@@ -620,6 +687,64 @@
     }
     return 0;
   }
+  function mrsGetPenAddonData(){
+    var selectors=document.querySelectorAll('.xans-product-addproduct select,.addProduct select,select[id*="addproduct"],select[name*="addproduct"]');
+    var keywords=['클립펜','클립 펜','clip pen','clippen','clip_pen','clip-pen'];
+    for(var i=0;i<selectors.length;i++){
+      var sel=selectors[i];
+      if(!sel||!sel.options) continue;
+      for(var j=0;j<sel.options.length;j++){
+        var opt=sel.options[j];
+        var text=mrsGetText(opt);
+        for(var k=0;k<keywords.length;k++){
+          if(text.toLowerCase().indexOf(keywords[k].toLowerCase())!==-1){
+            return {select:sel, option:opt, value:opt.value, text:text};
+          }
+        }
+      }
+    }
+    return null;
+  }
+  function mrsMakeAddonOptional(){
+    var data=mrsGetPenAddonData();
+    if(!data||!data.select) return false;
+    var sel=data.select;
+    try{ sel.required=false; }catch(e){}
+    sel.removeAttribute('required');
+    sel.setAttribute('data-mrs-optional','true');
+    if(sel.options&&sel.options.length){
+      var first=sel.options[0];
+      if(first&&String(first.value||'').trim()==='*'){
+        var firstText=mrsGetText(first);
+        if(!/선택/.test(firstText) || /필수/.test(firstText)) first.text='상품 선택 (선택)';
+      }
+    }
+    var row=(sel.closest&& (sel.closest('.xans-product-addproduct .product > li')||sel.closest('.product > li')||sel.closest('li'))) || null;
+    if(row){
+      var nameNode=row.querySelector('.name');
+      if(nameNode){
+        nameNode.innerHTML=nameNode.innerHTML.replace(/\s*\[필수\]\s*/g,' ').replace(/\s*\(필수\)\s*/g,' (선택) ');
+        if(!/선택/.test(mrsGetText(nameNode))) nameNode.innerHTML=nameNode.innerHTML+' <span class="ec-base-label" style="font-weight:400;color:#8A8173">(선택)</span>';
+      }
+    }
+    return true;
+  }
+  function mrsSyncPenAddonSelection(enable){
+    var data=mrsGetPenAddonData();
+    if(!data||!data.select) return false;
+    mrsMakeAddonOptional();
+    var next=enable?String(data.value||'').trim():'*';
+    if(String(data.select.value||'').trim()===next) return true;
+    mrsSetProductOptionVisible(true);
+    data.select.value=next;
+    mrsTriggerNativeChange(data.select);
+    if(_mrsPenSyncTimer) clearTimeout(_mrsPenSyncTimer);
+    _mrsPenSyncTimer=setTimeout(function(){
+      mrsSetProductOptionVisible(false);
+      mrsSyncStickySoon();
+    },300);
+    return true;
+  }
   function mrsGetNativeAddonSelectedPrice(){
     var sels=document.querySelectorAll('.xans-product-addproduct select,.addProduct select,select[id*="addproduct"],select[name*="addproduct"]');
     var total=0;
@@ -640,6 +765,11 @@
       if(price>0) total+=price;
     }
     return total;
+  }
+  function mrsGetExpectedAddonPrice(){
+    var nativeAddonPrice=mrsGetNativeAddonSelectedPrice();
+    if(nativeAddonPrice>0) return nativeAddonPrice;
+    return _penAdded ? MRS_PEN_PRICE : 0;
   }
   function mrsGetNativeTotalPrice(){
     var selectors=[
@@ -691,7 +821,7 @@
     if(!bar)return;
     if(count>0&&PRICE_BY_COUNT[count]){
       var basePrice=PRICE_BY_COUNT[count]||0;
-      var addonPrice=mrsGetNativeAddonSelectedPrice();
+      var addonPrice=mrsGetExpectedAddonPrice();
       var nativeTotalPrice=mrsGetNativeTotalPrice();
       var computedTotalPrice=basePrice+addonPrice;
       var totalPrice=nativeTotalPrice>=computedTotalPrice?nativeTotalPrice:computedTotalPrice;
@@ -712,15 +842,352 @@
     if(TAGLINE[count]){el.innerHTML=TAGLINE[count];el.classList.remove('hidden');void el.offsetWidth;el.classList.add('visible');}
     else{el.classList.remove('visible');el.classList.add('hidden');}
   }
+  function mrsGetProductName(){
+    var selectors=['.headingArea h2','.headingArea .name','meta[property="og:title"]'];
+    for(var i=0;i<selectors.length;i++){
+      var el=document.querySelector(selectors[i]);
+      if(!el) continue;
+      var text=(el.getAttribute&&el.getAttribute('content')) || mrsGetText(el);
+      if(text) return text;
+    }
+    return '메아리셋 90일 목표달성 다이어리';
+  }
+  function mrsExtractOptId(itemCode){
+    return String(itemCode||'').trim().replace(/^P\d{5}[A-Z]{2}/,'');
+  }
+  function mrsGetMainSelectedItem(){
+    var input=document.querySelector('#totalProducts input[name="item_code[]"]');
+    if(!input||!input.value) return '';
+    return '1||'+String(input.value||'').trim();
+  }
+  function mrsGetAddonSelectedItems(){
+    var inputs=document.querySelectorAll('#totalProducts input[name="basket_add_product[]"]');
+    var values=[];
+    for(var i=0;i<inputs.length;i++){
+      var val=String(inputs[i].value||'').trim();
+      if(val) values.push('1||'+val);
+    }
+    return values;
+  }
+  function mrsBuildAddonSubmitCache(){
+    var mainSelectedItem=mrsGetMainSelectedItem();
+    var addonSelectedItems=mrsGetAddonSelectedItems();
+    var option1=String((document.querySelector('#totalProducts input[name="item_code[]"]')||{}).value||'');
+    if(!mainSelectedItem||!option1||!addonSelectedItems.length) return null;
+    var params=new URLSearchParams();
+    params.append('selected_item[]',mainSelectedItem);
+    for(var i=0;i<addonSelectedItems.length;i++) params.append('selected_add_item[]',addonSelectedItems[i]);
+    params.append('relation_product','yes');
+    params.append('is_individual','F');
+    params.append('product_no','27');
+    params.append('product_name',mrsGetProductName());
+    params.append('main_cate_no','1');
+    params.append('display_group','2');
+    params.append('option_type','T');
+    params.append('product_min','1');
+    params.append('command','add');
+    params.append('has_option','T');
+    params.append('product_price',String(PRICE_BY_COUNT[document.querySelectorAll('.mrs-card.selected').length]||29000));
+    params.append('multi_option_schema','');
+    params.append('multi_option_data','');
+    params.append('delvType','A');
+    params.append('redirect','1');
+    params.append('product_max_type','F');
+    params.append('product_max','-1');
+    params.append('basket_type','A0000');
+    params.append('ch_ref','');
+    params.append('prd_detail_ship_type','');
+    params.append('quantity','1');
+    params.append('is_direct_buy','F');
+    params.append('optionids[]','option1');
+    params.append('needed[]','option1');
+    params.append('option1',option1);
+    params.append('quantity_override_flag','F');
+    params.append('is_cultural_tax','F');
+    return { mainSelectedItem:mainSelectedItem, addonSelectedItems:addonSelectedItems, option1:option1, body:params.toString() };
+  }
+  function mrsPostBasketForm(params){
+    return fetch('/exec/front/order/basket/',{
+      method:'POST',
+      credentials:'include',
+      headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},
+      body:(params instanceof URLSearchParams) ? params.toString() : (typeof params==='string' ? params : new URLSearchParams(params).toString())
+    }).then(function(res){
+      return res.text().then(function(text){
+        var json=null;
+        try{ json=text?JSON.parse(text):null; }catch(e){}
+        return { ok:res.ok, status:res.status, text:text, json:json };
+      });
+    });
+  }
+  function mrsBuildNoteBasketParams(optionValue){
+    return {
+      'selected_item[]':'1||'+String(optionValue||'').trim(),
+      relation_product:'yes',
+      is_individual:'F',
+      product_no:'27',
+      product_name:mrsGetProductName(),
+      main_cate_no:'1',
+      display_group:'2',
+      option_type:'T',
+      product_min:'1',
+      command:'add',
+      has_option:'T',
+      product_price:String(PRICE_BY_COUNT[document.querySelectorAll('.mrs-card.selected').length]||29000),
+      multi_option_schema:'',
+      multi_option_data:'',
+      delvType:'A',
+      redirect:'2',
+      product_max_type:'F',
+      product_max:'-1',
+      basket_type:'A0000',
+      ch_ref:'',
+      prd_detail_ship_type:'',
+      quantity:'1',
+      is_direct_buy:'F',
+      'optionids[]':'option1',
+      'needed[]':'option1',
+      option1:String(optionValue||'').trim(),
+      quantity_override_flag:'F',
+      is_cultural_tax:'F'
+    };
+  }
+  function mrsBuildPenBasketParams(){
+    return {
+      'selected_item[]':'1||'+String(MRS_PEN_ITEM_CODE),
+      relation_product:'yes',
+      is_individual:'F',
+      product_no:String(MRS_PEN_PRODUCT_NO),
+      product_name:'[메아리셋 전용] 한정판 클립펜',
+      main_cate_no:'43',
+      display_group:'1',
+      option_type:'T',
+      product_min:'1',
+      command:'add',
+      has_option:'F',
+      product_price:String(MRS_PEN_PRICE),
+      multi_option_schema:'',
+      multi_option_data:'',
+      delvType:'A',
+      redirect:'2',
+      product_max_type:'F',
+      product_max:'-1',
+      basket_type:'A0000',
+      ch_ref:'',
+      prd_detail_ship_type:'',
+      quantity:'1',
+      is_direct_buy:'F',
+      is_cultural_tax:'F'
+    };
+  }
+  function mrsFetchBasketProductMeta(){
+    return fetch('/order/basket.html',{ credentials:'include' }).then(function(res){ return res.text(); }).then(function(html){
+      var matches=[].slice.call(html.matchAll(/aBasketProductData\[(\d+)\]\s*=\s*(\{[\s\S]*?\});/g));
+      var list=[];
+      for(var i=0;i<matches.length;i++){
+        try{
+          var obj=JSON.parse(matches[i][2]);
+          list.push({
+            product_no:String(obj.product_no),
+            opt_id:String(obj.opt_id||''),
+            basket_prd_no:String(obj.basket_prd_no||''),
+            custom_data_idx:obj.custom_data_idx==null?'null':String(obj.custom_data_idx),
+            delvtype:String(obj.delvtype||'A')
+          });
+        }catch(e){}
+      }
+      return list;
+    });
+  }
+  function mrsBuildCheckedProduct(list, optionValue, includePen){
+    var targets=[{ product_no:'27', opt_id:mrsExtractOptId(optionValue) }];
+    if(includePen) targets.push({ product_no:String(MRS_PEN_PRODUCT_NO), opt_id:mrsExtractOptId(MRS_PEN_ITEM_CODE) });
+    var out=[];
+    for(var i=0;i<targets.length;i++){
+      var matches=list.filter(function(item){ return item.product_no===targets[i].product_no && item.opt_id===targets[i].opt_id; });
+      matches.sort(function(a,b){ return Number(b.basket_prd_no||0)-Number(a.basket_prd_no||0); });
+      if(!matches.length) return '';
+      var item=matches[0];
+      out.push([item.product_no,item.opt_id,'F',item.basket_prd_no,item.custom_data_idx,item.delvtype].join(':'));
+    }
+    return out.join(',');
+  }
+  function mrsPostOrderSelection(checkedProduct){
+    var params=new URLSearchParams();
+    params.append('checked_product', checkedProduct);
+    params.append('basket_type', 'all_buy');
+    params.append('delvtype', 'A');
+    try{
+      if(window.CAFE24 && typeof CAFE24.getChRefData==='function') params.append('ch_ref', CAFE24.getChRefData() || '');
+    }catch(e){ params.append('ch_ref',''); }
+    return fetch('/exec/front/order/order/',{
+      method:'POST',
+      credentials:'include',
+      headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},
+      body:params.toString()
+    }).then(function(res){
+      return res.text().then(function(text){
+        var json=null;
+        try{ json=text?JSON.parse(text):null; }catch(e){}
+        return { ok:res.ok, status:res.status, text:text, json:json };
+      });
+    });
+  }
+  function mrsNavigateNativeOrderFlow(checkedProduct, isLogin){
+    var orderUrl='/order/orderform.html?basket_type=all_buy&delvtype=A';
+    try{
+      if(window.CAFE24 && typeof CAFE24.attachChRef==='function') orderUrl=CAFE24.attachChRef(orderUrl);
+    }catch(e){}
+    if(checkedProduct) orderUrl += '&checked_product=' + encodeURIComponent(checkedProduct);
+    if(isLogin==='F'){
+      var loginUrl='/member/login.html?noMember=1&returnUrl='+escape(orderUrl);
+      try{
+        if(window.CAFE24 && typeof CAFE24.hasChRef==='function' && CAFE24.hasChRef() && typeof CAFE24.attachChRef==='function'){
+          var urlObj=new URL(loginUrl, window.location.origin);
+          if(!urlObj.searchParams.has('ch_ref')) loginUrl=CAFE24.attachChRef(loginUrl);
+        }
+      }catch(e){}
+      location.href=loginUrl;
+      return;
+    }
+    location.href=orderUrl;
+  }
+  function mrsSubmitQuickBuy(optionValue, restoreFns, _origCheck){
+    return mrsPostBasketForm(mrsBuildNoteBasketParams(optionValue)).then(function(mainPayload){
+      var mainResult=mainPayload&&mainPayload.json?mainPayload.json:null;
+      if(!(mainResult&&mainResult.result===0)) throw new Error((mainResult&&mainResult.alertMSG)||'main-submit-failed');
+      return mrsPostBasketForm(mrsBuildPenBasketParams());
+    }).then(function(penPayload){
+      var penResult=penPayload&&penPayload.json?penPayload.json:null;
+      if(!(penResult&&penResult.result===0)) throw new Error((penResult&&penResult.alertMSG)||'pen-submit-failed');
+      return mrsFetchBasketProductMeta();
+    }).then(function(list){
+      var checkedProduct=mrsBuildCheckedProduct(list, optionValue, true);
+      if(!checkedProduct) throw new Error('checked-product-missing');
+      return mrsPostOrderSelection(checkedProduct).then(function(orderPayload){
+        var orderResult=orderPayload&&orderPayload.json?orderPayload.json:null;
+        if(!(orderResult&&Number(orderResult.result)>=0)) throw new Error((orderResult&&orderResult.alertMSG)||'order-select-failed');
+        _mrsSubmitting=false;
+        window.alert=restoreFns.alert;
+        window.confirm=restoreFns.confirm;
+        if(_origCheck) window.checkOptionRequired=_origCheck;
+        else delete window.checkOptionRequired;
+        mrsNavigateNativeOrderFlow(checkedProduct, orderResult.isLogin || 'F');
+      });
+    }).catch(function(err){
+      _mrsSubmitting=false;
+      window.alert=restoreFns.alert;
+      window.confirm=restoreFns.confirm;
+      if(_origCheck) window.checkOptionRequired=_origCheck;
+      else delete window.checkOptionRequired;
+      restoreFns.alert('구매 흐름을 준비하는 중 문제가 생겼습니다. 다시 시도해주세요.');
+      console.warn('[mrs-p27] quick buy native flow failed', err);
+    });
+  }
+  function mrsSubmitWithAddon(type, restoreFns, _origCheck){
+    var cache=_mrsAddonSubmitCache||mrsBuildAddonSubmitCache();
+    if(!cache||!cache.mainSelectedItem){
+      _mrsSubmitting=false;
+      window.alert=restoreFns.alert;
+      window.confirm=restoreFns.confirm;
+      if(_origCheck) window.checkOptionRequired=_origCheck;
+      else delete window.checkOptionRequired;
+      restoreFns.alert('선택한 옵션 정보를 다시 불러오지 못했습니다. 다시 시도해주세요.');
+      return;
+    }
+    fetch('/exec/front/order/basket/',{
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'},
+      body:cache.body,
+      credentials:'include'
+    }).then(function(res){
+      return res.text().then(function(text){ return { status:res.status, text:text }; });
+    }).then(function(payload){
+      var result=null;
+      try{ result=payload.text?JSON.parse(payload.text):null; }catch(e){}
+      _mrsSubmitting=false;
+      window.alert=restoreFns.alert;
+      window.confirm=restoreFns.confirm;
+      if(_origCheck) window.checkOptionRequired=_origCheck;
+      else delete window.checkOptionRequired;
+      if(result&&result.result===0){
+        if(type===1){
+          if(result.isLogin==='T') location.href='/order/orderform.html?basket_type=A0000&delvtype=A';
+          else location.href='/member/login.html?noMember=1&returnUrl=%2Forder%2Forderform.html%3Fbasket_type%3DA0000%26delvtype%3DA';
+          return;
+        }
+        location.href='/order/basket.html';
+        return;
+      }
+      restoreFns.alert(result&&result.alertMSG?result.alertMSG:'입력하신 정보가 올바르지 않습니다.');
+    }).catch(function(){
+      _mrsSubmitting=false;
+      window.alert=restoreFns.alert;
+      window.confirm=restoreFns.confirm;
+      if(_origCheck) window.checkOptionRequired=_origCheck;
+      else delete window.checkOptionRequired;
+      restoreFns.alert('구매 정보를 전송하지 못했습니다. 다시 시도해주세요.');
+    });
+  }
+  function mrsEnsurePenAddon(){
+    var guide=document.getElementById('mrsBenefitGuide')||document.getElementById('mrsInfo');
+    if(!guide||document.getElementById('mrsPenAddonBlock')) return;
+    guide.insertAdjacentHTML('afterend','\
+    <div id="mrsPenAddonBlock">\
+      <div class="addon-section-label">함께 구매하면 <span style="color:#D94A4A; margin-left:2px;">34% 할인</span></div>\
+      <div class="bundle-reason">✍️ 펜을 따로 챙기지 않아도 돼요</div>\
+      <div class="addon" id="penAddon">\
+        <div class="addon-img"><div class="addon-chip">CLIP<br/>PEN</div></div>\
+        <div class="addon-info">\
+          <div class="addon-head">\
+            <span class="limit-tag">LIMITED EDITION</span>\
+            <div class="addon-title"><span class="addon-title-text">[메아리셋 전용] 한정판 클립펜</span></div>\
+          </div>\
+          <div class="addon-meta">\
+            <span class="usp">노트에 끼워 휴대하는 펜</span>\
+            <span class="usp">독일 0.7mm 펜촉</span>\
+            <span class="usp">같이 사면 9,900원</span>\
+          </div>\
+          <div class="addon-price-line">\
+            <div class="addon-price-row1"><span class="addon-price-label">정상가</span><span class="strike">15,000원</span></div>\
+            <div class="addon-price-row2"><span class="addon-price-label">같이 구매 시</span><span class="now">9,900원</span><span class="save">-34% 할인</span></div>\
+          </div>\
+        </div>\
+        <button class="addon-toggle" id="penToggle" type="button"><span class="ico"></span><span class="txt"></span></button>\
+      </div>\
+      <a class="upsell-hint" href="#mrsBenefitGuide"><span><b>4권 이상 구매 시</b> 한정판 클립펜 무료 증정</span><span class="arrow">→</span></a>\
+    </div>');
+    var penCard=document.getElementById('penAddon');
+    var penToggle=document.getElementById('penToggle');
+    if(!penCard||!penToggle) return;
+    function togglePen(e){
+      if(e) e.stopPropagation();
+      var count=document.querySelectorAll('.mrs-card.selected').length;
+      var prevTotal=(PRICE_BY_COUNT[count]||0)+(_penAdded?MRS_PEN_PRICE:0);
+      _penAdded=!_penAdded;
+      var nextTotal=(PRICE_BY_COUNT[count]||0)+(_penAdded?MRS_PEN_PRICE:0);
+      penCard.classList.toggle('selected',_penAdded);
+      penCard.classList.remove('bounce');
+      void penCard.offsetWidth;
+      penCard.classList.add('bounce');
+      mrsSyncPenAddonSelection(_penAdded);
+      if(count>0){
+        mrsAnimatePrice(prevTotal,nextTotal,350);
+        mrsUpdateSticky(count);
+      }
+    }
+    penCard.addEventListener('click',togglePen);
+    penToggle.addEventListener('click',function(e){ e.stopPropagation(); togglePen(); });
+  }
 
 
 
   window.mrsToggle=function(card){
     card.classList.toggle('selected');
-    var count=document.querySelectorAll('.mrs-card.selected').length,prevPrice=PRICE_BY_COUNT[_prevCount]||0;
+    var count=document.querySelectorAll('.mrs-card.selected').length,prevPrice=(PRICE_BY_COUNT[_prevCount]||0)+(_penAdded?MRS_PEN_PRICE:0);
     var info=INFO_BY_COUNT[count];
     document.getElementById('mrsInfo').innerHTML=info?info:'<p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p><p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>';
-    if(info&&PRICE_BY_COUNT[count]) requestAnimationFrame(function(){mrsAnimatePrice(prevPrice,PRICE_BY_COUNT[count],350);});
+    if(info&&PRICE_BY_COUNT[count]) requestAnimationFrame(function(){mrsAnimatePrice(prevPrice,PRICE_BY_COUNT[count]+(_penAdded?MRS_PEN_PRICE:0),350);});
     if(_prevCount<3&&count>=3&&count<4) setTimeout(function(){mrsShowToast('🎉 배송비 무료 달성!','green');},150);
     if(_prevCount<4&&count>=4) setTimeout(function(){mrsShowToast('🏆 최저가 달성!','red');},150);
     mrsUpdateTagline(count);mrsUpdateSticky(count);mrsUpdateBenefit();_prevCount=count;
@@ -752,11 +1219,11 @@
       var card=document.querySelector('.mrs-card[data-season="'+s+'"]');
       if(card) card.classList.add('selected');
     }
-    var prevPrice=PRICE_BY_COUNT[_prevCount]||0;
+    var prevPrice=(PRICE_BY_COUNT[_prevCount]||0)+(_penAdded?MRS_PEN_PRICE:0);
     var info=INFO_BY_COUNT[count];
     var infoEl=document.getElementById('mrsInfo');
     if(infoEl) infoEl.innerHTML=info||'<p class="mrs-title">✍️ 적어라, 메아리 되어 돌아온다</p><p class="mrs-info-copy" style="color:#8B6914;font-size:13px;margin-top:2px">나에게 맞는 시즌을 골라보세요</p>';
-    if(info&&PRICE_BY_COUNT[count]) requestAnimationFrame(function(){mrsAnimatePrice(prevPrice,PRICE_BY_COUNT[count],350);});
+    if(info&&PRICE_BY_COUNT[count]) requestAnimationFrame(function(){mrsAnimatePrice(prevPrice,PRICE_BY_COUNT[count]+(_penAdded?MRS_PEN_PRICE:0),350);});
     mrsUpdateTagline(count);mrsUpdateSticky(count);mrsUpdateBenefit();_prevCount=count;
   };
 
