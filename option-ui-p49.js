@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 171; /* 버전 번호 (17.1 = 171) — stable p30 flow port for p49 with native selected-order sync */
+  var MRS_VERSION = 172; /* 버전 번호 (17.2 = 172) — prehide parity + native option visibility fix */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/detail.html?product_no=49&cate_no=1&display_group=2';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
   var MRS_DISPLAY_PRICE_BY_COUNT = {1:24650};
@@ -669,8 +669,8 @@
   function mrsSetProductOptionVisible(show){
     var prodOpt=document.querySelector('.productOption');
     if(!prodOpt)return;
-    if(show) prodOpt.setAttribute('style','position:fixed!important;left:0!important;top:0!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0.01!important;z-index:-1!important;');
-    else prodOpt.setAttribute('style','position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;');
+    if(show) prodOpt.setAttribute('style','display:block!important;position:fixed!important;left:0!important;top:0!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0.01!important;z-index:-1!important;');
+    else prodOpt.setAttribute('style','display:none!important;position:fixed!important;left:-99999px!important;top:-99999px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;');
   }
   function mrsSuppressNativeOptionAlerts(ms){
     var orig=window._mrsOrigAlert || window.alert;
