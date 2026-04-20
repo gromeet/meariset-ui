@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 121; /* 버전 번호 (12.1 = 121) — guest link keeps checked_product as last param */
+  var MRS_VERSION = 122; /* 버전 번호 (12.2 = 122) — use native /exec/front/order/order/ selection flow */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -990,9 +990,8 @@
   }
 
   function mrsBuildCheckedProduct(list, optionValue, includePen){
-    var targets=[];
+    var targets=[{ product_no:'30', opt_id:String(optionValue||'').trim().replace(/^P00000BE/,'') }];
     if(includePen) targets.push({ product_no:String(MRS_PEN_PRODUCT_NO), opt_id:String(MRS_PEN_ITEM_CODE).replace(/^P00000BW/,'') });
-    targets.push({ product_no:'30', opt_id:String(optionValue||'').trim().replace(/^P00000BE/,'') });
     var out=[];
     for(var i=0;i<targets.length;i++){
       var matches=list.filter(function(item){ return item.product_no===targets[i].product_no && item.opt_id===targets[i].opt_id; });
@@ -1004,14 +1003,46 @@
     return out.join(',');
   }
 
-  function mrsGoQuickOrderform(checkedProduct, isLogin){
-    var base='/order/orderform.html?basket_type=all_buy&delvtype=A';
-    if(isLogin==='T'){
-      location.href=base+'&checked_product='+encodeURIComponent(checkedProduct);
+  function mrsPostOrderSelection(checkedProduct){
+    var params=new URLSearchParams();
+    params.append('checked_product', checkedProduct);
+    params.append('basket_type', 'all_buy');
+    params.append('delvtype', 'A');
+    try{
+      if(window.CAFE24 && typeof CAFE24.getChRefData==='function') params.append('ch_ref', CAFE24.getChRefData() || '');
+    }catch(e){ params.append('ch_ref',''); }
+    return fetch('/exec/front/order/order/', {
+      method:'POST',
+      credentials:'include',
+      headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},
+      body:params.toString()
+    }).then(function(res){
+      return res.text().then(function(text){
+        var json=null;
+        try{ json=text?JSON.parse(text):null; }catch(e){}
+        return { ok: res.ok, status: res.status, text: text, json: json };
+      });
+    });
+  }
+
+  function mrsNavigateNativeOrderFlow(checkedProduct, isLogin){
+    var orderUrl='/order/orderform.html?basket_type=all_buy&delvtype=A';
+    try{
+      if(window.CAFE24 && typeof CAFE24.attachChRef==='function') orderUrl=CAFE24.attachChRef(orderUrl);
+    }catch(e){}
+    if(isLogin==='F'){
+      var loginUrl='/member/login.html?noMember=1&returnUrl='+escape(orderUrl);
+      try{
+        if(window.CAFE24 && typeof CAFE24.hasChRef==='function' && CAFE24.hasChRef() && typeof CAFE24.attachChRef==='function'){
+          var urlObj=new URL(loginUrl, window.location.origin);
+          if(!urlObj.searchParams.has('ch_ref')) loginUrl=CAFE24.attachChRef(loginUrl);
+        }
+      }catch(e){}
+      if(checkedProduct) loginUrl += '&checked_product=' + encodeURIComponent(checkedProduct);
+      location.href=loginUrl;
       return;
     }
-    var returnUrl=base+'&checked_product='+encodeURIComponent(checkedProduct);
-    location.href='/member/login.html?noMember=1&returnUrl='+encodeURIComponent(returnUrl);
+    location.href=orderUrl;
   }
 
   function mrsSubmitQuickBuy(optionValues, includePen, restoreFns){
@@ -1020,47 +1051,40 @@
     var _origCheck=window.checkOptionRequired;
     window.checkOptionRequired=function(){return true;};
     console.info('[mrs-p30] quick buy submit', { option1: option1, includePen: !!includePen });
-    if(includePen){
-      mrsPostBasketForm(mrsBuildNoteBasketParams(option1)).then(function(mainPayload){
-        var mainResult=mainPayload&&mainPayload.json?mainPayload.json:null;
-        console.info('[mrs-p30] quick buy main result', { status: mainPayload.status, result: mainResult });
-        if(!(mainResult&&mainResult.result===0)) throw new Error((mainResult&&mainResult.alertMSG)||'main-submit-failed');
-        return mrsPostBasketForm(mrsBuildPenBasketParams()).then(function(penPayload){
-          var penResult=penPayload&&penPayload.json?penPayload.json:null;
-          console.info('[mrs-p30] quick buy pen result', { status: penPayload.status, result: penResult });
-          if(!(penResult&&penResult.result===0)) throw new Error((penResult&&penResult.alertMSG)||'pen-submit-failed');
-          return { isLogin: mainResult.isLogin };
-        });
-      }).then(function(state){
-        return mrsFetchBasketProductMeta().then(function(list){
-          var checkedProduct=mrsBuildCheckedProduct(list, option1, true);
-          if(!checkedProduct) throw new Error('checked-product-missing');
+    var basketFlow=(includePen
+      ? mrsPostBasketForm(mrsBuildNoteBasketParams(option1)).then(function(mainPayload){
+          var mainResult=mainPayload&&mainPayload.json?mainPayload.json:null;
+          console.info('[mrs-p30] quick buy main result', { status: mainPayload.status, result: mainResult });
+          if(!(mainResult&&mainResult.result===0)) throw new Error((mainResult&&mainResult.alertMSG)||'main-submit-failed');
+          return mrsPostBasketForm(mrsBuildPenBasketParams()).then(function(penPayload){
+            var penResult=penPayload&&penPayload.json?penPayload.json:null;
+            console.info('[mrs-p30] quick buy pen result', { status: penPayload.status, result: penResult });
+            if(!(penResult&&penResult.result===0)) throw new Error((penResult&&penResult.alertMSG)||'pen-submit-failed');
+          });
+        })
+      : mrsPostBasketForm(mrsBuildNoteBasketParams(option1)).then(function(payload){
+          var result=payload&&payload.json?payload.json:null;
+          console.info('[mrs-p30] quick buy note result', { status: payload.status, result: result, includePen: false });
+          if(!(result&&result.result===0)) throw new Error((result&&result.alertMSG)||'note-submit-failed');
+        })
+    );
+
+    basketFlow.then(function(){
+      return mrsFetchBasketProductMeta().then(function(list){
+        var checkedProduct=mrsBuildCheckedProduct(list, option1, !!includePen);
+        if(!checkedProduct) throw new Error('checked-product-missing');
+        return mrsPostOrderSelection(checkedProduct).then(function(orderPayload){
+          var orderResult=orderPayload&&orderPayload.json?orderPayload.json:null;
+          console.info('[mrs-p30] quick buy order selection result', { status: orderPayload.status, result: orderResult, checkedProduct: checkedProduct });
+          if(!(orderResult && Number(orderResult.result) >= 0)) throw new Error((orderResult&&orderResult.alertMSG)||'order-select-failed');
           mrsFinishSubmitFlow(restoreFns, _origCheck);
-          mrsGoQuickOrderform(checkedProduct, state.isLogin);
+          mrsNavigateNativeOrderFlow(checkedProduct, orderResult.isLogin || 'F');
         });
-      }).catch(function(err){
-        console.warn('[mrs-p30] quick buy split submit failed', err);
-        mrsFinishSubmitFlow(restoreFns, _origCheck);
-        restoreFns.alert('추가구매 옵션을 함께 담는 중 문제가 생겼습니다. 다시 시도해주세요.');
       });
-      return true;
-    }
-    var body=mrsBuildQuickBuySubmitBody(option1);
-    mrsPostBasketForm(body).then(function(payload){
-      var result=payload&&payload.json?payload.json:null;
-      console.info('[mrs-p30] quick buy submit result', { status: payload.status, result: result, includePen: false });
-      if(result&&result.result===0){
-        mrsFinishSubmitFlow(restoreFns, _origCheck);
-        if(result.isLogin==='T') location.href='/order/orderform.html?basket_type=A0000&delvtype=A';
-        else location.href='/member/login.html?noMember=1&returnUrl=%2Forder%2Forderform.html%3Fbasket_type%3DA0000%26delvtype%3DA&delvtype=A';
-        return;
-      }
-      mrsFinishSubmitFlow(restoreFns, _origCheck);
-      restoreFns.alert(result&&result.alertMSG?result.alertMSG:'구매 정보를 바로 전송하지 못했습니다. 다시 시도해주세요.');
     }).catch(function(err){
-      console.warn('[mrs-p30] quick buy submit failed', err);
+      console.warn('[mrs-p30] quick buy native flow failed', err);
       mrsFinishSubmitFlow(restoreFns, _origCheck);
-      restoreFns.alert('구매 정보를 전송하지 못했습니다. 다시 시도해주세요.');
+      restoreFns.alert('구매 흐름을 준비하는 중 문제가 생겼습니다. 다시 시도해주세요.');
     });
     return true;
   }
