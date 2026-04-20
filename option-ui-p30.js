@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 118; /* 버전 번호 (11.8 = 118) — p30 buy-now direct submit without pre-wait */
+  var MRS_VERSION = 119; /* 버전 번호 (11.9 = 119) — p30 pen split basket submit + checked_product orderform */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -857,12 +857,11 @@
     return _mrsAddonSubmitCache;
   }
 
-  function mrsBuildQuickBuySubmitBody(optionValue, includePen){
+  function mrsBuildQuickBuySubmitBody(optionValue){
     var option1=String(optionValue||'').trim();
     if(!option1) return '';
     var params=new URLSearchParams();
     params.append('selected_item[]','1||'+option1);
-    if(includePen) params.append('selected_add_item[]','1||'+MRS_PEN_ITEM_CODE);
     params.append('relation_product','yes');
     params.append('is_individual','F');
     params.append('product_no','30');
@@ -893,24 +892,162 @@
     return params.toString();
   }
 
+  function mrsPostBasketForm(params){
+    return fetch('/exec/front/order/basket/',{
+      method:'POST',
+      credentials:'include',
+      headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest'},
+      body:(params instanceof URLSearchParams) ? params.toString() : (typeof params==='string' ? params : new URLSearchParams(params).toString())
+    }).then(function(res){
+      return res.text().then(function(text){
+        var json=null;
+        try{ json=text?JSON.parse(text):null; }catch(e){}
+        return { ok: res.ok, status: res.status, text: text, json: json };
+      });
+    });
+  }
+
+  function mrsBuildNoteBasketParams(optionValue){
+    return {
+      'selected_item[]':'1||'+String(optionValue||'').trim(),
+      relation_product:'yes',
+      is_individual:'F',
+      product_no:'30',
+      product_name:'[6주 인증 30% 할인] 메아리셋 90일 목표달성 다이어리 - 뇌과학 기반 9단계 습관 시스템',
+      main_cate_no:'1',
+      display_group:'2',
+      option_type:'T',
+      product_min:'1',
+      command:'add',
+      has_option:'T',
+      product_price:'20300',
+      multi_option_schema:'',
+      multi_option_data:'',
+      delvType:'A',
+      redirect:'2',
+      product_max_type:'F',
+      product_max:'-1',
+      basket_type:'A0000',
+      ch_ref:'',
+      prd_detail_ship_type:'',
+      quantity:'1',
+      is_direct_buy:'F',
+      'optionids[]':'option1',
+      'needed[]':'option1',
+      option1:String(optionValue||'').trim(),
+      quantity_override_flag:'F',
+      is_cultural_tax:'F'
+    };
+  }
+
+  function mrsBuildPenBasketParams(){
+    return {
+      'selected_item[]':'1||'+MRS_PEN_ITEM_CODE,
+      relation_product:'yes',
+      is_individual:'F',
+      product_no:String(MRS_PEN_PRODUCT_NO),
+      product_name:'[메아리셋 전용] 한정판 클립펜',
+      main_cate_no:'43',
+      display_group:'1',
+      option_type:'T',
+      product_min:'1',
+      command:'add',
+      has_option:'F',
+      product_price:String(MRS_PEN_PRICE),
+      multi_option_schema:'',
+      multi_option_data:'',
+      delvType:'A',
+      redirect:'2',
+      product_max_type:'F',
+      product_max:'-1',
+      basket_type:'A0000',
+      ch_ref:'',
+      prd_detail_ship_type:'',
+      quantity:'1',
+      is_direct_buy:'F',
+      is_cultural_tax:'F'
+    };
+  }
+
+  function mrsFetchBasketProductMeta(){
+    return fetch('/order/basket.html',{ credentials:'include' }).then(function(res){ return res.text(); }).then(function(html){
+      var matches=[...html.matchAll(/aBasketProductData\[(\d+)\]\s*=\s*(\{[\s\S]*?\});/g)];
+      var list=[];
+      for(var i=0;i<matches.length;i++){
+        try{
+          var obj=JSON.parse(matches[i][2]);
+          list.push({
+            product_no:String(obj.product_no),
+            opt_id:String(obj.opt_id||''),
+            basket_prd_no:String(obj.basket_prd_no||''),
+            custom_data_idx:obj.custom_data_idx==null?'null':String(obj.custom_data_idx),
+            delvtype:String(obj.delvtype||'A')
+          });
+        }catch(e){}
+      }
+      return list;
+    });
+  }
+
+  function mrsBuildCheckedProduct(list, optionValue, includePen){
+    var targets=[];
+    if(includePen) targets.push({ product_no:String(MRS_PEN_PRODUCT_NO), opt_id:String(MRS_PEN_ITEM_CODE).replace(/^P00000BW/,'') });
+    targets.push({ product_no:'30', opt_id:String(optionValue||'').trim().replace(/^P00000BE/,'') });
+    var out=[];
+    for(var i=0;i<targets.length;i++){
+      var matches=list.filter(function(item){ return item.product_no===targets[i].product_no && item.opt_id===targets[i].opt_id; });
+      matches.sort(function(a,b){ return Number(b.basket_prd_no||0)-Number(a.basket_prd_no||0); });
+      if(!matches.length) return '';
+      var item=matches[0];
+      out.push([item.product_no,item.opt_id,'F',item.basket_prd_no,item.custom_data_idx,item.delvtype].join(':'));
+    }
+    return out.join(',');
+  }
+
+  function mrsGoQuickOrderform(checkedProduct, isLogin){
+    var base='/order/orderform.html?basket_type=all_buy&delvtype=A';
+    if(isLogin==='T'){
+      location.href=base+'&checked_product='+encodeURIComponent(checkedProduct);
+      return;
+    }
+    location.href='/member/login.html?noMember=1&returnUrl='+encodeURIComponent(base)+'&checked_product='+encodeURIComponent(checkedProduct);
+  }
+
   function mrsSubmitQuickBuy(optionValues, includePen, restoreFns){
     var option1=optionValues&&optionValues.length?String(optionValues[0]||'').trim():'';
-    var body=mrsBuildQuickBuySubmitBody(option1, includePen);
-    if(!body) return false;
+    if(!option1) return false;
     var _origCheck=window.checkOptionRequired;
     window.checkOptionRequired=function(){return true;};
     console.info('[mrs-p30] quick buy submit', { option1: option1, includePen: !!includePen });
-    fetch('/exec/front/order/basket/',{
-      method:'POST',
-      headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'},
-      body:body,
-      credentials:'include'
-    }).then(function(res){
-      return res.text().then(function(text){ return { status: res.status, text: text, url: res.url }; });
-    }).then(function(payload){
-      var result=null;
-      try{ result=payload.text?JSON.parse(payload.text):null; }catch(e){}
-      console.info('[mrs-p30] quick buy submit result', { status: payload.status, result: result, includePen: !!includePen });
+    if(includePen){
+      mrsPostBasketForm(mrsBuildNoteBasketParams(option1)).then(function(mainPayload){
+        var mainResult=mainPayload&&mainPayload.json?mainPayload.json:null;
+        console.info('[mrs-p30] quick buy main result', { status: mainPayload.status, result: mainResult });
+        if(!(mainResult&&mainResult.result===0)) throw new Error((mainResult&&mainResult.alertMSG)||'main-submit-failed');
+        return mrsPostBasketForm(mrsBuildPenBasketParams()).then(function(penPayload){
+          var penResult=penPayload&&penPayload.json?penPayload.json:null;
+          console.info('[mrs-p30] quick buy pen result', { status: penPayload.status, result: penResult });
+          if(!(penResult&&penResult.result===0)) throw new Error((penResult&&penResult.alertMSG)||'pen-submit-failed');
+          return { isLogin: mainResult.isLogin };
+        });
+      }).then(function(state){
+        return mrsFetchBasketProductMeta().then(function(list){
+          var checkedProduct=mrsBuildCheckedProduct(list, option1, true);
+          if(!checkedProduct) throw new Error('checked-product-missing');
+          mrsFinishSubmitFlow(restoreFns, _origCheck);
+          mrsGoQuickOrderform(checkedProduct, state.isLogin);
+        });
+      }).catch(function(err){
+        console.warn('[mrs-p30] quick buy split submit failed', err);
+        mrsFinishSubmitFlow(restoreFns, _origCheck);
+        restoreFns.alert('추가구매 옵션을 함께 담는 중 문제가 생겼습니다. 다시 시도해주세요.');
+      });
+      return true;
+    }
+    var body=mrsBuildQuickBuySubmitBody(option1);
+    mrsPostBasketForm(body).then(function(payload){
+      var result=payload&&payload.json?payload.json:null;
+      console.info('[mrs-p30] quick buy submit result', { status: payload.status, result: result, includePen: false });
       if(result&&result.result===0){
         mrsFinishSubmitFlow(restoreFns, _origCheck);
         if(result.isLogin==='T') location.href='/order/orderform.html?basket_type=A0000&delvtype=A';
