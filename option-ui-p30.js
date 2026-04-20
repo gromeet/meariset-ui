@@ -4,7 +4,7 @@
  * v8.0: 모바일 4열 단일행 + NaverPay MutationObserver 방어
  */
 (function(){
-  var MRS_VERSION = 123; /* 버전 번호 (12.3 = 123) — optional addon sync + Kakao easy-pay native state fix */
+  var MRS_VERSION = 124; /* 버전 번호 (12.4 = 124) — early shell hydration for faster initial custom UI visibility */
   var MRS_PRODUCT_BANNER_URL = 'https://meariset.kr/product/500%EA%B0%9C-%ED%95%9C%EC%A0%95-%EB%A9%94%EC%95%84%EB%A6%AC%EC%85%8B-%EB%85%B8%ED%8A%B8-season1-%EB%AA%A9%ED%91%9C-%EB%8B%AC%EC%84%B1-%EB%8F%99%EA%B8%B0%EB%B6%80%EC%97%AC-%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC/27/category/1/display/2/?icid=MAIN.product_listmain_1';
   var MRS_LOGIN_BANNER_URL = 'https://meariset.kr/member/login.html?noMemberOrder&returnUrl=%2Fmyshop%2Findex.html';
 
@@ -49,11 +49,14 @@
 
   /* placeholder 중복 방지 (같은 버전 재실행 시) */
 
-  /* 즉시 placeholder 생성 — CDN 구버전이 중복 실행되는 것 방지 */
-  var _placeholder = document.createElement('div');
-  _placeholder.id = 'mrsOptionWrap';
-  _placeholder.style.display = 'none';
-  (document.body || document.documentElement).appendChild(_placeholder);
+  /* loader에서 만든 조기 shell이 있으면 유지하고, 없으면 숨김 placeholder만 둔다 */
+  var _existingWrap = document.getElementById('mrsOptionWrap');
+  if(!_existingWrap){
+    var _placeholder = document.createElement('div');
+    _placeholder.id = 'mrsOptionWrap';
+    _placeholder.style.display = 'none';
+    (document.body || document.documentElement).appendChild(_placeholder);
+  }
 
   /* ── df-bannermanager JS 강제 fix (CSS !important만으론 SSP inline style 못 막음) ── */
   function _isHeaderSmartBanner(el){
@@ -273,7 +276,7 @@
   /* ── 옵션 영역 앞에 삽입 ── */
   function insertUI(){
     var existingWrap = document.getElementById('mrsOptionWrap');
-    if(existingWrap && existingWrap.querySelector('.mrs-card')) return; /* 이미 완성된 UI */
+    if(existingWrap && existingWrap.querySelector('.mrs-card') && existingWrap.getAttribute('data-mrs-shell') !== 'p30-early') return; /* 이미 완성된 UI */
     if(existingWrap) existingWrap.remove(); /* placeholder 제거 */
     var optArea = document.querySelector('.productOption');
     if(!optArea){ setTimeout(insertUI, 300); return; }
@@ -282,6 +285,8 @@
     while(container.firstChild){
       optArea.parentNode.insertBefore(container.firstChild, optArea);
     }
+    var earlyShellStyle = document.getElementById('mrsP30EarlyShellStyles');
+    if(earlyShellStyle) earlyShellStyle.remove();
     setTimeout(mrsInsertTagline, 500);
   }
 
@@ -1499,6 +1504,7 @@
     setTimeout(mrsMakeAddonOptional,1200);
   };
 
+  insertUI();
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mrsInit);
   else mrsInit();
   window.addEventListener('load', mrsEnsureUI);
